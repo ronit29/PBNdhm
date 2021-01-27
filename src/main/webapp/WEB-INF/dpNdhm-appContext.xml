@@ -11,7 +11,7 @@
 
     <!-- property configurer -->
     <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="location" value="file:/opt/props/config.properties"/>
+        <property name="location" value="/WEB-INF/config.properties"/>
     </bean>
 
     <!-- Configures the @Controller programming model -->
