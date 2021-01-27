@@ -1,1 +1,1 @@
-<% response.sendRedirect("http://localhost:8080/dpNdhm"); %>
+<% response.sendRedirect("http://localhost:8080/dp"); %>

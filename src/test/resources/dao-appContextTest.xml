@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<!-- 
+    <bean id="abstractMongoDao" class="com.policybazaar.coreservice.common.dao.impl.AppMongoDao" init-method="init" primary="true">
+        <property name="host" value="${mongo.host}"/>
+        <property name="dbName" value="${mongo.db}"/>
+        <property name="portNo" value="${mongo.port}"/>
+        <property name="userName" value="${mongo.userName}"/>
+        <property name="password" value="${mongo.password}"/>
+        <property name="connectionsPerHost" value="${mongo.connectionsPerHost}"/>
+        <property name="socketTimeOut" value="${mongo.socketTimeout}"/>
+        <property name="connectionTimeOut" value="${mongo.connectiontimeout}"/>
+        <property name="replicaSetName" value="${mongo.replicaSetName}"/>
+        <property name="replicaSetMode" value="${mongodb.isReplica}"/>
+        <property name="authEnable" value="${mongodb.isAuth}"/>
+    </bean>
+ -->
+   
+
+  
+
+</beans>

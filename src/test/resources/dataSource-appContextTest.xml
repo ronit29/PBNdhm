@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="${docprimeNdhmDB.jdbc.driver}"/>
+		<property name="url" value="${docprimeNdhmDB.jdbc.url}"/>
+		<property name="username" value="${docprimeNdhmDB.jdbc.username}"/>
+		<property name="password" value="${docprimeNdhmDB.jdbc.password}"/>
+<!--		<property name="maxActive" value="${productDB.jdbc.maximumActiveConnections}"/>-->
+<!--		<property name="minIdle" value="7"/>-->
+<!--		<property name="maxWait" value="3000"/>-->
+		<!--		<property name="validationQuery" value="select 1" />-->
+		<!--		<property name="logAbandoned" value="true" />-->
+		<!--		<property name="testOnBorrow" value="true" />-->
+	</bean>
+
+</beans>
+
+
