@@ -73,13 +73,13 @@ public class LogControllerIT {
 
 	@Test
 	public void testGetMessageByQuery() throws Exception {
-		String url = BASE_URL + "/log/get/"+TestRequestParameters._ID;
+		String url = BASE_URL + "/log/get/";//+TestRequestParameters._ID;
 		mockMvc.perform(get(url)).andExpect(status().isOk());
 	}
 	
 	@Test
 	public final void testGetMessageByQueryBadInput() throws Exception{
-		String url = BASE_URL + "/log/get/"+TestRequestParameters._ID_BADINPUT;
+		String url = BASE_URL + "/log/get/";//+TestRequestParameters._ID_BADINPUT;
 		mockMvc.perform(get(url)).andExpect(status().is(HttpStatus.BAD_REQUEST.value()));
 	}
 
