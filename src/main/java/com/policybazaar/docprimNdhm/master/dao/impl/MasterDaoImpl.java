@@ -32,7 +32,7 @@ public class MasterDaoImpl implements MasterDao {
 	}
 	
 	private static final String GET_ALL_STATES = "SELECT ndhm_id AS id, ndhm_name AS name FROM dbo.m_state s(nolock) WHERE isActive=1 ORDER BY ndhm_name ASC";
-	private static final String GET_ALL_DISTRICTS_FOR_STATE = "SELECT District_Code AS id, District_Name AS name FROM dbo.m_state_district_code msdc (nolock) WHERE State_Code = ?";
+	private static final String GET_ALL_DISTRICTS_FOR_STATE = "SELECT ndhm_id AS id, ndhm_name as name FROM DocprimeNDHM.dbo.m_district md WHERE isActive = 1 and ndhm_state_id = ?";
 	
 	@Override
 	public List<Map<String,Object>> getState() throws Exception{
