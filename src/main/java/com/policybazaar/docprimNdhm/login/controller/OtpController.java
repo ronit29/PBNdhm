@@ -1,7 +1,6 @@
 package com.policybazaar.docprimNdhm.login.controller;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -21,27 +20,25 @@ import com.policybazaar.docprimNdhm.common.model.AuthDetail;
 import com.policybazaar.docprimNdhm.common.model.FieldKey;
 import com.policybazaar.docprimNdhm.common.service.ConfigService;
 import com.policybazaar.docprimNdhm.encryption.AES256Cipher;
-import com.policybazaar.docprimNdhm.login.model.CustomerHealth;
-import com.policybazaar.docprimNdhm.login.service.HealthService;
+import com.policybazaar.docprimNdhm.login.service.OtpService;
 
 @RestController
-@RequestMapping(value = "customer")
-public class HealthController {
-
-	private final Logger logger = LoggerFactory.getLogger(HealthController.class);
-
+@RequestMapping(value = "otp")
+public class OtpController {
+	private final Logger logger = LoggerFactory.getLogger(OtpController.class);
 	@Autowired
 	private ConfigService configService;
 	
 	@Autowired
-	private HealthService healthService;
+	private OtpService otpService;
 
-	@RequestMapping(value = "/getCustHealthDetails", method = RequestMethod.POST, produces = {
+	@RequestMapping(value = "/verifyotp", method = RequestMethod.POST, produces = {
 			MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<Map<String, Object>> getCustHealthDetails(@RequestHeader(value = "X-CLIENT-KEY") String clientKey, 
+	public ResponseEntity<Map<String, Object>> verifyotp(@RequestHeader(value = "X-CLIENT-KEY") String clientKey, 
 			@RequestHeader(value = "X-AUTH-KEY") String authKey,
 			@RequestHeader(value = "X-CID") String custId, 
-			@RequestParam(value = "mobileNo", required = true) Long mobileNo) {
+			@RequestParam(value = "mobileNo", required = true) Long mobileNo,
+			@RequestParam(value = "otp", required = true) int otp) {
 		HttpStatus status = HttpStatus.OK;
 		Map<String, Object> response = new HashMap<>();
 		try {
@@ -56,8 +53,9 @@ public class HealthController {
 					AES256Cipher cipher = configService.getAESForClientKeyMap(clientKey);
 					try {
 						int customerId = Integer.valueOf(cipher.decrypt(custId));
-						List<CustomerHealth> responseForHealth = healthService.getCustHealthDetails(mobileNo,customerId);
-						response.put("data", responseForHealth);
+						boolean isOtpverified = otpService.isVerified(otp,mobileNo,customerId);
+						response.put("customerId", custId);
+						response.put("isOtpverified", isOtpverified);
 						response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
 						response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
 						
