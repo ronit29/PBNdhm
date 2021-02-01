@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -20,6 +21,7 @@ import com.policybazaar.docprimNdhm.common.model.AuthDetail;
 import com.policybazaar.docprimNdhm.common.model.FieldKey;
 import com.policybazaar.docprimNdhm.common.service.ConfigService;
 import com.policybazaar.docprimNdhm.encryption.AES256Cipher;
+import com.policybazaar.docprimNdhm.login.model.CustHealthOtpRequest;
 import com.policybazaar.docprimNdhm.login.service.OtpService;
 
 @RestController
@@ -37,8 +39,7 @@ public class OtpController {
 	public ResponseEntity<Map<String, Object>> verifyotp(@RequestHeader(value = "X-CLIENT-KEY") String clientKey, 
 			@RequestHeader(value = "X-AUTH-KEY") String authKey,
 			@RequestHeader(value = "X-CID") String custId, 
-			@RequestParam(value = "mobileNo", required = true) Long mobileNo,
-			@RequestParam(value = "otp", required = true) int otp) {
+			@RequestBody CustHealthOtpRequest custHealthOtpRequest) {
 		HttpStatus status = HttpStatus.OK;
 		Map<String, Object> response = new HashMap<>();
 		try {
@@ -53,7 +54,7 @@ public class OtpController {
 					AES256Cipher cipher = configService.getAESForClientKeyMap(clientKey);
 					try {
 						int customerId = Integer.valueOf(cipher.decrypt(custId));
-						boolean isOtpverified = otpService.isVerified(otp,mobileNo,customerId);
+						boolean isOtpverified = otpService.isVerified(custHealthOtpRequest.getOtp(),custHealthOtpRequest.getMobileNo(),customerId);
 						response.put("customerId", custId);
 						response.put("isOtpverified", isOtpverified);
 						response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
