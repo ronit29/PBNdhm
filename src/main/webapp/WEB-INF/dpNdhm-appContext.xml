@@ -15,7 +15,7 @@
     </bean>
 
     <!-- Configures the @Controller programming model -->
-    <context:component-scan base-package="com.policybazaar.docprimNdhm"/>
+    <context:component-scan base-package="com.pb.dp"/>
 
     <!-- Configures the @Controller programming model -->
     <mvc:annotation-driven/>
