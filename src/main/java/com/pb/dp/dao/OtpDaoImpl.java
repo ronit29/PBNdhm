@@ -35,4 +35,10 @@ public class OtpDaoImpl implements OtpDao {
 		return isVerified;
 	}
 
+	@Override
+	public void insertTxnId(int customerId, String txnId) {
+		jdbcTemplate.update(HealthQuery.UPDATE_TXN_ID,txnId,customerId);
+		
+	}
+
 }
