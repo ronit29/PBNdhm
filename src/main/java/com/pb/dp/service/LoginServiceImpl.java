@@ -1,17 +1,17 @@
 package com.pb.dp.service;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
+
 import com.pb.dp.dao.LoginDao;
 import com.pb.dp.enums.ResponseStatus;
 import com.pb.dp.model.FieldKey;
 import com.pb.dp.util.CommunicationServiceUtil;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 
 @Service
 public class LoginServiceImpl implements LoginService {
@@ -38,13 +38,12 @@ public class LoginServiceImpl implements LoginService {
             String message = null;
             int smsType = 0;
             String smsTemplate = this.configService.getPropertyConfig("otp.sms.template").getValue();
-            //Todo once customer detail tables are finalised, take name from there
-            //String name = otpDao.getCustomerName(mobile);
-            if(!StringUtils.isEmpty(smsTemplate)) {
-                message = message.replace("@Name", "user").replace("@OTP", String.valueOf(otp));
+            String name = loginDao.getCustomerName(mobile);
+            if(!ObjectUtils.isEmpty(smsTemplate)) {
+                message = smsTemplate.replace("@Name", name).replace("@OTP", String.valueOf(otp));
             }
             Map<String,Object> sendSmsResp = null;
-            sendSmsResp = this.communicationServiceUtil.sendSms(countryCode.toString(), mobile.toString(), message, true);
+            sendSmsResp = communicationServiceUtil.sendSms(countryCode.toString(), mobile.toString(), message, true);
             String uuid = null;
             if(Objects.nonNull(sendSmsResp)) {
                 smsResponse = "OK";
