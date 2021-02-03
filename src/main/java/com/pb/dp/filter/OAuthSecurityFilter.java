@@ -84,7 +84,7 @@ public class OAuthSecurityFilter implements Filter {
         if (!isInternalDomain(request.getServerName())) {
             try {
                 String uri = request.getRequestURI();
-                String[] uriComponents = uri.split("/cs");
+                String[] uriComponents = uri.split("/dp");
                 String methodMapping = "";
                 if (uriComponents.length > 1) {
                     methodMapping = uriComponents[1];
