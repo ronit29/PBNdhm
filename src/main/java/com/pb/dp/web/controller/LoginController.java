@@ -76,4 +76,51 @@ public class LoginController {
 
         return new ResponseEntity<>(response, status);
     }
+
+    @RequestMapping(value = "/verifyOtp", method = RequestMethod.POST, produces = { MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity<Map<String, Object>> verifyOtp(@RequestHeader String clientKey,
+                                                         @RequestHeader String authKey,
+                                                         @RequestParam(required = true) String mobileNo, @RequestParam(required = true) String otp) {
+        HttpStatus status = HttpStatus.OK;
+        int result =0;
+        Map<String, Object> response = new HashMap<>();
+        try {
+            if (clientKey != null && !clientKey.isEmpty()) {
+                AuthDetail authDetail = configService.getAuthDetail(clientKey);
+                if (authDetail == null) {
+                    response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_CLIENT_KEY.getStatusMsg());
+                    response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_CLIENT_KEY.getStatusId());
+                    return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+                }
+                if (authDetail.getAuth_key().equals(authKey)) {
+                    AES256Cipher cipher = configService.getAESForClientKeyMap(clientKey);
+                    try {
+                        Long mobile = Long.getLong(cipher.decrypt(mobileNo));
+                        response = this.loginService.sendOtp(mobile);
+                    }catch (NumberFormatException exception){
+                        response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_FORMAT_PARAM.getStatusMsg() + " Reason: mobileNo must be a number");
+                        response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
+                    }
+
+                } else {
+                    response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_AUTH_KEY.getStatusMsg());
+                    response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_AUTH_KEY.getStatusId());
+                    return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+                }
+            } else {
+                response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_CLIENT_KEY.getStatusMsg() + " Empty");
+                response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_CLIENT_KEY.getStatusId());
+                return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+            }
+        } catch (Exception e) {
+            logger.debug(e.getMessage());
+            e.printStackTrace();
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+            response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
+            response.put(FieldKey.SK_STATUS_MESSAGE, e.getMessage());
+        }
+
+        return new ResponseEntity<>(response, status);
+    }
+
 }
