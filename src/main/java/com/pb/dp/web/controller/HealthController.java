@@ -21,6 +21,7 @@ import com.pb.dp.model.AuthDetail;
 import com.pb.dp.model.CustHealthOtpRequest;
 import com.pb.dp.model.CustomerHealth;
 import com.pb.dp.model.FieldKey;
+import com.pb.dp.model.GetHealthProfileRequest;
 import com.pb.dp.service.ConfigService;
 import com.pb.dp.service.HealthService;
 import com.pb.dp.util.AES256Cipher;
@@ -58,6 +59,57 @@ public class HealthController {
 					try {
 						int customerId = Integer.valueOf(cipher.decrypt(custId));
 						List<CustomerHealth> responseForHealth = healthService.getCustHealthDetails(custHealthOtpRequest.getMobileNo(),customerId);
+						response.put("data", responseForHealth);
+						response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
+						response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
+						
+					} catch (NumberFormatException exception) {
+						response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_FORMAT_PARAM.getStatusMsg()
+								+ " Reason: customerId must be a number");
+						response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
+					}
+
+				} else {
+					response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_AUTH_KEY.getStatusMsg());
+					response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_AUTH_KEY.getStatusId());
+					status =  HttpStatus.UNAUTHORIZED;
+				}
+			} else {
+				response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_CLIENT_KEY.getStatusMsg() + " Empty");
+				response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_CLIENT_KEY.getStatusId());
+				status =  HttpStatus.UNAUTHORIZED;
+			}
+		} catch (Exception e) {
+			logger.debug(e.getMessage());
+			status = HttpStatus.INTERNAL_SERVER_ERROR;
+			response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
+			response.put(FieldKey.SK_STATUS_MESSAGE, e.getMessage());
+		}
+
+		return new ResponseEntity<>(response, status);
+	}
+	
+	@RequestMapping(value = "/getHealthProfile", method = RequestMethod.POST, produces = {
+			MediaType.APPLICATION_JSON_VALUE })
+	public ResponseEntity<Map<String, Object>> getHealthProfile(@RequestHeader(value = "X-CLIENT-KEY") String clientKey, 
+			@RequestHeader(value = "X-AUTH-KEY") String authKey,
+			@RequestHeader(value = "X-CID") String custId, 
+			@RequestBody GetHealthProfileRequest custHealthOtpRequest) {
+		HttpStatus status = HttpStatus.OK;
+		Map<String, Object> response = new HashMap<>();
+		try {
+			if (clientKey != null && !clientKey.isEmpty()) {
+				AuthDetail authDetail = configService.getAuthDetail(clientKey);
+				if (authDetail == null) {
+					response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_CLIENT_KEY.getStatusMsg());
+					response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_CLIENT_KEY.getStatusId());
+					return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+				}
+				if (authDetail.getAuth_key().equals(authKey)) {
+					AES256Cipher cipher = configService.getAESForClientKeyMap(clientKey);
+					try {
+						int customerId = Integer.valueOf(cipher.decrypt(custId));
+						CustomerHealth responseForHealth = healthService.getHealthProfile(customerId,custHealthOtpRequest);
 						response.put("data", responseForHealth);
 						response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
 						response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
