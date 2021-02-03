@@ -2,7 +2,7 @@ package com.pb.dp.service;
 
 public interface OtpService {
 
-	boolean isVerified(int otp, Long mobileNo);
+	int isVerified(int otp, Long mobileNo);
 
 	String sendNdhmOtp(long mobileNo, int customerId) throws Exception;
 
