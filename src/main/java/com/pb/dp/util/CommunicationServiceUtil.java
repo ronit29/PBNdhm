@@ -34,7 +34,7 @@ public class CommunicationServiceUtil {
             Map<String, String> headers = new HashMap<String, String>();
             headers.put("REQUESTINGSYSTEM", configService.getPropertyConfig("commbox.send.requestingSystem").getValue());
             headers.put("TOKEN", configService.getPropertyConfig("commbox.send.token").getValue());
-            responseMap = HttpUtil.post(configService.getPropertyConfig("commbox.send.url").getValue(), jsonPayload, headers);
+                responseMap = HttpUtil.post(configService.getPropertyConfig("commbox.send.url").getValue(), jsonPayload, headers);
         } else {
             responseMap = HttpUtil.post(configService.getPropertyConfig("commbox.send.url").getValue(), jsonPayload);
         }

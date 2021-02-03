@@ -50,8 +50,8 @@ public class LoginServiceImpl implements LoginService {
                 uuid = String.valueOf(sendSmsResp.get("Description"));
                 result = loginDao.inserOtpDetails(otp, countryCode, mobile, message, smsResponse, smsType, uuid);
             }
-
         if (result == 1) {
+            response.put("mobileNo",mobile);
             response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
             response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
         } else {

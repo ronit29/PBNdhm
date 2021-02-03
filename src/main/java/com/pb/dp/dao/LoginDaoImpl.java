@@ -1,11 +1,10 @@
 package com.pb.dp.dao;
 
+import com.pb.dp.service.LoginQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-
-import com.pb.dp.service.LoginQuery;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
@@ -25,7 +24,7 @@ public class LoginDaoImpl implements LoginDao {
 
     @Override
     public Integer inserOtpDetails(int otp, Integer countryCode, Long mobile, String message, String smsResponse, int smsType, String uuid) {
-        return jdbcTemplate.update(LoginQuery.INSERT_OTP_DETAILS, new Object[]{countryCode, mobile, message, smsResponse, smsType, uuid});
+        return jdbcTemplate.update(LoginQuery.INSERT_OTP_DETAILS, new Object[]{countryCode, mobile, otp, message, smsResponse, smsType, uuid});
     }
 
 	@Override
