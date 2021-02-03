@@ -25,8 +25,8 @@ public class OtpServiceImpl implements OtpService {
 	private ConfigService configService;
 
 	@Override
-	public boolean isVerified(int otp, Long mobileNo, int customerId) {
-		return otpDao.isVerified(otp, mobileNo, customerId);
+	public boolean isVerified(int otp, Long mobileNo) {
+		return otpDao.isVerified(otp, mobileNo);
 	}
 
 	@SuppressWarnings("unchecked")

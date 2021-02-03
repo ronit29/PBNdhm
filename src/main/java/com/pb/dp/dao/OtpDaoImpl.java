@@ -22,10 +22,10 @@ public class OtpDaoImpl implements OtpDao {
 	}
 
 	@Override
-	public boolean isVerified(int otp, Long mobileNo, int customerId) {
+	public boolean isVerified(int otp, Long mobileNo) {
 		boolean isVerified = false;
 		try {
-			int otpFromDb = jdbcTemplate.queryForObject(HealthQuery.GET_OTP, Integer.class,customerId,mobileNo);
+			int otpFromDb = jdbcTemplate.queryForObject(HealthQuery.GET_OTP, Integer.class,mobileNo);
 			if(otpFromDb == otp) {
 				isVerified = true;
 			}

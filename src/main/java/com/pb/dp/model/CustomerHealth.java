@@ -20,6 +20,9 @@ public class CustomerHealth {
 	private String healthId;
 	private String healtIdNo;
 	private int addressId;
+	private String address;
+	private Integer state;
+	private Integer district;
 	private short isKyc;
 	
 	public int getCustomerId() {
@@ -80,6 +83,24 @@ public class CustomerHealth {
 		return healtIdNo;
 	}
 	
+	public String getAddress() {
+		return address;
+	}
+	public void setAddress(String address) {
+		this.address = address;
+	}
+	public Integer getState() {
+		return state;
+	}
+	public void setState(Integer state) {
+		this.state = state;
+	}
+	public Integer getDistrict() {
+		return district;
+	}
+	public void setDistrict(Integer district) {
+		this.district = district;
+	}
 	public String getHealthId() {
 		return healthId;
 	}

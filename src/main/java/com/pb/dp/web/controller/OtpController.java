@@ -30,15 +30,13 @@ public class OtpController {
 	private final Logger logger = LoggerFactory.getLogger(OtpController.class);
 	@Autowired
 	private ConfigService configService;
-	
+
 	@Autowired
 	private OtpService otpService;
 
-	@RequestMapping(value = "/verifyotp", method = RequestMethod.POST, produces = {
-			MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<Map<String, Object>> verifyotp(@RequestHeader(value = "X-CLIENT-KEY") String clientKey, 
+	@RequestMapping(value = "/verifyotp", method = RequestMethod.POST, produces = { MediaType.APPLICATION_JSON_VALUE })
+	public ResponseEntity<Map<String, Object>> verifyotp(@RequestHeader(value = "X-CLIENT-KEY") String clientKey,
 			@RequestHeader(value = "X-AUTH-KEY") String authKey,
-			@RequestHeader(value = "X-CID") String custId, 
 			@RequestBody CustHealthOtpRequest custHealthOtpRequest) {
 		HttpStatus status = HttpStatus.OK;
 		Map<String, Object> response = new HashMap<>();
@@ -51,30 +49,21 @@ public class OtpController {
 					return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
 				}
 				if (authDetail.getAuth_key().equals(authKey)) {
-					AES256Cipher cipher = configService.getAESForClientKeyMap(clientKey);
-					try {
-						int customerId = Integer.valueOf(cipher.decrypt(custId));
-						boolean isOtpverified = otpService.isVerified(custHealthOtpRequest.getOtp(),custHealthOtpRequest.getMobileNo(),customerId);
-						response.put("customerId", custId);
-						response.put("isOtpVerified", isOtpverified);
-						response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
-						response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
-						
-					} catch (NumberFormatException exception) {
-						response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_FORMAT_PARAM.getStatusMsg()
-								+ " Reason: customerId must be a number");
-						response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
-					}
+					boolean isOtpverified = otpService.isVerified(custHealthOtpRequest.getOtp(),
+							custHealthOtpRequest.getMobileNo());
+					response.put("isOtpVerified", isOtpverified);
+					response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
+					response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
 
 				} else {
 					response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_AUTH_KEY.getStatusMsg());
 					response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_AUTH_KEY.getStatusId());
-					status =  HttpStatus.UNAUTHORIZED;
+					status = HttpStatus.UNAUTHORIZED;
 				}
 			} else {
 				response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_CLIENT_KEY.getStatusMsg() + " Empty");
 				response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_CLIENT_KEY.getStatusId());
-				status =  HttpStatus.UNAUTHORIZED;
+				status = HttpStatus.UNAUTHORIZED;
 			}
 		} catch (Exception e) {
 			logger.debug(e.getMessage());
@@ -85,13 +74,11 @@ public class OtpController {
 
 		return new ResponseEntity<>(response, status);
 	}
-	
+
 	@RequestMapping(value = "/sendNdhmOtp", method = RequestMethod.POST, produces = {
 			MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<Map<String, Object>> sendNdhmOtp(
-			@RequestHeader(value = "X-CLIENT-KEY") String clientKey, 
-			@RequestHeader(value = "X-AUTH-KEY") String authKey,
-			@RequestHeader(value = "X-CID") String custId, 
+	public ResponseEntity<Map<String, Object>> sendNdhmOtp(@RequestHeader(value = "X-CLIENT-KEY") String clientKey,
+			@RequestHeader(value = "X-AUTH-KEY") String authKey, @RequestHeader(value = "X-CID") String custId,
 			@RequestBody CustHealthOtpRequest custHealthOtpRequest) {
 		HttpStatus status = HttpStatus.OK;
 		Map<String, Object> response = new HashMap<>();
@@ -107,12 +94,12 @@ public class OtpController {
 					AES256Cipher cipher = configService.getAESForClientKeyMap(clientKey);
 					try {
 						int customerId = Integer.valueOf(cipher.decrypt(custId));
-						String txnId = otpService.sendNdhmOtp(custHealthOtpRequest.getMobileNo(),customerId);
+						String txnId = otpService.sendNdhmOtp(custHealthOtpRequest.getMobileNo(), customerId);
 						response.put("customerId", custId);
 						response.put("txnId", txnId);
 						response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
 						response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
-						
+
 					} catch (NumberFormatException exception) {
 						response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_FORMAT_PARAM.getStatusMsg()
 								+ " Reason: customerId must be a number");
@@ -122,12 +109,12 @@ public class OtpController {
 				} else {
 					response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_AUTH_KEY.getStatusMsg());
 					response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_AUTH_KEY.getStatusId());
-					status =  HttpStatus.UNAUTHORIZED;
+					status = HttpStatus.UNAUTHORIZED;
 				}
 			} else {
 				response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_CLIENT_KEY.getStatusMsg() + " Empty");
 				response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_CLIENT_KEY.getStatusId());
-				status =  HttpStatus.UNAUTHORIZED;
+				status = HttpStatus.UNAUTHORIZED;
 			}
 		} catch (Exception e) {
 			logger.debug(e.getMessage());
@@ -137,15 +124,12 @@ public class OtpController {
 		}
 
 		return new ResponseEntity<>(response, status);
-	}	
-	
-	
+	}
+
 	@RequestMapping(value = "/verifyNdhmOtp", method = RequestMethod.POST, produces = {
 			MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<Map<String, Object>> verifyNdhmOtp(
-			@RequestHeader(value = "X-CLIENT-KEY") String clientKey, 
-			@RequestHeader(value = "X-AUTH-KEY") String authKey,
-			@RequestHeader(value = "X-CID") String custId, 
+	public ResponseEntity<Map<String, Object>> verifyNdhmOtp(@RequestHeader(value = "X-CLIENT-KEY") String clientKey,
+			@RequestHeader(value = "X-AUTH-KEY") String authKey, @RequestHeader(value = "X-CID") String custId,
 			@RequestBody VerifyNdhmOtpRequest verifyNdhmOtpRequest) {
 		HttpStatus status = HttpStatus.OK;
 		Map<String, Object> response = new HashMap<>();
@@ -158,21 +142,22 @@ public class OtpController {
 					return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
 				}
 				if (authDetail.getAuth_key().equals(authKey)) {
-						String token = otpService.verifyNdhmOtp(String.valueOf(verifyNdhmOtpRequest.getOtp()),verifyNdhmOtpRequest.getTxnId());
-						response.put("customerId", custId);
-						response.put("toke", token);
-						response.put("isOtpVerified", token==null?false:true);
-						response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
-						response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
+					String token = otpService.verifyNdhmOtp(String.valueOf(verifyNdhmOtpRequest.getOtp()),
+							verifyNdhmOtpRequest.getTxnId());
+					response.put("customerId", custId);
+					response.put("token", token);
+					response.put("isOtpVerified", token == null ? false : true);
+					response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
+					response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
 				} else {
 					response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_AUTH_KEY.getStatusMsg());
 					response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_AUTH_KEY.getStatusId());
-					status =  HttpStatus.UNAUTHORIZED;
+					status = HttpStatus.UNAUTHORIZED;
 				}
 			} else {
 				response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_CLIENT_KEY.getStatusMsg() + " Empty");
 				response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_CLIENT_KEY.getStatusId());
-				status =  HttpStatus.UNAUTHORIZED;
+				status = HttpStatus.UNAUTHORIZED;
 			}
 		} catch (Exception e) {
 			logger.debug(e.getMessage());
@@ -182,6 +167,6 @@ public class OtpController {
 		}
 
 		return new ResponseEntity<>(response, status);
-	}	
+	}
 
 }

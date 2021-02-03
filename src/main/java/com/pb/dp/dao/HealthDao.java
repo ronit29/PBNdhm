@@ -8,4 +8,6 @@ public interface HealthDao {
 
 	List<CustomerHealth> getCustHealthDetails(long mobileNo, int customerId);
 
+	CustomerHealth getHealthProfile(int customerId);
+
 }

@@ -33,7 +33,7 @@ public class SimpleCORSFilter implements Filter {
 		response.setHeader("Access-Control-Allow-Origin", "*");
 		response.setHeader("Access-Control-Allow-Methods", "POST, GET,DELETE,PUT");
 		response.setHeader("Access-Control-Max-Age", "3600");
-		response.setHeader("Access-Control-Allow-Headers", "x-requested-with, content-type, authorization, content-length,clientKey,x-documentid,x-leadid,x-docname,x-filetype,x-source,x-doctype,x-claimapi,x-claimid,x-productid,x-uploadedbycustomer,x-memberid,x-statusid,x-doccategoryid,x-bookingid");
+		response.setHeader("Access-Control-Allow-Headers", "X-CLIENT-KEY,X-AUTH-KEY,X-CID,x-requested-with, content-type, authorization, content-length,clientKey,x-documentid,x-leadid,x-docname,x-filetype,x-source,x-doctype,x-claimapi,x-claimid,x-productid,x-uploadedbycustomer,x-memberid,x-statusid,x-doccategoryid,x-bookingid");
 		if (!(request.getMethod().equalsIgnoreCase("OPTIONS"))) {
 	          try {
 	              chain.doFilter(req, res);
@@ -44,7 +44,7 @@ public class SimpleCORSFilter implements Filter {
 	          response.setHeader("Access-Control-Allow-Origin", "*");
 	          response.setHeader("Access-Control-Allow-Methods", "POST,GET,DELETE,PUT");
 	          response.setHeader("Access-Control-Max-Age", "3600");
-	          response.setHeader("Access-Control-Allow-Headers", "x-requested-with, content-type, authorization, content-length,clientKey,x-documentid,x-leadid,x-docname,x-filetype,x-source,x-doctype,x-claimapi,x-claimid,x-productid,x-uploadedbycustomer,x-memberid,x-statusid,x-doccategoryid,x-bookingid");
+	          response.setHeader("Access-Control-Allow-Headers", "X-CLIENT-KEY,X-AUTH-KEY,X-CID,x-requested-with, content-type, authorization, content-length,clientKey,x-documentid,x-leadid,x-docname,x-filetype,x-source,x-doctype,x-claimapi,x-claimid,x-productid,x-uploadedbycustomer,x-memberid,x-statusid,x-doccategoryid,x-bookingid");
 	          response.setStatus(HttpServletResponse.SC_OK);
 	      }
 
