@@ -5,15 +5,17 @@ import com.pb.dp.healthIdCreation.dao.HealthIdDao;
 import com.pb.dp.healthIdCreation.dao.HealthIdQuery;
 import com.pb.dp.healthIdCreation.model.Customer;
 import com.pb.dp.healthIdCreation.model.CustomerDetails;
-import com.pb.dp.healthIdCreation.model.MobileOtpPojo;
+import com.pb.dp.healthIdCreation.model.NdhmMobOtpRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,26 +37,30 @@ public class HealthIdDaoImpl implements HealthIdDao {
     }
 
     @Override
-    public void addCustomer(CustomerDetails customerDetail) throws Exception {
+    public Integer addCustomer(CustomerDetails customerDetail) throws Exception {
         SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+        KeyHolder addKeyHolder = new GeneratedKeyHolder();
         //add customer address details
-        Map<String,Object> addressParams = new HashMap<String,Object>();
-        addressParams.put("line1",customerDetail.getAddress());
-        addressParams.put("districtId", customerDetail.getDistrict());
-        addressParams.put("stateId",customerDetail.getState());
-        Integer addressCount = this.namedParameterJdbcTemplate.update(HealthIdQuery.ADD_CUSTOMER_ADDRESS,addressParams);
-
+        MapSqlParameterSource addressParams = new MapSqlParameterSource();
+        addressParams.addValue("line1",customerDetail.getAddress());
+        addressParams.addValue("districtId", customerDetail.getDistrict());
+        addressParams.addValue("stateId",customerDetail.getState());
+        Integer addressCount = this.namedParameterJdbcTemplate.update(HealthIdQuery.ADD_CUSTOMER_ADDRESS,addressParams,addKeyHolder);
+        Integer addressId = addKeyHolder.getKey().intValue();
         //add customer details
-        Map<String,Object> custParams = new HashMap<String,Object>();
-        custParams.put("firstName",customerDetail.getFirstName());
-        custParams.put("lastName",customerDetail.getLastName());
-        custParams.put("dob",formatter.parse(customerDetail.getDob()));
-        custParams.put("relation",customerDetail.getRelationship());
-        custParams.put("email",customerDetail.getEmailId());
-        custParams.put("gender",customerDetail.getGender());
-        custParams.put("mobile", customerDetail.getMobileNo());
-        Integer custCount  =  this.namedParameterJdbcTemplate.update(HealthIdQuery.ADD_CUSTOMER,custParams);
-
+        KeyHolder custKeyHolder = new GeneratedKeyHolder();
+        MapSqlParameterSource custParams = new MapSqlParameterSource();
+        custParams.addValue("firstName",customerDetail.getFirstName());
+        custParams.addValue("lastName",customerDetail.getLastName());
+        custParams.addValue("dob",formatter.parse(customerDetail.getDob()));
+        custParams.addValue("relation",customerDetail.getRelationship());
+        custParams.addValue("address",addressId);
+        custParams.addValue("email",customerDetail.getEmailId());
+        custParams.addValue("gender",customerDetail.getGender());
+        custParams.addValue("mobile", customerDetail.getMobileNo());
+        Integer custCount  =  this.namedParameterJdbcTemplate.update(HealthIdQuery.ADD_CUSTOMER,custParams,custKeyHolder);
+        Integer custId = custKeyHolder.getKey().intValue();
+        return custId;
     }
 
     @Override
@@ -68,24 +74,26 @@ public class HealthIdDaoImpl implements HealthIdDao {
     }
 
     @Override
-    public void updateNdhmOTP(MobileOtpPojo mobileOtpPojo) {
+    public void updateNdhmOTP(NdhmMobOtpRequest ndhmMobOtpRequest) {
         //update otp in ndhm_otp
         Map<String,Object> params = new HashMap<String,Object>();
-        params.put("mobile",mobileOtpPojo.getMobile());
-        params.put("txnId", mobileOtpPojo.getTxnId());
-        params.put("otp", mobileOtpPojo.getOtp());
+        params.put("mobile", ndhmMobOtpRequest.getMobile());
+        params.put("txnId", ndhmMobOtpRequest.getTxnId());
+        params.put("otp", ndhmMobOtpRequest.getOtp());
         Integer updateCount = this.namedParameterJdbcTemplate.update(HealthIdQuery.UPDATE_NDHM_OTP,params);
 
     }
 
     @Override
-    public void updateNdhmOtpToken(MobileOtpPojo mobileOtpPojo) {
-        //update token in ndhm_otp
+    public void updateNdhmOtpToken(NdhmMobOtpRequest ndhmMobOtpRequest, Integer custId) {
+        //update ndhm mobile token in customer
         Map<String,Object> params = new HashMap<String,Object>();
-        params.put("mobile",mobileOtpPojo.getMobile());
-        params.put("txnId", mobileOtpPojo.getTxnId());
-        params.put("token", mobileOtpPojo.getToken());
-        Integer updateCount = this.namedParameterJdbcTemplate.update(HealthIdQuery.UPDATE_NDHM_OTP_TOKEN,params);
+        params.put("custId",custId);
+        params.put("mobile", ndhmMobOtpRequest.getMobile());
+//        params.put("txnId", ndhmMobOtpRequest.getTxnId());
+        params.put("token", ndhmMobOtpRequest.getToken());
+//        Integer updateCount = this.namedParameterJdbcTemplate.update(HealthIdQuery.UPDATE_NDHM_OTP_TOKEN,params);
+        Integer updateCount = this.namedParameterJdbcTemplate.update(HealthIdQuery.UPDATE_NDHM_MOBILE_TOKEN,params);
 
     }
 
@@ -96,5 +104,14 @@ public class HealthIdDaoImpl implements HealthIdDao {
         params.put("mobile", mobile);
         Customer customer = this.namedParameterJdbcTemplate.queryForObject(HealthIdQuery.GET_CUSTOMER,params,new Customer.CustomerRowMapper());
         return customer;
+    }
+
+    @Override
+    public void updateNdhmTxnId(Integer custId, String txnId) {
+        //update txnId in customer
+        Map<String,Object> params = new HashMap<String,Object>();
+        params.put("custId",custId);
+        params.put("txnId", txnId);
+        Integer updateCount = this.namedParameterJdbcTemplate.update(HealthIdQuery.UPDATE_NDHM_TXN_ID,params);
     }
 }

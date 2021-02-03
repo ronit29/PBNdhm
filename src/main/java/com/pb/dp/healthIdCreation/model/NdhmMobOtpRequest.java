@@ -1,6 +1,6 @@
 package com.pb.dp.healthIdCreation.model;
 
-public class MobileOtpPojo {
+public class NdhmMobOtpRequest {
 
     Long mobile;
     Integer otp;

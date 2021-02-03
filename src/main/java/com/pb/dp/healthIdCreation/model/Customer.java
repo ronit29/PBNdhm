@@ -19,6 +19,7 @@ public class Customer {
   private String emailId;
   private long mobile;
   private String gender;
+  private String healthId;
   private String isActive;
   private Timestamp createdAt;
   private long createdBy;
@@ -26,7 +27,9 @@ public class Customer {
   private Timestamp updatedAt;
   private long otp;
   private java.sql.Timestamp otpCreatedAt;
-
+private String txnId;
+private String token;
+private Integer ndhmOtpType;
 
   public long getId() {
     return id;
@@ -180,6 +183,38 @@ public class Customer {
     this.otpCreatedAt = otpCreatedAt;
   }
 
+  public String getHealthId() {
+    return healthId;
+  }
+
+  public void setHealthId(String healthId) {
+    this.healthId = healthId;
+  }
+
+  public String getTxnId() {
+    return txnId;
+  }
+
+  public void setTxnId(String txnId) {
+    this.txnId = txnId;
+  }
+
+  public String getToken() {
+    return token;
+  }
+
+  public void setToken(String token) {
+    this.token = token;
+  }
+
+  public Integer getNdhmOtpType() {
+    return ndhmOtpType;
+  }
+
+  public void setNdhmOtpType(Integer ndhmOtpType) {
+    this.ndhmOtpType = ndhmOtpType;
+  }
+
   @Override
   public String toString() {
     return "Customer{" +
@@ -193,6 +228,7 @@ public class Customer {
             ", emailId='" + emailId + '\'' +
             ", mobile=" + mobile +
             ", gender='" + gender + '\'' +
+            ", healthId='" + healthId + '\'' +
             ", isActive='" + isActive + '\'' +
             ", createdAt=" + createdAt +
             ", createdBy=" + createdBy +
@@ -200,6 +236,9 @@ public class Customer {
             ", updatedAt=" + updatedAt +
             ", otp=" + otp +
             ", otpCreatedAt=" + otpCreatedAt +
+            ", txnId='" + txnId + '\'' +
+            ", token='" + token + '\'' +
+            ", ndhmOtpType=" + ndhmOtpType +
             '}';
   }
 
@@ -215,6 +254,7 @@ public class Customer {
       customer.setMidName(rs.getString("midName"));
       customer.setMobile(rs.getLong("mobile"));
       customer.setGender(rs.getString("gender"));
+      customer.setHealthId(rs.getString("healthId"));
       customer.setEmailId(rs.getString("emailId"));
       customer.setIsActive(rs.getString("isActive"));
       customer.setCreatedAt(rs.getTimestamp("createdAt"));
@@ -223,6 +263,9 @@ public class Customer {
       customer.setUpdatedBy(rs.getLong("updatedBy"));
       customer.setOtp(rs.getLong("otp"));
       customer.setOtpCreatedAt(rs.getTimestamp("otpCreatedAt"));
+      customer.setTxnId(rs.getString("txnId"));
+      customer.setToken(rs.getString("token"));
+      customer.setNdhmOtpType(rs.getInt("ndhmOtpType"));
       return customer;
     }
   }

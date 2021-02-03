@@ -36,7 +36,7 @@ public class LoginController {
     @RequestMapping(value = "/sendOtp", method = RequestMethod.POST, produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<Map<String, Object>> sendOtp(@RequestHeader(value = "X-CLIENT-KEY") String clientKey,
                                                        @RequestHeader(value = "X-AUTH-KEY") String authKey,
-                                                       @RequestParam(required = true) String mobileNo) {
+                                                       @RequestParam(required = true) Long mobileNo) {
         HttpStatus status = HttpStatus.OK;
         Map<String, Object> response = new HashMap<>();
         try {
@@ -50,8 +50,8 @@ public class LoginController {
                 if (authDetail.getAuth_key().equals(authKey)) {
                     AES256Cipher cipher = configService.getAESForClientKeyMap(clientKey);
                     try {
-                        Long mobile = Long.getLong(cipher.decrypt(mobileNo));
-                        response = loginService.sendOtp(mobile);
+//                        Long mobile = Long.getLong(cipher.decrypt(mobileNo));
+                        response = loginService.sendOtp(mobileNo);
                     }catch (NumberFormatException exception){
                         response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_FORMAT_PARAM.getStatusMsg() + " Reason: mobileNo must be a number");
                         response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());

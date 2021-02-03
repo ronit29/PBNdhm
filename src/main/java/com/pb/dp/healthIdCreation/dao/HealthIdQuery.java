@@ -4,7 +4,7 @@ public interface HealthIdQuery {
 
     String ADD_CUSTOMER = "INSERT INTO DocprimeNDHM.dbo.customer (firstName, lastName, dob, relationship, address_id,"
             + " emailId, mobile, gender, isActive, createdAt, createdBy) "
-            + " VALUES (:firstName, :lastName, :dob, :relation, 1, :email, :mobile, :gender, 1, GETDATE(), 1)";
+            + " VALUES (:firstName, :lastName, :dob, :relation, :address, :email, :mobile, :gender, 1, GETDATE(), 1)";
 
     String ADD_CUSTOMER1 = "INSERT INTO DocprimeNDHM.dbo.customer (firstName, lastName, dob, relationship, address_id,"
             + " emailId, mobile, gender, isActive, createdAt, createdBy) "
@@ -27,4 +27,8 @@ public interface HealthIdQuery {
     String GET_CUSTOMER = "SELECT * from DocprimeNDHM.dbo.customer where id = :id and mobile = :mobile";
 
     String GET_ADDRESS = "SELECT * from DocprimeNDHM.dbo.address where id = :id";
+
+    String UPDATE_NDHM_TXN_ID = "UPDATE DocprimeNDHM.dbo.customer SET txnId = :txnId WHERE id = :custId";
+
+    String UPDATE_NDHM_MOBILE_TOKEN = "UPDATE DocprimeNDHM.dbo.customer SET token = :token WHERE id = :custId and mobileNo =";
 }
