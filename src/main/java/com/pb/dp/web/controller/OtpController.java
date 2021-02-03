@@ -49,11 +49,21 @@ public class OtpController {
 					return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
 				}
 				if (authDetail.getAuth_key().equals(authKey)) {
-					boolean isOtpverified = otpService.isVerified(custHealthOtpRequest.getOtp(),
+					AES256Cipher cipher = configService.getAESForClientKeyMap(clientKey);
+					int customerId  = otpService.isVerified(custHealthOtpRequest.getOtp(),
 							custHealthOtpRequest.getMobileNo());
-					response.put("isOtpVerified", isOtpverified);
-					response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
-					response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
+					if(customerId!=0) {
+						response.put("cid", cipher.encrypt(String.valueOf(customerId)));
+						response.put("isOtpVerified", true);
+						response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
+						response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
+						
+					}else {
+						response.put("cid", null);
+						response.put("isOtpVerified", false);
+						response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.FAILURE.getStatusMsg());
+						response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
+					}
 
 				} else {
 					response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_AUTH_KEY.getStatusMsg());
