@@ -1,5 +1,7 @@
 package com.pb.dp.dao;
 
+import java.util.Map;
+
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
@@ -22,17 +24,18 @@ public class OtpDaoImpl implements OtpDao {
 	}
 
 	@Override
-	public boolean isVerified(int otp, Long mobileNo) {
-		boolean isVerified = false;
+	public int isVerified(int otp, Long mobileNo) {
+		int cid = 0;
 		try {
-			int otpFromDb = jdbcTemplate.queryForObject(HealthQuery.GET_OTP, Integer.class,mobileNo);
+			Map<String,Object> response = jdbcTemplate.queryForMap(HealthQuery.GET_OTP,mobileNo); 
+			int otpFromDb = (int) response.get("otp");
 			if(otpFromDb == otp) {
-				isVerified = true;
+				cid = (int) response.get("id");
 			}
 		} catch (EmptyResultDataAccessException e) {
 
 		}
-		return isVerified;
+		return cid;
 	}
 
 	@Override
