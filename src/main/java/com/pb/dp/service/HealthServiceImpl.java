@@ -53,7 +53,7 @@ public class HealthServiceImpl implements HealthService {
 				if(statusCode == 200) {
 					String responseBody = (String)responseFromApi.get("responseBody");
 					Boolean isValidBoolean = Boolean.valueOf(responseBody);
-					if(!isValidBoolean) {
+					if(isValidBoolean) {
 						xToken.append(authToken);
 						Map<String, String> header2 = new HashMap<>();
 						header2.put("Authorization", token);
