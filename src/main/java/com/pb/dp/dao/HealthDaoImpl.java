@@ -50,4 +50,16 @@ public class HealthDaoImpl implements HealthDao {
 		return authToken;
 	}
 
+	@Override
+	public void updateQrCode(String qrCode,String healthId) {
+		jdbcTemplate.update(HealthQuery.UPDATE_QR_CODE, qrCode,healthId);
+		
+	}
+
+	@Override
+	public void updateCard(String byteStringCard, String healthId) {
+		jdbcTemplate.update(HealthQuery.UPDATE_CARD_BYTE, byteStringCard,healthId);
+		
+	}
+
 }

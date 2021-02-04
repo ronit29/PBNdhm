@@ -32,4 +32,22 @@ public class AuthTokenUtil {
         authToken.append(token);
         return authToken.toString();
     }
+    
+    public boolean isValidToken(String authToken, String token) throws Exception {
+		Map<String, String> header = new HashMap<>();
+		header.put("Authorization", token);
+		header.put("X-HIP-ID", "DPHIP119");
+		Map<String, Object> jsonMap = new HashMap<>();
+		jsonMap.put("authToken", authToken);
+		String jsonPayload = new Gson().toJson(jsonMap);
+		String url = configService.getPropertyConfig("NDHM_ACCOUNT_TOKEN_URL").getValue();
+		Map<String, Object> responseFromApi = HttpUtil.post(url, jsonPayload, header);
+		int statusCode = (int) responseFromApi.get("status");
+		Boolean isValidBoolean = false;
+		if (statusCode == 200) {
+			String responseBody = (String) responseFromApi.get("responseBody");
+			isValidBoolean  = Boolean.valueOf(responseBody);
+		}
+		return isValidBoolean;
+	}
 }

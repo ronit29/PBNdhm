@@ -1,5 +1,6 @@
 package com.pb.dp.service;
 
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,21 +36,25 @@ public class HealthServiceImpl implements HealthService {
 	@Override
 	public CustomerHealth getHealthProfile(int customerId, GetHealthProfileRequest custHealthOtpRequest)
 			throws Exception {
+		boolean isValidBoolean = true;
 		CustomerHealth response = healthDao.getHealthProfile(customerId);
 		if (null != custHealthOtpRequest.getHealthId() && !custHealthOtpRequest.getHealthId().isEmpty()) {
 			StringBuilder xToken = new StringBuilder("Bearer ");
 			String authToken = healthDao.getHealthToken(custHealthOtpRequest.getHealthId());
 			String token = authTokenUtil.bearerAuthToken();
 			if (null != authToken) {
-				boolean isValidBoolean = isValidToken(authToken, token);
+				//isValidBoolean = authTokenUtil.isValidToken(authToken, token);
 				if (isValidBoolean) {
 					xToken.append(authToken);
+					setQrCodeDetails(response, token, xToken.toString(), custHealthOtpRequest.getHealthId());
 					Map<String, String> header2 = new HashMap<>();
 					header2.put("Authorization", token);
 					header2.put("X-HIP-ID", "DPHIP119");
 					header2.put("X-Token", xToken.toString());
 					String url2 = configService.getPropertyConfig("NDHM_ACCOUNT_PROFILE_URL").getValue();
-					Map<String, Object> responseFromApi2 = HttpUtil.post(url2, null, header2);
+					Map<String, Object> jsonMap = new HashMap<>();
+					String jsonPayload = new Gson().toJson(jsonMap);
+					Map<String, Object> responseFromApi2 = HttpUtil.post(url2, jsonPayload, header2);
 					int statusCode2 = (int) responseFromApi2.get("status");
 					if (statusCode2 == 200) {
 						String responseBody2 = (String) responseFromApi2.get("responseBody");
@@ -74,33 +79,33 @@ public class HealthServiceImpl implements HealthService {
 		return response;
 	}
 
-	private boolean isValidToken(String authToken, String token) throws Exception {
+	private void setQrCodeDetails(CustomerHealth response, String token, String xToken, String healthId)
+			throws Exception {
 		Map<String, String> header = new HashMap<>();
 		header.put("Authorization", token);
 		header.put("X-HIP-ID", "DPHIP119");
-		Map<String, Object> jsonMap = new HashMap<>();
-		jsonMap.put("authToken", authToken);
-		String jsonPayload = new Gson().toJson(jsonMap);
-		String url = configService.getPropertyConfig("NDHM_ACCOUNT_TOKEN_URL").getValue();
-		Map<String, Object> responseFromApi = HttpUtil.post(url, jsonPayload, header);
-		int statusCode = (int) responseFromApi.get("status");
-		Boolean isValidBoolean = false;
-		if (statusCode == 200) {
-			String responseBody = (String) responseFromApi.get("responseBody");
-			isValidBoolean  = Boolean.valueOf(responseBody);
+		header.put("X-Token", xToken);
+		String url = configService.getPropertyConfig("NDHM_QR_CODE_URL").getValue();
+		Map<String, Object> responseFromApi = HttpUtil.getContentByteByURLWithHeader(url, header);
+		if (null != responseFromApi.get("Bytes")) {
+			byte[] qrByteArray = (byte[]) responseFromApi.get("Bytes");
+			String qrCode = Base64.getEncoder().encodeToString(qrByteArray);
+			response.setQrCode(Base64.getEncoder().encodeToString(qrByteArray));
+			healthDao.updateQrCode(qrCode, healthId);
 		}
-		return isValidBoolean;
+
 	}
 
 	@Override
 	public String getCardContent(int customerId, GetHealthProfileRequest custHealthOtpRequest) throws Exception {
 		String byteStringCard = null;
+		boolean isValidBoolean = true;
 		if (null != custHealthOtpRequest.getHealthId() && !custHealthOtpRequest.getHealthId().isEmpty()) {
 			StringBuilder xToken = new StringBuilder("Bearer ");
 			String authToken = healthDao.getHealthToken(custHealthOtpRequest.getHealthId());
 			String token = authTokenUtil.bearerAuthToken();
 			if (null != authToken) {
-				boolean isValidBoolean = isValidToken(authToken, token);
+				// isValidBoolean = authTokenUtil.isValidToken(authToken, token);
 				if (isValidBoolean) {
 					xToken.append(authToken);
 					Map<String, String> header = new HashMap<>();
@@ -108,18 +113,20 @@ public class HealthServiceImpl implements HealthService {
 					header.put("X-HIP-ID", "DPHIP119");
 					header.put("X-Token", xToken.toString());
 					String url2 = configService.getPropertyConfig("NDHM_SVG_CARD_URL").getValue();
-					Map<String, Object> responseFromApi = HttpUtil.post(url2, null, header);
+					Map<String, Object> jsonMap = new HashMap<>();
+					String jsonPayload = new Gson().toJson(jsonMap);
+					Map<String, Object> responseFromApi = HttpUtil.post(url2, jsonPayload, header);
 					int statusCode = (int) responseFromApi.get("status");
 					if (statusCode == 200) {
 						byteStringCard = (String) responseFromApi.get("responseBody");
+						healthDao.updateCard(byteStringCard, custHealthOtpRequest.getHealthId());
 					}
 				}
 			}
 		}
-		
-		return byteStringCard;
-		
-	}
 
+		return byteStringCard;
+
+	}
 
 }

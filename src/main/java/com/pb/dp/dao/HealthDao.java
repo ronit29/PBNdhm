@@ -12,4 +12,8 @@ public interface HealthDao {
 
 	String getHealthToken(String healthId);
 
+	void updateQrCode(String qrCode, String healthId);
+
+	void updateCard(String byteStringCard, String healthId);
+
 }
