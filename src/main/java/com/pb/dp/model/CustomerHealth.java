@@ -24,6 +24,8 @@ public class CustomerHealth {
 	private String state;
 	private String district;
 	private short isKyc;
+	private String qrCode;
+	private String healthCard;
 	
 	public int getCustomerId() {
 		return customerId;
@@ -124,6 +126,21 @@ public class CustomerHealth {
 		this.isKyc = isKyc;
 	}
 	
+	public String getQrCode() {
+		return qrCode;
+	}
+	public void setQrCode(String qrCode) {
+		this.qrCode = qrCode;
+	}
+	public String getHealthCard() {
+		return healthCard;
+	}
+	public void setHealthCard(String healthCard) {
+		this.healthCard = healthCard;
+	}
+
+
+
 	public static class CustomerHealthMapper implements RowMapper<CustomerHealth> {
         @Override
         public CustomerHealth mapRow(ResultSet rs, int rowNum) throws SQLException {
