@@ -9,11 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.pb.dp.enums.ResponseStatus;
 import com.pb.dp.model.AuthDetail;
@@ -36,7 +32,7 @@ public class LoginController {
     @RequestMapping(value = "/sendOtp", method = RequestMethod.POST, produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<Map<String, Object>> sendOtp(@RequestHeader(value = "X-CLIENT-KEY") String clientKey,
                                                        @RequestHeader(value = "X-AUTH-KEY") String authKey,
-                                                       @RequestParam(required = true) Long mobileNo) {
+                                                       @RequestBody(required = true) Map<String,Long> payload) {
         HttpStatus status = HttpStatus.OK;
         Map<String, Object> response = new HashMap<>();
         try {
@@ -51,7 +47,7 @@ public class LoginController {
                     AES256Cipher cipher = configService.getAESForClientKeyMap(clientKey);
                     try {
 //                        Long mobile = Long.getLong(cipher.decrypt(mobileNo));
-                        response = loginService.sendOtp(mobileNo);
+                        response = loginService.sendOtp(payload.get("mobileNo"));
                     }catch (NumberFormatException exception){
                         response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_FORMAT_PARAM.getStatusMsg() + " Reason: mobileNo must be a number");
                         response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
