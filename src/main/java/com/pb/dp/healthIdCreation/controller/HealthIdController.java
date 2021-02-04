@@ -20,7 +20,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
-@RestController("/healthId")
+@RestController
+@RequestMapping(value = "/healthId")
 public class HealthIdController {
 
    @Autowired
@@ -70,7 +71,7 @@ public class HealthIdController {
 
    }
 
-   @RequestMapping(value = "/verifyOtp/mobile", method = RequestMethod.POST, produces = { MediaType.APPLICATION_JSON_VALUE })
+   @RequestMapping(value = "/verifyOtpMobile", method = RequestMethod.POST, produces = { MediaType.APPLICATION_JSON_VALUE })
    public ResponseEntity<Map<String, Object>> verifyViaMobile(@RequestBody NdhmMobOtpRequest ndhmMobOtpRequest,
                                                               @RequestHeader(value = "X-CLIENT-KEY") String clientKey,
                                                               @RequestHeader(value = "X-AUTH-KEY") String authKey,
