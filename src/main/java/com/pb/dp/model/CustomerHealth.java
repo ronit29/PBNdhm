@@ -21,8 +21,8 @@ public class CustomerHealth {
 	private String healtIdNo;
 	private int addressId;
 	private String address;
-	private Integer state;
-	private Integer district;
+	private String state;
+	private String district;
 	private short isKyc;
 	
 	public int getCustomerId() {
@@ -61,6 +61,19 @@ public class CustomerHealth {
 	public void setDob(Date dob) {
 		this.dob = dob;
 	}
+	
+	public String getState() {
+		return state;
+	}
+	public void setState(String state) {
+		this.state = state;
+	}
+	public String getDistrict() {
+		return district;
+	}
+	public void setDistrict(String district) {
+		this.district = district;
+	}
 	public String getRelationship() {
 		return relationship;
 	}
@@ -88,18 +101,6 @@ public class CustomerHealth {
 	}
 	public void setAddress(String address) {
 		this.address = address;
-	}
-	public Integer getState() {
-		return state;
-	}
-	public void setState(Integer state) {
-		this.state = state;
-	}
-	public Integer getDistrict() {
-		return district;
-	}
-	public void setDistrict(Integer district) {
-		this.district = district;
 	}
 	public String getHealthId() {
 		return healthId;

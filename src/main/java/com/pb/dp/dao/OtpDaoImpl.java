@@ -44,4 +44,9 @@ public class OtpDaoImpl implements OtpDao {
 		
 	}
 
+	@Override
+	public void updateVerify(int otp, Long mobileNo) {
+		jdbcTemplate.update(HealthQuery.UPDATE_SMS_OTP_VERIFY,mobileNo,otp);
+	}
+
 }

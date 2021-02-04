@@ -7,6 +7,7 @@ import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -37,6 +38,16 @@ public class HealthDaoImpl implements HealthDao {
 		ObjectMapper mapper = new ObjectMapper();
 		CustomerHealth healthReponse = mapper.convertValue(response, CustomerHealth.class);
 		return healthReponse;
+	}
+	
+	@Override
+	public String getHealthToken(String healthId) {
+		String authToken = null;
+		try {
+			authToken = jdbcTemplate.queryForObject(HealthQuery.GET_HEALTH_TOKEN,String.class,healthId);
+		}catch (EmptyResultDataAccessException e) {
+		}
+		return authToken;
 	}
 
 }

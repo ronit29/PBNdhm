@@ -11,4 +11,6 @@ public interface HealthService {
 
 	CustomerHealth getHealthProfile(int customerId, GetHealthProfileRequest custHealthOtpRequest) throws Exception;
 
+	String getCardContent(int customerId, GetHealthProfileRequest custHealthOtpRequest) throws Exception;
+
 }

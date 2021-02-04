@@ -26,7 +26,11 @@ public class OtpServiceImpl implements OtpService {
 
 	@Override
 	public int isVerified(int otp, Long mobileNo) {
-		return otpDao.isVerified(otp, mobileNo);
+		int customerId = otpDao.isVerified(otp, mobileNo);
+		if(customerId != 0) {
+			otpDao.updateVerify(otp, mobileNo);
+		}
+		return customerId;
 	}
 
 	@SuppressWarnings("unchecked")

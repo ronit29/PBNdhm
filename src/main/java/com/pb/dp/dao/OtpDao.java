@@ -6,4 +6,6 @@ public interface OtpDao {
 
 	void insertTxnId(int customerId, String txnId);
 
+	void updateVerify(int otp, Long mobileNo);
+
 }

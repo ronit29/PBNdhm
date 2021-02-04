@@ -10,4 +10,6 @@ public interface HealthDao {
 
 	CustomerHealth getHealthProfile(int customerId);
 
+	String getHealthToken(String healthId);
+
 }

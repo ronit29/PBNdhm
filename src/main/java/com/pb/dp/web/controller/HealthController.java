@@ -139,5 +139,64 @@ public class HealthController {
 
 		return new ResponseEntity<>(response, status);
 	}
+	
+	
+	@RequestMapping(value = "/getCardContent", method = RequestMethod.POST, produces = {
+			MediaType.APPLICATION_JSON_VALUE })
+	public ResponseEntity<Map<String, Object>> getCardContent(@RequestHeader(value = "X-CLIENT-KEY") String clientKey, 
+			@RequestHeader(value = "X-AUTH-KEY") String authKey,
+			@RequestHeader(value = "X-CID") String custId, 
+			@RequestBody GetHealthProfileRequest custHealthOtpRequest) {
+		HttpStatus status = HttpStatus.OK;
+		Map<String, Object> response = new HashMap<>();
+		try {
+			if (clientKey != null && !clientKey.isEmpty()) {
+				AuthDetail authDetail = configService.getAuthDetail(clientKey);
+				if (authDetail == null) {
+					response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_CLIENT_KEY.getStatusMsg());
+					response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_CLIENT_KEY.getStatusId());
+					return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+				}
+				if (authDetail.getAuth_key().equals(authKey)) {
+					AES256Cipher cipher = configService.getAESForClientKeyMap(clientKey);
+					try {
+						int customerId = Integer.valueOf(cipher.decrypt(custId));
+						String responseForCard = healthService.getCardContent(customerId,custHealthOtpRequest);
+						if(null!=responseForCard && !responseForCard.isEmpty()) {
+							response.put("data", responseForCard);
+							response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
+							response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
+						}else {
+							response.put("data", responseForCard);
+							response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.FAILURE.getStatusMsg());
+							response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
+						}
+						
+					} catch (NumberFormatException exception) {
+						response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_FORMAT_PARAM.getStatusMsg()
+								+ " Reason: customerId must be a number");
+						response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_FORMAT_PARAM.getStatusId());
+					}
+
+				} else {
+					response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_AUTH_KEY.getStatusMsg());
+					response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_AUTH_KEY.getStatusId());
+					status =  HttpStatus.UNAUTHORIZED;
+				}
+			} else {
+				response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_CLIENT_KEY.getStatusMsg() + " Empty");
+				response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_CLIENT_KEY.getStatusId());
+				status =  HttpStatus.UNAUTHORIZED;
+			}
+		} catch (Exception e) {
+			logger.debug(e.getMessage());
+			status = HttpStatus.INTERNAL_SERVER_ERROR;
+			response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
+			response.put(FieldKey.SK_STATUS_MESSAGE, e.getMessage());
+		}
+
+		return new ResponseEntity<>(response, status);
+	}
+	
 
 }
