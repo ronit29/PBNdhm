@@ -22,7 +22,9 @@ public enum ResponseStatus {
 	EMPTY_PARAMETER(17,"Empty Parameter"),
 	DUPLICATE_RECORD(18,"Duplicate Record Found"),
 	INVALID_CUSTOMER_ID(19,"CustomerId Invalid for CLient Key"),
-	INVALID_INPUT(20,"Invalid input");
+	INVALID_INPUT(20,"Invalid input"),
+	INVALID_XTOKEN(21,"Invalid xToken"), 
+	AUTH_INIT_FAILED(22,"Auth Init Api Failed for invalid xToken");
 
 	private final int statusId;
 	
