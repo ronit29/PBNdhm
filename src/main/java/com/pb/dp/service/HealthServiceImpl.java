@@ -38,7 +38,7 @@ public class HealthServiceImpl implements HealthService {
 	public CustomerHealth getHealthProfile(int customerId, GetHealthProfileRequest custHealthOtpRequest)
 			throws Exception {
 		boolean isValidBoolean = true;
-		CustomerHealth response = healthDao.getHealthProfile(customerId);
+		CustomerHealth response = healthDao.getHealthProfile(customerId,custHealthOtpRequest.getHealthId());
 		if (null != custHealthOtpRequest.getHealthId() && !custHealthOtpRequest.getHealthId().isEmpty()) {
 			StringBuilder xToken = new StringBuilder("Bearer ");
 			String authToken = healthDao.getHealthToken(custHealthOtpRequest.getHealthId());
