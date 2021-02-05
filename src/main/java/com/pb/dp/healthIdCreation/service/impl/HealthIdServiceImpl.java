@@ -69,7 +69,7 @@ public class HealthIdServiceImpl implements HealthIdService {
         String url = configService.getPropertyConfig("NDHM_GEN_OTP_URL").getValue();
         Map<String, String> headers = new HashMap<>();
         headers.put("X-HIP-ID", hipId);
-        headers.put("Authorization ", "Bearer " + this.authTokenUtil.bearerAuthToken());
+        headers.put("Authorization ", this.authTokenUtil.bearerAuthToken());
         Map<String, Object> payload = new HashMap<>();
         payload.put("mobile", String.valueOf(mobile));
         response = HttpUtil.post(url, new Gson().toJson(payload), headers);
@@ -91,6 +91,7 @@ public class HealthIdServiceImpl implements HealthIdService {
 //        this.healthIdDao.updateNdhmOTP(ndhmMobOtpRequest);
         //verify OTP
         String token = this.verifyMobileOtp(ndhmMobOtpRequest);
+        if (ObjectUtils.isNotEmpty(token)) {
         ndhmMobOtpRequest.setToken(token);
         //update ndhm_Otp token
         //this.healthIdDao.updateNdhmOtpToken(ndhmMobOtpRequest);
@@ -98,7 +99,7 @@ public class HealthIdServiceImpl implements HealthIdService {
         this.healthIdDao.updateNdhmOtpToken(ndhmMobOtpRequest,custId);
         //create healthId on ndhm
         this.createHeathId(custId, ndhmMobOtpRequest.getMobile(), ndhmMobOtpRequest.getTxnId(),token);
-        if (ObjectUtils.isNotEmpty(token)) {
+
             response.put("mobileNo", ndhmMobOtpRequest.getMobile());
             response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
             response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
@@ -118,7 +119,7 @@ public class HealthIdServiceImpl implements HealthIdService {
         headers.put("Authorization ", this.authTokenUtil.bearerAuthToken());
         Map<String, Object> payload = new HashMap<>();
         payload.put("otp", String.valueOf(ndhmMobOtpRequest.getOtp()));
-        payload.put("txnId", String.valueOf(ndhmMobOtpRequest.getOtp()));
+        payload.put("txnId", String.valueOf(ndhmMobOtpRequest.getTxnId()));
         response = HttpUtil.post(url, new Gson().toJson(payload), headers);
         if(Objects.nonNull(response)) {
             Object responseBody = response.get("responseBody");
@@ -191,10 +192,10 @@ public class HealthIdServiceImpl implements HealthIdService {
         headers.put("Authorization ", this.authTokenUtil.bearerAuthToken());
         Map<String, Object> payload = new HashMap<>();
         payload.put("txnId",txnId);
-        response = HttpUtil.post(url, new Gson().toJson(payload), headers);
-        if(Objects.nonNull(response)) {
-            Object responseBody = response.get("responseBody");
-            if(Objects.nonNull(responseBody) && response.get("status").equals(200)) {
+        Map<String, Object> responseMap = HttpUtil.post(url, new Gson().toJson(payload), headers);
+        if(Objects.nonNull(responseMap)) {
+            Object responseBody = responseMap.get("responseBody");
+            if(Objects.nonNull(responseBody) && responseMap.get("status").equals(200)) {
                 resend = new Gson().fromJson(responseBody.toString(), Boolean.class);
             }
         }

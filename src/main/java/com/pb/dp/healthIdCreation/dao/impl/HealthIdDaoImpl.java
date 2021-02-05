@@ -85,7 +85,7 @@ public class HealthIdDaoImpl implements HealthIdDao {
     }
 
     @Override
-    public void updateNdhmOtpToken(NdhmMobOtpRequest ndhmMobOtpRequest, Integer custId) {
+    public void updateNdhmOtpToken(NdhmMobOtpRequest ndhmMobOtpRequest, Integer custId) throws Exception{
         //update ndhm mobile token in customer
         Map<String,Object> params = new HashMap<String,Object>();
         params.put("custId",custId);
