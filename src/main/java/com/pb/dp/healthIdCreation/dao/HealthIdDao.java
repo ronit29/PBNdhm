@@ -12,7 +12,7 @@ public interface HealthIdDao {
 
     void updateNdhmOTP(NdhmMobOtpRequest ndhmMobOtpRequest);
 
-    void updateNdhmOtpToken(NdhmMobOtpRequest ndhmMobOtpRequest, Integer custId);
+    void updateNdhmOtpToken(NdhmMobOtpRequest ndhmMobOtpRequest, Integer custId) throws Exception;
 
     Customer getCustomer(Integer custId, Long mobile);
 

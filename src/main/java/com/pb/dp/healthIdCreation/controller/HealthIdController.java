@@ -22,7 +22,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/healthId")
-public class HealthIdController {
+public class   HealthIdController {
 
    @Autowired
    ConfigService configService;
@@ -32,10 +32,12 @@ public class HealthIdController {
 
    private static final Logger logger = LoggerFactory.getLogger(HealthIdController.class);
 
-   @RequestMapping(value = "/registerMobile", method = RequestMethod.POST, produces = { MediaType.APPLICATION_JSON_VALUE })
+//   @RequestMapping(value = "/registerMobile", method = RequestMethod.POST, produces = { MediaType.APPLICATION_JSON_VALUE })
+   @RequestMapping(value = "/register/mobile", method = RequestMethod.POST, produces = { MediaType.APPLICATION_JSON_VALUE })
    public ResponseEntity<Map<String, Object>> registerViaMobile(@RequestBody CustomerDetails customerDetail,
                                                                 @RequestHeader(value = "X-CLIENT-KEY") String clientKey,
-                                                                @RequestHeader(value = "X-AUTH-KEY") String authKey){
+                                                                @RequestHeader(value = "X-AUTH-KEY") String authKey,
+                                                                @RequestHeader(value = "X-CID") String custId){
 
       HttpStatus status = HttpStatus.OK;
       Map<String, Object> response = new HashMap<>();
@@ -71,7 +73,8 @@ public class HealthIdController {
 
    }
 
-   @RequestMapping(value = "/verifyOtpMobile", method = RequestMethod.POST, produces = { MediaType.APPLICATION_JSON_VALUE })
+//   @RequestMapping(value = "/verifyOtpMobile", method = RequestMethod.POST, produces = { MediaType.APPLICATION_JSON_VALUE })
+   @RequestMapping(value = "/verifyOtp/mobile", method = RequestMethod.POST, produces = { MediaType.APPLICATION_JSON_VALUE })
    public ResponseEntity<Map<String, Object>> verifyViaMobile(@RequestBody NdhmMobOtpRequest ndhmMobOtpRequest,
                                                               @RequestHeader(value = "X-CLIENT-KEY") String clientKey,
                                                               @RequestHeader(value = "X-AUTH-KEY") String authKey,
