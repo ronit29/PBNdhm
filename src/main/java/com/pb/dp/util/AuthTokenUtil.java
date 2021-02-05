@@ -2,6 +2,7 @@ package com.pb.dp.util;
 
 import com.google.gson.Gson;
 import com.pb.dp.service.ConfigService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -50,4 +51,26 @@ public class AuthTokenUtil {
 		}
 		return isValidBoolean;
 	}
+
+    private String authInit(String token, String healthId) throws Exception {
+        String txnId = null;
+        Map<String, String> header = new HashMap<>();
+        header.put("Authorization", token);
+        header.put("X-HIP-ID", "DPHIP119");
+        String url = configService.getPropertyConfig("NDHM_AUTH_INIT_URL").getValue();
+        Map<String, Object> jsonMap = new HashMap<>();
+        jsonMap.put("authMethod", "MOBILE_OTP");
+        jsonMap.put("healthid", healthId);
+        String jsonPayload = new Gson().toJson(jsonMap);
+        Map<String, Object> responseFromApi = HttpUtil.post(url, jsonPayload, header);
+        int statusCode2 = (int) responseFromApi.get("status");
+        if (statusCode2 == 200) {
+            String responseBody = (String) responseFromApi.get("responseBody");
+            Map<String, Object> responseMap = (Map<String, Object>) new Gson().fromJson(responseBody, Map.class);
+            txnId = (String) responseMap.get("txnId");
+        }else {
+            txnId = StringUtils.EMPTY;
+        }
+        return txnId;
+    }
 }

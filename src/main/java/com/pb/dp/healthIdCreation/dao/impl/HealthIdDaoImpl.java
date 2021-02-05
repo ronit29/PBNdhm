@@ -37,7 +37,7 @@ public class HealthIdDaoImpl implements HealthIdDao {
     }
 
     @Override
-    public Integer addCustomer(CustomerDetails customerDetail) throws Exception {
+    public Integer addCustomer(CustomerDetails customerDetail, int customerId) throws Exception {
         SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
         KeyHolder addKeyHolder = new GeneratedKeyHolder();
         //add customer address details
@@ -48,8 +48,8 @@ public class HealthIdDaoImpl implements HealthIdDao {
         Integer addressCount = this.namedParameterJdbcTemplate.update(HealthIdQuery.ADD_CUSTOMER_ADDRESS,addressParams,addKeyHolder);
         Integer addressId = addKeyHolder.getKey().intValue();
         //add customer details
-        KeyHolder custKeyHolder = new GeneratedKeyHolder();
         MapSqlParameterSource custParams = new MapSqlParameterSource();
+        custParams.addValue("custId",customerId);
         custParams.addValue("firstName",customerDetail.getFirstName());
         custParams.addValue("lastName",customerDetail.getLastName());
         custParams.addValue("dob",formatter.parse(customerDetail.getDob()));
@@ -58,9 +58,8 @@ public class HealthIdDaoImpl implements HealthIdDao {
         custParams.addValue("email",customerDetail.getEmailId());
         custParams.addValue("gender",customerDetail.getGender());
         custParams.addValue("mobile", customerDetail.getMobileNo());
-        Integer custCount  =  this.namedParameterJdbcTemplate.update(HealthIdQuery.ADD_CUSTOMER,custParams,custKeyHolder);
-        Integer custId = custKeyHolder.getKey().intValue();
-        return custId;
+        Integer custCount  =  this.namedParameterJdbcTemplate.update(HealthIdQuery.UPDATE_CUSTOMER_DETAILS,custParams);
+        return customerId;
     }
 
     @Override

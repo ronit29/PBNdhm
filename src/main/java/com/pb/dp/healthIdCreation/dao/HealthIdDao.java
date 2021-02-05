@@ -6,7 +6,7 @@ import com.pb.dp.healthIdCreation.model.CustomerDetails;
 import com.pb.dp.healthIdCreation.model.NdhmMobOtpRequest;
 
 public interface HealthIdDao {
-    Integer addCustomer(CustomerDetails customerDetail) throws Exception;
+    Integer addCustomer(CustomerDetails customerDetail, int customerId) throws Exception;
 
     void addNdhmOtpTxnId(long mobileNo, String txnId);
 
