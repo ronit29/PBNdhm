@@ -22,7 +22,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/healthId")
-public class   HealthIdController {
+public class HealthIdController {
 
    @Autowired
    ConfigService configService;
