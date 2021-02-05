@@ -26,6 +26,7 @@ public class CustomerHealth {
 	private short isKyc;
 	private String qrCode;
 	private String healthCard;
+	private String txnId;
 	
 	public int getCustomerId() {
 		return customerId;
@@ -138,6 +139,15 @@ public class CustomerHealth {
 	public void setHealthCard(String healthCard) {
 		this.healthCard = healthCard;
 	}
+	
+	public String getTxnId() {
+		return txnId;
+	}
+	public void setTxnId(String txnId) {
+		this.txnId = txnId;
+	}
+
+
 
 
 
