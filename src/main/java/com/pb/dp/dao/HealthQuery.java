@@ -10,5 +10,6 @@ public interface HealthQuery {
 	String UPDATE_SMS_OTP_VERIFY = "UPDATE sms_otp_details SET IsVerify=1,VerifiedOn=GETDATE(),UpdatedOn=getDate() WHERE MobileNo=? and OTP=?";
 	String UPDATE_QR_CODE = "UPDATE healthId SET qrCode=? WHERE healthId=?";
 	String UPDATE_CARD_BYTE = "UPDATE healthId SET healthCard=? WHERE healthId=?";
+	String GET_CUST_HEALTH_PROFILE_ID = "select c.id as customerId,c.mobile,c.firstName,c.midName,c.lastName,c.dob,c.relationship,c.emailId,c.gender,h.healthId,h.healtIdNo,c.address_id as addressId,h.isKyc,h.qrCode,h.healthCard from customer c(nolock) inner join healthId h(nolock) on h.customerId=c.id where c.id=? and h.healthId =? and h.isActive=1";
 	
 }

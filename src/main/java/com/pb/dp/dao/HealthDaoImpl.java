@@ -33,10 +33,20 @@ public class HealthDaoImpl implements HealthDao {
 	}
 
 	@Override
-	public CustomerHealth getHealthProfile(int customerId) {
-		Map<String,Object> response = jdbcTemplate.queryForMap(HealthQuery.GET_CUST_HEALTH_PROFILE,customerId);
-		ObjectMapper mapper = new ObjectMapper();
-		CustomerHealth healthReponse = mapper.convertValue(response, CustomerHealth.class);
+	public CustomerHealth getHealthProfile(int customerId,String healthId) {
+		Map<String,Object> response = null;
+		CustomerHealth healthReponse = new CustomerHealth();
+		try {
+			if(null != healthId && !healthId.isEmpty()) {
+				response = jdbcTemplate.queryForMap(HealthQuery.GET_CUST_HEALTH_PROFILE_ID,customerId,healthId);
+			}else {
+				response = jdbcTemplate.queryForMap(HealthQuery.GET_CUST_HEALTH_PROFILE,customerId);
+			}
+			ObjectMapper mapper = new ObjectMapper();
+			healthReponse = mapper.convertValue(response, CustomerHealth.class);
+			
+		}catch (EmptyResultDataAccessException e) {
+		}
 		return healthReponse;
 	}
 	
