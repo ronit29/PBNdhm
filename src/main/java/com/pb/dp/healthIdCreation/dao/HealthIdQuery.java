@@ -30,5 +30,11 @@ public interface HealthIdQuery {
 
     String UPDATE_NDHM_TXN_ID = "UPDATE DocprimeNDHM.dbo.customer SET txnId = :txnId WHERE id = :custId";
 
-    String UPDATE_NDHM_MOBILE_TOKEN = "UPDATE DocprimeNDHM.dbo.customer SET token = :token WHERE id = :custId and mobileNo = :mobile";
+    String UPDATE_NDHM_MOBILE_TOKEN = "UPDATE DocprimeNDHM.dbo.customer SET token = :token WHERE id = :custId and mobile = :mobile";
+
+    String UPDATE_CUSTOMER_DETAILS = "UPDATE DocprimeNDHM.dbo.customer SET firstName = :firstName, lastName = :lastName, " +
+            "dob = :dob, relationship = :relation, address_id = :address, emailId = :email, gender = :gender WHERE id = :custId and mobile " +
+            "= :mobile and isActive = 1";
+
+
 }
