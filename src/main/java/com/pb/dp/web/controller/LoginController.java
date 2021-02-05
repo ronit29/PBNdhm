@@ -46,8 +46,7 @@ public class LoginController {
                 if (authDetail.getAuth_key().equals(authKey)) {
                     AES256Cipher cipher = configService.getAESForClientKeyMap(clientKey);
                     try {
-//                        Long mobile = Long.getLong(cipher.decrypt(mobileNo));
-                        response = loginService.sendOtp(payload.get("mobileNo"));
+                           response = loginService.sendOtp(payload.get("mobileNo"));
                     }catch (NumberFormatException exception){
                         response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_FORMAT_PARAM.getStatusMsg() + " Reason: mobileNo must be a number");
                         response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
@@ -64,6 +63,7 @@ public class LoginController {
                 return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
             }
         } catch (Exception e) {
+            e.printStackTrace();
             logger.debug(e.getMessage());
             status = HttpStatus.INTERNAL_SERVER_ERROR;
             response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());

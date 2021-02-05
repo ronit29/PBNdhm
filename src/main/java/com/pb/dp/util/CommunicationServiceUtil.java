@@ -30,13 +30,14 @@ public class CommunicationServiceUtil {
         String jsonPayload = prepareSmsPayload(countryCode, mobileNo, message, nonQueue);
         Map<String, Object> responseMap = null;
         Map<String, Object> sendResultMap = null;
+        String url = configService.getPropertyConfig("commbox.send.url").getValue();
         if (nonQueue) {
             Map<String, String> headers = new HashMap<String, String>();
             headers.put("REQUESTINGSYSTEM", configService.getPropertyConfig("commbox.send.requestingSystem").getValue());
             headers.put("TOKEN", configService.getPropertyConfig("commbox.send.token").getValue());
-                responseMap = HttpUtil.post(configService.getPropertyConfig("commbox.send.url").getValue(), jsonPayload, headers);
+                responseMap = HttpUtil.post(url, jsonPayload, headers);
         } else {
-            responseMap = HttpUtil.post(configService.getPropertyConfig("commbox.send.url").getValue(), jsonPayload);
+            responseMap = HttpUtil.post(url, jsonPayload);
         }
         if(Objects.nonNull(responseMap)) {
             Object responseBody = responseMap.get("responseBody");

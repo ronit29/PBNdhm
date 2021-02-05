@@ -156,7 +156,7 @@ public class HealthIdServiceImpl implements HealthIdService {
 
     }
 
-    private CreateHealthIdByMobRequest prepareHealthIdPayload(Integer custId, Long mobile, String txnId, String token) {
+    private CreateHealthIdByMobRequest prepareHealthIdPayload(Integer custId, Long mobile, String txnId, String token) throws Exception{
         //get customer from Db
         Customer customer = this.healthIdDao.getCustomer(custId,mobile);
         //form payload
