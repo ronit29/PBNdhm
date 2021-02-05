@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import com.pb.dp.healthIdCreation.dao.HealthIdDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -23,12 +24,16 @@ public class LoginServiceImpl implements LoginService {
     LoginDao loginDao;
 
     @Autowired
+    HealthIdDao healthIdDao;
+
+    @Autowired
     ConfigService configService;
 
     @Override
     public Map<String, Object> sendOtp(Long mobile) throws Exception {
         Map<String, Object> response = new HashMap<>();
             Integer result = 0;
+            Integer custId =0;
             Integer countryCode = 91;
              int otp = (int) (Math.random() * 9999);
             if (otp <= 1000) {
@@ -38,9 +43,9 @@ public class LoginServiceImpl implements LoginService {
             String message = null;
             int smsType = 0;
             String smsTemplate = this.configService.getPropertyConfig("otp.sms.template").getValue();
-            String name = loginDao.getCustomerName(mobile);
+           // String name = loginDao.getCustomerName(mobile);
             if(!ObjectUtils.isEmpty(smsTemplate)) {
-                message = smsTemplate.replace("@Name", name).replace("@OTP", String.valueOf(otp));
+                message = smsTemplate.replace("@Name", "user").replace("@OTP", String.valueOf(otp));
             }
             Map<String,Object> sendSmsResp = null;
             sendSmsResp = communicationServiceUtil.sendSms(countryCode.toString(), mobile.toString(), message, true);
@@ -49,9 +54,12 @@ public class LoginServiceImpl implements LoginService {
                 smsResponse = "OK";
                 uuid = String.valueOf(sendSmsResp.get("Description"));
                 result = loginDao.inserOtpDetails(otp, countryCode, mobile, message, smsResponse, smsType, uuid);
+                custId = this.healthIdDao.addNewCustomer(mobile,otp);
+
             }
-        if (result == 1) {
+        if (custId > 0) {
             response.put("mobileNo",mobile);
+            response.put("custId",custId);
             response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
             response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
         } else {

@@ -63,7 +63,7 @@ public class HealthIdDaoImpl implements HealthIdDao {
     }
 
     @Override
-    public void addNdhmOtpTxnId(long mobileNo, String txnId) {
+    public void addNdhmOtpTxnId(long mobileNo, String txnId) throws Exception {
         //add txnId in ndhm_otp
         Map<String,Object> params = new HashMap<String,Object>();
         params.put("mobile",mobileNo);
@@ -73,7 +73,7 @@ public class HealthIdDaoImpl implements HealthIdDao {
     }
 
     @Override
-    public void updateNdhmOTP(NdhmMobOtpRequest ndhmMobOtpRequest) {
+    public void updateNdhmOTP(NdhmMobOtpRequest ndhmMobOtpRequest) throws Exception{
         //update otp in ndhm_otp
         Map<String,Object> params = new HashMap<String,Object>();
         params.put("mobile", ndhmMobOtpRequest.getMobile());
@@ -97,7 +97,7 @@ public class HealthIdDaoImpl implements HealthIdDao {
     }
 
     @Override
-    public Customer getCustomer(Integer custId, Long mobile) {
+    public Customer getCustomer(Integer custId, Long mobile) throws Exception{
         Map<String,Object> params = new HashMap<String,Object>();
         params.put("id",custId);
         params.put("mobile", mobile);
@@ -106,11 +106,23 @@ public class HealthIdDaoImpl implements HealthIdDao {
     }
 
     @Override
-    public void updateNdhmTxnId(Integer custId, String txnId) {
+    public void updateNdhmTxnId(Integer custId, String txnId) throws Exception{
         //update txnId in customer
         Map<String,Object> params = new HashMap<String,Object>();
         params.put("custId",custId);
         params.put("txnId", txnId);
         Integer updateCount = this.namedParameterJdbcTemplate.update(HealthIdQuery.UPDATE_NDHM_TXN_ID,params);
+    }
+
+    @Override
+    public Integer addNewCustomer(Long mobile, int otp) throws Exception{
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        MapSqlParameterSource custParams = new MapSqlParameterSource();
+        custParams.addValue("firstName","New");
+        custParams.addValue("otp",otp);
+        custParams.addValue("mobile", mobile);
+        Integer custCount  =  this.namedParameterJdbcTemplate.update(HealthIdQuery.ADD_CUSTOMER,custParams,keyHolder);
+        Integer custId = keyHolder.getKey().intValue();
+        return custId;
     }
 }

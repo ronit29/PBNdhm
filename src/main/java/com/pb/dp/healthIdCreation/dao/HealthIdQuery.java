@@ -2,9 +2,8 @@ package com.pb.dp.healthIdCreation.dao;
 
 public interface HealthIdQuery {
 
-    String ADD_CUSTOMER = "INSERT INTO DocprimeNDHM.dbo.customer (firstName, lastName, dob, relationship, address_id,"
-            + " emailId, mobile, gender, isActive, createdAt, createdBy) "
-            + " VALUES (:firstName, :lastName, :dob, :relation, :address, :email, :mobile, :gender, 1, GETDATE(), 1)";
+    String ADD_CUSTOMER = "INSERT INTO DocprimeNDHM.dbo.customer (firstName, mobile, otp, otpCreatedAt, isActive, createdAt, createdBy) "
+            + " VALUES (:firstName, :mobile, :otp, GETDATE(), 1, GETDATE(), -1)";
 
     String ADD_CUSTOMER1 = "INSERT INTO DocprimeNDHM.dbo.customer (firstName, lastName, dob, relationship, address_id,"
             + " emailId, mobile, gender, isActive, createdAt, createdBy) "

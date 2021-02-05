@@ -8,13 +8,15 @@ import com.pb.dp.healthIdCreation.model.NdhmMobOtpRequest;
 public interface HealthIdDao {
     Integer addCustomer(CustomerDetails customerDetail, int customerId) throws Exception;
 
-    void addNdhmOtpTxnId(long mobileNo, String txnId);
+    void addNdhmOtpTxnId(long mobileNo, String txnId) throws Exception;
 
-    void updateNdhmOTP(NdhmMobOtpRequest ndhmMobOtpRequest);
+    void updateNdhmOTP(NdhmMobOtpRequest ndhmMobOtpRequest) throws Exception;
 
     void updateNdhmOtpToken(NdhmMobOtpRequest ndhmMobOtpRequest, Integer custId) throws Exception;
 
-    Customer getCustomer(Integer custId, Long mobile);
+    Customer getCustomer(Integer custId, Long mobile) throws Exception;
 
-    void updateNdhmTxnId(Integer custId, String txnId);
+    void updateNdhmTxnId(Integer custId, String txnId) throws Exception;
+
+    Integer addNewCustomer(Long mobile, int otp) throws Exception;
 }
