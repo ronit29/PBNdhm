@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,9 +112,16 @@ public class HealthController {
 						int customerId = Integer.valueOf(cipher.decrypt(custId));
 						CustomerHealth responseForHealth = healthService.getHealthProfile(customerId,custHealthOtpRequest);
 						response.put("data", responseForHealth);
-						response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
-						response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
-						
+						if(null == responseForHealth.getTxnId()) {
+							response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
+							response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
+						}else if(responseForHealth.getTxnId().equals(StringUtils.EMPTY)) {
+							response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.AUTH_INIT_FAILED.getStatusMsg());
+							response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.AUTH_INIT_FAILED.getStatusId());
+						}else {
+							response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_XTOKEN.getStatusMsg());
+							response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_XTOKEN.getStatusId());
+						}
 					} catch (NumberFormatException exception) {
 						response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_FORMAT_PARAM.getStatusMsg()
 								+ " Reason: customerId must be a number");

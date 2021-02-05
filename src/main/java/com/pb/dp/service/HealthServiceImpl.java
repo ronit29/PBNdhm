@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -99,6 +100,8 @@ public class HealthServiceImpl implements HealthService {
 			String responseBody = (String) responseFromApi.get("responseBody");
 			Map<String, Object> responseMap = (Map<String, Object>) new Gson().fromJson(responseBody, Map.class);
 			txnId = (String) responseMap.get("txnId");
+		}else {
+			txnId = StringUtils.EMPTY;
 		}
 		return txnId;
 	}
