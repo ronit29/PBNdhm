@@ -1,5 +1,6 @@
 package com.pb.dp.healthIdCreation.controller;
 
+import com.pb.dp.healthIdCreation.enums.NdhmVerifyOperation;
 import com.pb.dp.healthIdCreation.model.CustomerDetails;
 import com.pb.dp.healthIdCreation.model.NdhmMobOtpRequest;
 import com.pb.dp.healthIdCreation.service.HealthIdService;
@@ -32,7 +33,6 @@ public class HealthIdController {
 
    private static final Logger logger = LoggerFactory.getLogger(HealthIdController.class);
 
-//   @RequestMapping(value = "/registerMobile", method = RequestMethod.POST, produces = { MediaType.APPLICATION_JSON_VALUE })
    @RequestMapping(value = "/register/mobile", method = RequestMethod.POST, produces = { MediaType.APPLICATION_JSON_VALUE })
    public ResponseEntity<Map<String, Object>> registerViaMobile(@RequestBody CustomerDetails customerDetail,
                                                                 @RequestHeader(value = "X-CLIENT-KEY") String clientKey,
@@ -82,7 +82,6 @@ public class HealthIdController {
 
    }
 
-//   @RequestMapping(value = "/verifyOtpMobile", method = RequestMethod.POST, produces = { MediaType.APPLICATION_JSON_VALUE })
    @RequestMapping(value = "/verifyOtp/mobile", method = RequestMethod.POST, produces = { MediaType.APPLICATION_JSON_VALUE })
    public ResponseEntity<Map<String, Object>> verifyViaMobile(@RequestBody NdhmMobOtpRequest ndhmMobOtpRequest,
                                                               @RequestHeader(value = "X-CLIENT-KEY") String clientKey,
@@ -103,7 +102,11 @@ public class HealthIdController {
                   AES256Cipher cipher = configService.getAESForClientKeyMap(clientKey);
                   try {
                      int customerId = Integer.valueOf(cipher.decrypt(custId));
-                     response = this.healthIdService.verifyViaMobile(ndhmMobOtpRequest, customerId);
+                     if(ndhmMobOtpRequest.getOperation().equals(NdhmVerifyOperation.REGISTER.getOperationId()))
+                        response = this.healthIdService.verifyForRegistration(ndhmMobOtpRequest, customerId);
+                     else if(ndhmMobOtpRequest.getOperation().equals(NdhmVerifyOperation.UPDATE_PROFILE  .getOperationId()))
+                        response = this.healthIdService.updateHealthIdProfile(ndhmMobOtpRequest,customerId);
+
                   } catch (NumberFormatException exception) {
                      response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_FORMAT_PARAM.getStatusMsg()
                              + " Reason: customerId must be a number");
@@ -202,7 +205,8 @@ public class HealthIdController {
                AES256Cipher cipher = configService.getAESForClientKeyMap(clientKey);
                try {
                   int customerId = Integer.valueOf(cipher.decrypt(custId));
-                  response = this.healthIdService.updateHealthIdProfile(customerDetails,customerId);
+                  response = this.healthIdService.generateOtpForUpdate(customerDetails);
+                 // response = this.healthIdService.updateHealthIdProfile(customerDetails,customerId);
                } catch (NumberFormatException exception) {
                   response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_FORMAT_PARAM.getStatusMsg()
                           + " Reason: customerId must be a number");

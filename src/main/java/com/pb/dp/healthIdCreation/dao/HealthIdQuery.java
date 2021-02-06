@@ -23,7 +23,7 @@ public interface HealthIdQuery {
     String UPDATE_NDHM_OTP_TOKEN = "UPDATE DocprimeNDHM.dbo.ndhm_otp SET token = :token WHERE mobile = :mobile and "
             + " txnId = :txnId";
 
-    String GET_CUSTOMER = "SELECT * from DocprimeNDHM.dbo.customer where id = :id and mobile = :mobile";
+    String GET_CUSTOMER = "SELECT * from DocprimeNDHM.dbo.customer where id = :id";
 
     String GET_ADDRESS = "SELECT * from DocprimeNDHM.dbo.address where id = :id";
 
@@ -32,7 +32,7 @@ public interface HealthIdQuery {
     String UPDATE_NDHM_MOBILE_TOKEN = "UPDATE DocprimeNDHM.dbo.customer SET token = :token WHERE id = :custId and mobile = :mobile";
 
     String UPDATE_CUSTOMER_DETAILS = "UPDATE DocprimeNDHM.dbo.customer SET firstName = :firstName, lastName = :lastName, " +
-            "dob = :dob, relationship = :relation, address_id = :address, emailId = :email, gender = :gender WHERE id = :custId and mobile " +
+            "dob = :dob, relationship = :relation, address_id = :address, emailId = :email, gender = :gender, healthId = :healthId WHERE id = :custId and mobile " +
             "= :mobile and isActive = 1";
 
 

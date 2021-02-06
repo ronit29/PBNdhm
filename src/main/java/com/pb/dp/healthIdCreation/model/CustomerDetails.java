@@ -13,9 +13,9 @@ public class CustomerDetails {
     private String healthId;
     private String healthIdNo;
     private String address;
-    private Integer state;
+    private Long state;
     private String stateName;
-    private Integer district;
+    private Long district;
     private String districtName;
     private String emailId;
     private Boolean isKyc;
@@ -93,19 +93,19 @@ public class CustomerDetails {
         this.address = address;
     }
 
-    public Integer getState() {
+    public Long getState() {
         return state;
     }
 
-    public void setState(Integer state) {
+    public void setState(Long state) {
         this.state = state;
     }
 
-    public Integer getDistrict() {
+    public Long getDistrict() {
         return district;
     }
 
-    public void setDistrict(Integer district) {
+    public void setDistrict(Long district) {
         this.district = district;
     }
 

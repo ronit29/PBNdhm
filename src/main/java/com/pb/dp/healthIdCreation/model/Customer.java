@@ -266,6 +266,7 @@ private Integer ndhmOtpType;
       customer.setTxnId(rs.getString("txnId"));
       customer.setToken(rs.getString("token"));
       customer.setNdhmOtpType(rs.getInt("ndhmOtpType"));
+      customer.setAddressId(rs.getLong("address_id"));
       return customer;
     }
   }

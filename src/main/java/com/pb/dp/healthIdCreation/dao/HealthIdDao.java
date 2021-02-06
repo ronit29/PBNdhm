@@ -1,7 +1,6 @@
 package com.pb.dp.healthIdCreation.dao;
 
 
-import com.pb.dp.healthIdCreation.model.Customer;
 import com.pb.dp.healthIdCreation.model.CustomerDetails;
 import com.pb.dp.healthIdCreation.model.NdhmMobOtpRequest;
 
@@ -14,7 +13,7 @@ public interface HealthIdDao {
 
     void updateNdhmOtpToken(NdhmMobOtpRequest ndhmMobOtpRequest, Integer custId) throws Exception;
 
-    Customer getCustomer(Integer custId, Long mobile) throws Exception;
+    CustomerDetails getCustomerDetails(Integer custId) throws Exception;
 
     void updateNdhmTxnId(Integer custId, String txnId) throws Exception;
 

@@ -3,6 +3,7 @@ package com.pb.dp.healthIdCreation.dao.impl;
 import com.pb.dp.healthIdCreation.dao.HealthIdDao;
 
 import com.pb.dp.healthIdCreation.dao.HealthIdQuery;
+import com.pb.dp.healthIdCreation.model.Address;
 import com.pb.dp.healthIdCreation.model.Customer;
 import com.pb.dp.healthIdCreation.model.CustomerDetails;
 import com.pb.dp.healthIdCreation.model.NdhmMobOtpRequest;
@@ -58,6 +59,7 @@ public class HealthIdDaoImpl implements HealthIdDao {
         custParams.addValue("email",customerDetail.getEmailId());
         custParams.addValue("gender",customerDetail.getGender());
         custParams.addValue("mobile", customerDetail.getMobileNo());
+        custParams.addValue("healthId",customerDetail.getHealthId());
         Integer custCount  =  this.namedParameterJdbcTemplate.update(HealthIdQuery.UPDATE_CUSTOMER_DETAILS,custParams);
         return customerId;
     }
@@ -91,18 +93,28 @@ public class HealthIdDaoImpl implements HealthIdDao {
         params.put("mobile", ndhmMobOtpRequest.getMobile());
 //        params.put("txnId", ndhmMobOtpRequest.getTxnId());
         params.put("token", ndhmMobOtpRequest.getToken());
-//        Integer updateCount = this.namedParameterJdbcTemplate.update(HealthIdQuery.UPDATE_NDHM_OTP_TOKEN,params);
         Integer updateCount = this.namedParameterJdbcTemplate.update(HealthIdQuery.UPDATE_NDHM_MOBILE_TOKEN,params);
 
     }
 
     @Override
-    public Customer getCustomer(Integer custId, Long mobile) throws Exception{
+    public CustomerDetails getCustomerDetails(Integer custId) throws Exception{
         Map<String,Object> params = new HashMap<String,Object>();
         params.put("id",custId);
-        params.put("mobile", mobile);
         Customer customer = this.namedParameterJdbcTemplate.queryForObject(HealthIdQuery.GET_CUSTOMER,params,new Customer.CustomerRowMapper());
-        return customer;
+        params.clear();
+        params.put("id",customer.getAddressId());
+        Address address = this.namedParameterJdbcTemplate.queryForObject(HealthIdQuery.GET_ADDRESS,params,new Address.AddressRowMapper());
+        CustomerDetails customerDetails = new CustomerDetails();
+        customerDetails.setFirstName(customer.getFirstName());
+        customerDetails.setLastName(customer.getLastName());
+        customerDetails.setEmailId(customer.getEmailId());
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+        customerDetails.setDob(formatter.format(customer.getDob()));
+        customerDetails.setAddress(address.getLine1());
+        customerDetails.setState(address.getStateId());
+        customerDetails.setDistrict(address.getDistrictId());
+        return customerDetails;
     }
 
     @Override
