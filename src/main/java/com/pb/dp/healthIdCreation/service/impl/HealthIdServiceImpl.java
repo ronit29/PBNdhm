@@ -15,8 +15,6 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Date;
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -215,9 +213,14 @@ public class HealthIdServiceImpl implements HealthIdService {
         if(ObjectUtils.isNotEmpty(xToken)) {
             UpdateAccountRequest updateAccountRequest = this.prepareUpdateProfilePayload(customerDetails);
             CustomerDetails updateProfileMap = this.updateProfileOnNdhm(updateAccountRequest, xToken);
-            response.put("data", updateProfileMap);
-            response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
-            response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
+            if(Objects.nonNull(updateProfileMap)) {
+                response.put("data", updateProfileMap);
+                response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
+                response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
+            } else{
+                response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.FAILURE.getStatusMsg());
+                response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
+            }
         }
         else{
             response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.FAILURE.getStatusMsg());
@@ -234,19 +237,18 @@ public class HealthIdServiceImpl implements HealthIdService {
         updateAccountRequest.setStateCode(customerDetails.getState().toString());
         updateAccountRequest.setDistrictCode(customerDetails.getDistrict().toString());
         updateAccountRequest.setAddress(customerDetails.getAddress());
-        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
-        customerDetails.setDob(formatter.format(customerDetails.getDob()));
         String dobString = customerDetails.getDob();
         String[] dobArray = dobString.split("-");
         String date = dobArray[0];
         String month = dobArray[1];
-        if(month.length() == 2 && month.substring(0)=="0"){
+        if(month.length() == 2 && month.substring(0,1).equalsIgnoreCase("0")){
             month = month.substring(1);
         }
         String year = dobArray[2];
         updateAccountRequest.setDayOfBirth(date);
         updateAccountRequest.setMonthOfBirth(month);
         updateAccountRequest.setYearOfBirth(year);
+        updateAccountRequest.setGender(customerDetails.getGender());
         return updateAccountRequest;
     }
 
@@ -291,9 +293,9 @@ public class HealthIdServiceImpl implements HealthIdService {
     }
 
     @Override
-    public Map<String, Object> generateOtpForUpdate(CustomerDetails customerDetails) throws Exception {
+    public Map<String, Object> generateOtpForUpdate(CustomerDetails customerDetails, int customerId) throws Exception {
         Map<String, Object> response = new HashMap<>();
-        //Todo update customer data to DB
+        this.healthIdDao.updateProfileData(customerDetails,customerId);
         String txnId = this.authTokenUtil.authInit(customerDetails.getHealthId());
         if(ObjectUtils.isNotEmpty(txnId)){
             response.put("txnId",txnId);

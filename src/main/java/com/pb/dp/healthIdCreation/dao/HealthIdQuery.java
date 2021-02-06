@@ -32,8 +32,14 @@ public interface HealthIdQuery {
     String UPDATE_NDHM_MOBILE_TOKEN = "UPDATE DocprimeNDHM.dbo.customer SET token = :token WHERE id = :custId and mobile = :mobile";
 
     String UPDATE_CUSTOMER_DETAILS = "UPDATE DocprimeNDHM.dbo.customer SET firstName = :firstName, lastName = :lastName, " +
-            "dob = :dob, relationship = :relation, address_id = :address, emailId = :email, gender = :gender, healthId = :healthId WHERE id = :custId and mobile " +
-            "= :mobile and isActive = 1";
+            "dob = :dob, relationship = :relation, address_id = :address, emailId = :email, gender = :gender, healthId = :healthId " +
+            "updatedBy = -1, updatedAt = GETDATE() WHERE id = :custId and mobile = :mobile and isActive = 1";
 
+    String UPDATE_PROFILE_CUSTOMER = "UPDATE DocprimeNDHM.dbo.customer SET firstName = :firstName, lastName = :lastName, " +
+            "dob = :dob, relationship = :relation, emailId = :email, gender = :gender, " +
+            "updatedBy = -1, updatedAt = GETDATE() WHERE id = :custId and isActive = 1";
+
+    String UPDATE_PROFILE_ADDRESS = "UPDATE DocprimeNDHM.dbo.address SET line1 = :address, districtId = :districtId, " +
+            "stateId = :stateId, pincode = :pincode, updatedBy = -1, updatedAt = GETDATE()  WHERE id = (select c.address_id from customer c where c.id = :custId) ";
 
 }

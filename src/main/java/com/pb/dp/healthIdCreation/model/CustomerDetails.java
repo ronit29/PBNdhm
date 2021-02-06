@@ -19,6 +19,7 @@ public class CustomerDetails {
     private String districtName;
     private String emailId;
     private Boolean isKyc;
+    private Long pincode;
 
 
     public long getMobileNo() {
@@ -155,6 +156,14 @@ public class CustomerDetails {
 
     public void setKyc(Boolean kyc) {
         isKyc = kyc;
+    }
+
+    public Long getPincode() {
+        return pincode;
+    }
+
+    public void setPincode(Long pincode) {
+        this.pincode = pincode;
     }
 }
 

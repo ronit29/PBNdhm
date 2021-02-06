@@ -22,6 +22,7 @@ public class UpdateAccountRequest {
     private String yearOfBirth;
     private String monthOfBirth;
     private String dayOfBirth;
+    private String gender;
 
     public String getAddress() {
         return address;
@@ -165,5 +166,13 @@ public class UpdateAccountRequest {
 
     public void setDayOfBirth(String dayOfBirth) {
         this.dayOfBirth = dayOfBirth;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
     }
 }

@@ -17,6 +17,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -136,5 +137,28 @@ public class HealthIdDaoImpl implements HealthIdDao {
         Integer custCount  =  this.namedParameterJdbcTemplate.update(HealthIdQuery.ADD_CUSTOMER,custParams,keyHolder);
         Integer custId = keyHolder.getKey().intValue();
         return custId;
+    }
+
+    @Override
+    public void updateProfileData(CustomerDetails customerDetail, int customerId) throws ParseException {
+        //update address details
+        MapSqlParameterSource addressParams = new MapSqlParameterSource();
+        addressParams.addValue("address",customerDetail.getAddress());
+        addressParams.addValue("districtId", customerDetail.getDistrict());
+        addressParams.addValue("stateId",customerDetail.getState());
+        addressParams.addValue("pincode",customerDetail.getPincode());
+        addressParams.addValue("custId",customerId);
+        Integer addressCount = this.namedParameterJdbcTemplate.update(HealthIdQuery.UPDATE_PROFILE_ADDRESS,addressParams);
+        //update customer details
+        MapSqlParameterSource custParams = new MapSqlParameterSource();
+        custParams.addValue("custId",customerId);
+        custParams.addValue("firstName",customerDetail.getFirstName());
+        custParams.addValue("lastName",customerDetail.getLastName());
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+        custParams.addValue("dob",formatter.parse(customerDetail.getDob()));
+        custParams.addValue("relation",customerDetail.getRelationship());
+        custParams.addValue("email",customerDetail.getEmailId());
+        custParams.addValue("gender",customerDetail.getGender());
+        Integer custCount  =  this.namedParameterJdbcTemplate.update(HealthIdQuery.UPDATE_PROFILE_CUSTOMER,custParams);
     }
 }
