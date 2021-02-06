@@ -6,6 +6,8 @@ public class NdhmMobOtpRequest {
     Integer otp;
     String txnId;
     String token;
+    Integer operation;
+    String healthId;
 
     public Long getMobile() {
         return mobile;
@@ -37,5 +39,21 @@ public class NdhmMobOtpRequest {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public Integer getOperation() {
+        return operation;
+    }
+
+    public void setOperation(Integer operation) {
+        this.operation = operation;
+    }
+
+    public String getHealthId() {
+        return healthId;
+    }
+
+    public void setHealthId(String healthId) {
+        this.healthId = healthId;
     }
 }

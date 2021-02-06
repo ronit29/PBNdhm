@@ -3,6 +3,7 @@ package com.pb.dp.healthIdCreation.dao.impl;
 import com.pb.dp.healthIdCreation.dao.HealthIdDao;
 
 import com.pb.dp.healthIdCreation.dao.HealthIdQuery;
+import com.pb.dp.healthIdCreation.model.Address;
 import com.pb.dp.healthIdCreation.model.Customer;
 import com.pb.dp.healthIdCreation.model.CustomerDetails;
 import com.pb.dp.healthIdCreation.model.NdhmMobOtpRequest;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -58,6 +60,7 @@ public class HealthIdDaoImpl implements HealthIdDao {
         custParams.addValue("email",customerDetail.getEmailId());
         custParams.addValue("gender",customerDetail.getGender());
         custParams.addValue("mobile", customerDetail.getMobileNo());
+        custParams.addValue("healthId",customerDetail.getHealthId());
         Integer custCount  =  this.namedParameterJdbcTemplate.update(HealthIdQuery.UPDATE_CUSTOMER_DETAILS,custParams);
         return customerId;
     }
@@ -91,18 +94,28 @@ public class HealthIdDaoImpl implements HealthIdDao {
         params.put("mobile", ndhmMobOtpRequest.getMobile());
 //        params.put("txnId", ndhmMobOtpRequest.getTxnId());
         params.put("token", ndhmMobOtpRequest.getToken());
-//        Integer updateCount = this.namedParameterJdbcTemplate.update(HealthIdQuery.UPDATE_NDHM_OTP_TOKEN,params);
         Integer updateCount = this.namedParameterJdbcTemplate.update(HealthIdQuery.UPDATE_NDHM_MOBILE_TOKEN,params);
 
     }
 
     @Override
-    public Customer getCustomer(Integer custId, Long mobile) throws Exception{
+    public CustomerDetails getCustomerDetails(Integer custId) throws Exception{
         Map<String,Object> params = new HashMap<String,Object>();
         params.put("id",custId);
-        params.put("mobile", mobile);
         Customer customer = this.namedParameterJdbcTemplate.queryForObject(HealthIdQuery.GET_CUSTOMER,params,new Customer.CustomerRowMapper());
-        return customer;
+        params.clear();
+        params.put("id",customer.getAddressId());
+        Address address = this.namedParameterJdbcTemplate.queryForObject(HealthIdQuery.GET_ADDRESS,params,new Address.AddressRowMapper());
+        CustomerDetails customerDetails = new CustomerDetails();
+        customerDetails.setFirstName(customer.getFirstName());
+        customerDetails.setLastName(customer.getLastName());
+        customerDetails.setEmailId(customer.getEmailId());
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+        customerDetails.setDob(formatter.format(customer.getDob()));
+        customerDetails.setAddress(address.getLine1());
+        customerDetails.setState(address.getStateId());
+        customerDetails.setDistrict(address.getDistrictId());
+        return customerDetails;
     }
 
     @Override
@@ -124,5 +137,28 @@ public class HealthIdDaoImpl implements HealthIdDao {
         Integer custCount  =  this.namedParameterJdbcTemplate.update(HealthIdQuery.ADD_CUSTOMER,custParams,keyHolder);
         Integer custId = keyHolder.getKey().intValue();
         return custId;
+    }
+
+    @Override
+    public void updateProfileData(CustomerDetails customerDetail, int customerId) throws ParseException {
+        //update address details
+        MapSqlParameterSource addressParams = new MapSqlParameterSource();
+        addressParams.addValue("address",customerDetail.getAddress());
+        addressParams.addValue("districtId", customerDetail.getDistrict());
+        addressParams.addValue("stateId",customerDetail.getState());
+        addressParams.addValue("pincode",customerDetail.getPincode());
+        addressParams.addValue("custId",customerId);
+        Integer addressCount = this.namedParameterJdbcTemplate.update(HealthIdQuery.UPDATE_PROFILE_ADDRESS,addressParams);
+        //update customer details
+        MapSqlParameterSource custParams = new MapSqlParameterSource();
+        custParams.addValue("custId",customerId);
+        custParams.addValue("firstName",customerDetail.getFirstName());
+        custParams.addValue("lastName",customerDetail.getLastName());
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+        custParams.addValue("dob",formatter.parse(customerDetail.getDob()));
+        custParams.addValue("relation",customerDetail.getRelationship());
+        custParams.addValue("email",customerDetail.getEmailId());
+        custParams.addValue("gender",customerDetail.getGender());
+        Integer custCount  =  this.namedParameterJdbcTemplate.update(HealthIdQuery.UPDATE_PROFILE_CUSTOMER,custParams);
     }
 }

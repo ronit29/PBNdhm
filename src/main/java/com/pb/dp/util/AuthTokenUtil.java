@@ -52,10 +52,10 @@ public class AuthTokenUtil {
 		return isValidBoolean;
 	}
 
-    private String authInit(String token, String healthId) throws Exception {
+    public String authInit(String healthId) throws Exception {
         String txnId = null;
         Map<String, String> header = new HashMap<>();
-        header.put("Authorization", token);
+        header.put("Authorization", this.bearerAuthToken());
         header.put("X-HIP-ID", "DPHIP119");
         String url = configService.getPropertyConfig("NDHM_AUTH_INIT_URL").getValue();
         Map<String, Object> jsonMap = new HashMap<>();
