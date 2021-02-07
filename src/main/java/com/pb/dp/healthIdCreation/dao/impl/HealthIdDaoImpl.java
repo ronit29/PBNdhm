@@ -110,6 +110,9 @@ public class HealthIdDaoImpl implements HealthIdDao {
         customerDetails.setFirstName(customer.getFirstName());
         customerDetails.setLastName(customer.getLastName());
         customerDetails.setEmailId(customer.getEmailId());
+        customerDetails.setHealthId(customer.getHealthId());
+        customerDetails.setMobileNo(customer.getMobile());
+        customerDetails.setGender(customer.getGender());
         SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
         customerDetails.setDob(formatter.format(customer.getDob()));
         customerDetails.setAddress(address.getLine1());
@@ -160,5 +163,15 @@ public class HealthIdDaoImpl implements HealthIdDao {
         custParams.addValue("email",customerDetail.getEmailId());
         custParams.addValue("gender",customerDetail.getGender());
         Integer custCount  =  this.namedParameterJdbcTemplate.update(HealthIdQuery.UPDATE_PROFILE_CUSTOMER,custParams);
+    }
+
+    @Override
+    public void addHealthIdData(CustomerDetails customerDetail, int customerId) throws Exception {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("healthId",customerDetail.getAddress());
+        params.addValue("healtIdNo", customerDetail.getDistrict());
+        params.addValue("custId",customerId);
+        params.addValue("token",customerDetail.getToken());
+        Integer addressCount = this.namedParameterJdbcTemplate.update(HealthIdQuery.ADD_HEALTH_ID,params);
     }
 }

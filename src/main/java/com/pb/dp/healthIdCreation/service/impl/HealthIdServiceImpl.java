@@ -80,7 +80,7 @@ public class HealthIdServiceImpl implements HealthIdService {
     }
 
     @Override
-    public Map<String, Object> verifyForRegistration(NdhmMobOtpRequest ndhmMobOtpRequest, Integer custId) throws Exception{
+    public Map<String, Object> verifyForRegistration(NdhmMobOtpRequest ndhmMobOtpRequest, Integer custId) throws Exception {
         Map<String, Object> response = new HashMap<>();
         //verify OTP
         String token = this.verifyMobileOtp(ndhmMobOtpRequest);
@@ -89,12 +89,20 @@ public class HealthIdServiceImpl implements HealthIdService {
             //update ndhm mobile token
             this.healthIdDao.updateNdhmOtpToken(ndhmMobOtpRequest, custId);
             //create healthId on ndhm
-            this.createHeathId(custId, ndhmMobOtpRequest.getMobile(), ndhmMobOtpRequest.getTxnId(), token);
-
-            response.put("mobileNo", ndhmMobOtpRequest.getMobile());
-            response.put("verify", true);
-            response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
-            response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
+            CustomerDetails customerDetails = this.createHeathId(custId, ndhmMobOtpRequest.getMobile(), ndhmMobOtpRequest.getTxnId(), token);
+            if (ObjectUtils.isNotEmpty(customerDetails)) {
+                //add healthId data
+                this.healthIdDao.addHealthIdData(customerDetails,custId);
+                response.put("data", customerDetails);
+                response.put("mobileNo", ndhmMobOtpRequest.getMobile());
+                response.put("verify", true);
+                response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
+                response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
+            } else {
+                response.put("verify", false);
+                response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.FAILURE.getStatusMsg());
+                response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
+            }
         } else {
             response.put("verify", false);
             response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.FAILURE.getStatusMsg());
@@ -126,8 +134,9 @@ public class HealthIdServiceImpl implements HealthIdService {
         return token;
     }
 
-    private void createHeathId(Integer custId, Long mobile, String txnId, String token) throws Exception {
+    private CustomerDetails createHeathId(Integer custId, Long mobile, String txnId, String token) throws Exception {
         Map<String, Object> response = new HashMap<>();
+        CustomerDetails customerDetails = new CustomerDetails();
         CreateHealthIdByMobRequest createHealthIdRequest = this.prepareHealthIdPayload(custId,mobile,txnId,token);
 
         String url = configService.getPropertyConfig("NDHM_CREATE_HEALTHID_URL").getValue();
@@ -140,10 +149,10 @@ public class HealthIdServiceImpl implements HealthIdService {
             Object responseBody = response.get("responseBody");
             if(Objects.nonNull(responseBody) && response.get("status").equals(200)) {
                 Map<String, Object> responseBodyMap = new Gson().fromJson(responseBody.toString(), Map.class);
-
+                customerDetails = this.prepareCustomerDetailsResponse(responseBodyMap);
             }
         }
-
+        return customerDetails;
     }
 
     private CreateHealthIdByMobRequest prepareHealthIdPayload(Integer custId, Long mobile, String txnId, String token) throws Exception{
@@ -153,7 +162,7 @@ public class HealthIdServiceImpl implements HealthIdService {
         CreateHealthIdByMobRequest createHealthIdRequest = new CreateHealthIdByMobRequest();
         createHealthIdRequest.setFirstName(customer.getFirstName());
         createHealthIdRequest.setLastName(customer.getLastName());
-        createHealthIdRequest.setName(customer.getFirstName()+customer.getLastName());
+        createHealthIdRequest.setName(customer.getFirstName()+ " " +customer.getLastName());
         createHealthIdRequest.setHealthId(customer.getHealthId());
         createHealthIdRequest.setTxnId(txnId);
         createHealthIdRequest.setToken(token);
@@ -249,6 +258,7 @@ public class HealthIdServiceImpl implements HealthIdService {
         updateAccountRequest.setMonthOfBirth(month);
         updateAccountRequest.setYearOfBirth(year);
         updateAccountRequest.setGender(customerDetails.getGender());
+        updateAccountRequest.setHealthId(customerDetails.getHealthId());
         return updateAccountRequest;
     }
 
@@ -322,25 +332,37 @@ public class HealthIdServiceImpl implements HealthIdService {
             if(Objects.nonNull(responseBody) && response.get("status").equals(200)) {
                 responseBodyMap = new Gson().fromJson(responseBody.toString(), Map.class);
                 if (null != responseBodyMap) {
-                    customerDetails = new CustomerDetails();
-                    customerDetails.setMobileNo(Long.valueOf((String) responseBodyMap.get("mobile")));
-                    customerDetails.setFullName((String) responseBodyMap.get("name"));
-                    customerDetails.setEmailId((String) responseBodyMap.get("email"));
-                    customerDetails.setAddress((String) responseBodyMap.get("address"));
-                    customerDetails.setState(Long.valueOf((String) responseBodyMap.get("stateCode")));
-                    customerDetails.setStateName((String) responseBodyMap.get("stateName"));
-                    customerDetails.setDistrict(Long.valueOf((String) responseBodyMap.get("districtCode")));
-                    customerDetails.setDistrictName((String) responseBodyMap.get("districtName"));
-                    customerDetails.setHealthId((String) responseBodyMap.get("healthId"));
-                    customerDetails.setHealthIdNo((String) responseBodyMap.get("healthIdNumber"));
-                    customerDetails.setGender((String) responseBodyMap.get("gender"));
-                    customerDetails.setFirstName((String) responseBodyMap.get("firstName"));
-                    //customerDetails.setMidName((String) responseBodyMap.get("middleName"));
-                    customerDetails.setLastName((String) responseBodyMap.get("lastName"));
-                    customerDetails.setKyc((Boolean)responseBodyMap.get("kycVerified"));
+                    customerDetails = this.prepareCustomerDetailsResponse(responseBodyMap);
                 }
             }
         }
+        return customerDetails;
+    }
+
+    private CustomerDetails prepareCustomerDetailsResponse(Map<String,Object> responseMap){
+        CustomerDetails customerDetails = new CustomerDetails();
+        if(ObjectUtils.isNotEmpty(responseMap.get("token"))){
+            customerDetails.setToken((String) responseMap.get("token"));
+        }
+        customerDetails.setMobileNo(Long.valueOf((String) responseMap.get("mobile")));
+        customerDetails.setFullName((String) responseMap.get("name"));
+        customerDetails.setEmailId((String) responseMap.get("email"));
+        customerDetails.setAddress((String) responseMap.get("address"));
+        customerDetails.setState(Long.valueOf((String) responseMap.get("stateCode")));
+        customerDetails.setStateName((String) responseMap.get("stateName"));
+        customerDetails.setDistrict(Long.valueOf((String) responseMap.get("districtCode")));
+        customerDetails.setDistrictName((String) responseMap.get("districtName"));
+        customerDetails.setHealthId((String) responseMap.get("healthId"));
+        customerDetails.setHealthIdNo((String) responseMap.get("healthIdNumber"));
+        customerDetails.setGender((String) responseMap.get("gender"));
+        customerDetails.setFirstName((String) responseMap.get("firstName"));
+        //customerDetails.setMidName((String) responseMap.get("middleName"));
+        customerDetails.setLastName((String) responseMap.get("lastName"));
+        if(ObjectUtils.isNotEmpty(responseMap.get("kycVerified"))){
+            customerDetails.setKyc((Boolean)responseMap.get("kycVerified"));
+        }
+
+
         return customerDetails;
     }
 }
