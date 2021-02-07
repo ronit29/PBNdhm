@@ -22,4 +22,6 @@ public interface HealthIdDao {
     Integer addNewCustomer(Long mobile, int otp) throws Exception;
 
     void updateProfileData(CustomerDetails customerDetails, int customerId) throws ParseException;
+
+    void addHealthIdData(CustomerDetails customerDetails, int customerId) throws Exception;
 }

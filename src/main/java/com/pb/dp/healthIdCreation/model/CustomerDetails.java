@@ -20,6 +20,8 @@ public class CustomerDetails {
     private String emailId;
     private Boolean isKyc;
     private Long pincode;
+    private String token;
+
 
 
     public long getMobileNo() {
@@ -164,6 +166,14 @@ public class CustomerDetails {
 
     public void setPincode(Long pincode) {
         this.pincode = pincode;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }
 
