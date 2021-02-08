@@ -169,11 +169,11 @@ public class HealthIdDaoImpl implements HealthIdDao {
     @Override
     public void addHealthIdData(CustomerDetails customerDetail, int customerId) throws Exception {
         MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("healthId",customerDetail.getAddress());
-        params.addValue("healtIdNo", customerDetail.getDistrict());
+        params.addValue("healthId",customerDetail.getHealthId());
+        params.addValue("healtIdNo", customerDetail.getHealthIdNo());
         params.addValue("custId",customerId);
         params.addValue("token",customerDetail.getToken());
-        Integer addressCount = this.namedParameterJdbcTemplate.update(HealthIdQuery.ADD_HEALTH_ID,params);
+        Integer recordCount = this.namedParameterJdbcTemplate.update(HealthIdQuery.ADD_HEALTH_ID,params);
     }
 
     @Override

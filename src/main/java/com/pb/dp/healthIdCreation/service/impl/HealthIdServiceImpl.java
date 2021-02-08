@@ -137,7 +137,9 @@ public class HealthIdServiceImpl implements HealthIdService {
     private CustomerDetails createHeathId(Integer custId, Long mobile, String txnId, String token) throws Exception {
         Map<String, Object> response = new HashMap<>();
         CustomerDetails customerDetails = new CustomerDetails();
-        CreateHealthIdByMobRequest createHealthIdRequest = this.prepareHealthIdPayload(custId,mobile,txnId,token);
+        //get customer from Db
+        CustomerDetails customer = this.healthIdDao.getCustomerDetails(custId);
+        CreateHealthIdByMobRequest createHealthIdRequest = this.prepareHealthIdPayload(customer,mobile,txnId,token);
 
         String url = configService.getPropertyConfig("NDHM_CREATE_HEALTHID_URL").getValue();
         Map<String, String> headers = new HashMap<>();
@@ -150,19 +152,25 @@ public class HealthIdServiceImpl implements HealthIdService {
             if(Objects.nonNull(responseBody) && response.get("status").equals(200)) {
                 Map<String, Object> responseBodyMap = new Gson().fromJson(responseBody.toString(), Map.class);
                 customerDetails = this.prepareCustomerDetailsResponse(responseBodyMap);
+                customerDetails.setDob(customer.getDob());
+                customerDetails.setRelationship(customer.getRelationship());
+
             }
         }
         return customerDetails;
     }
 
-    private CreateHealthIdByMobRequest prepareHealthIdPayload(Integer custId, Long mobile, String txnId, String token) throws Exception{
-        //get customer from Db
-        CustomerDetails customer = this.healthIdDao.getCustomerDetails(custId);
+    private CreateHealthIdByMobRequest prepareHealthIdPayload(CustomerDetails customer, Long mobile, String txnId, String token) throws Exception{
         //form payload
         CreateHealthIdByMobRequest createHealthIdRequest = new CreateHealthIdByMobRequest();
         createHealthIdRequest.setFirstName(customer.getFirstName());
         createHealthIdRequest.setLastName(customer.getLastName());
         createHealthIdRequest.setName(customer.getFirstName()+ " " +customer.getLastName());
+        if(customer.getHealthId().contains("@")){
+            String healthId = customer.getHealthId();
+            String[] healthIdVal = healthId.split("@");
+            customer.setHealthId(healthIdVal[0]);
+        }
         createHealthIdRequest.setHealthId(customer.getHealthId());
         createHealthIdRequest.setTxnId(txnId);
         createHealthIdRequest.setToken(token);
@@ -172,7 +180,7 @@ public class HealthIdServiceImpl implements HealthIdService {
         String[] dobArray = dobString.split("-");
         String date = dobArray[0];
         String month = dobArray[1];
-        if(month.length() == 2 && month.substring(0)=="0"){
+        if(month.length() == 2 && month.substring(0,1).equalsIgnoreCase("0")){
             month = month.substring(1);
         }
         String year = dobArray[2];
@@ -222,6 +230,8 @@ public class HealthIdServiceImpl implements HealthIdService {
         if(ObjectUtils.isNotEmpty(xToken)) {
             UpdateAccountRequest updateAccountRequest = this.prepareUpdateProfilePayload(customerDetails);
             CustomerDetails updateProfileMap = this.updateProfileOnNdhm(updateAccountRequest, xToken);
+            updateProfileMap.setDob(customerDetails.getDob());
+            updateProfileMap.setRelationship(customerDetails.getRelationship());
             if(Objects.nonNull(updateProfileMap)) {
                 response.put("data", updateProfileMap);
                 response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
