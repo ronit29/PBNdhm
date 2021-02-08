@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping(value = "/healthId")
@@ -102,11 +103,15 @@ public class HealthIdController {
                   AES256Cipher cipher = configService.getAESForClientKeyMap(clientKey);
                   try {
                      int customerId = Integer.valueOf(cipher.decrypt(custId));
-                     if(ndhmMobOtpRequest.getOperation().equals(NdhmVerifyOperation.REGISTER.getOperationId()))
+                     if(Objects.isNull(ndhmMobOtpRequest.getOperation())){
                         response = this.healthIdService.verifyForRegistration(ndhmMobOtpRequest, customerId);
-                     else if(ndhmMobOtpRequest.getOperation().equals(NdhmVerifyOperation.UPDATE_PROFILE  .getOperationId()))
-                        response = this.healthIdService.updateHealthIdProfile(ndhmMobOtpRequest,customerId);
-
+                     }
+                     else if(ndhmMobOtpRequest.getOperation().equals(NdhmVerifyOperation.REGISTER.getOperationId())) {
+                        response = this.healthIdService.verifyForRegistration(ndhmMobOtpRequest, customerId);
+                     }
+                     else if(ndhmMobOtpRequest.getOperation().equals(NdhmVerifyOperation.UPDATE_PROFILE  .getOperationId())) {
+                        response = this.healthIdService.updateHealthIdProfile(ndhmMobOtpRequest, customerId);
+                     }
                   } catch (NumberFormatException exception) {
                      response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_FORMAT_PARAM.getStatusMsg()
                              + " Reason: customerId must be a number");
