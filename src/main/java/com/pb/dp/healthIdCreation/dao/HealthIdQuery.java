@@ -44,4 +44,9 @@ public interface HealthIdQuery {
 
     String ADD_HEALTH_ID = "INSERT INTO DocprimeNDHM.dbo.healthId (healthId, healtIdNo, customerId, healthIdToken, isKyc, isActive, createdAt, createdBy) "
             + " VALUES (:healthId, :healtIdNo, :custId, :token, 0, 1, GETDATE(), -1)";
+
+    String GET_CUSTOMER_BY_MOBILE = "SELECT * from DocprimeNDHM.dbo.customer where mobile = :mobile";
+
+    String UPDATE_CUSTOMER = "UPDATE DocprimeNDHM.dbo.customer SET otp = :otp, otpCreatedAt = GETDATE(), " +
+            "updatedBy = -1, updatedAt = GETDATE() WHERE id = :id and mobile = :mobile and isActive = 1";
 }

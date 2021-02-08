@@ -1,6 +1,7 @@
 package com.pb.dp.healthIdCreation.dao;
 
 
+import com.pb.dp.healthIdCreation.model.Customer;
 import com.pb.dp.healthIdCreation.model.CustomerDetails;
 import com.pb.dp.healthIdCreation.model.NdhmMobOtpRequest;
 
@@ -19,9 +20,13 @@ public interface HealthIdDao {
 
     void updateNdhmTxnId(Integer custId, String txnId) throws Exception;
 
-    Integer addNewCustomer(Long mobile, int otp) throws Exception;
+    Long addNewCustomer(Long mobile, int otp) throws Exception;
 
     void updateProfileData(CustomerDetails customerDetails, int customerId) throws ParseException;
 
     void addHealthIdData(CustomerDetails customerDetails, int customerId) throws Exception;
+
+    Customer getCustomerByMobile(Long mobile) throws Exception;
+
+    void updateCustomer(Long mobile, int otp, long id) throws Exception;
 }

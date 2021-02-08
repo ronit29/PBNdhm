@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import com.pb.dp.healthIdCreation.dao.HealthIdDao;
+import com.pb.dp.healthIdCreation.model.Customer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -33,7 +34,7 @@ public class LoginServiceImpl implements LoginService {
     public Map<String, Object> sendOtp(Long mobile) throws Exception {
         Map<String, Object> response = new HashMap<>();
             Integer result = 0;
-            Integer custId =0;
+            Long custId =0l;
             Integer countryCode = 91;
              int otp = (int) (Math.random() * 9999);
             if (otp <= 1000) {
@@ -54,7 +55,8 @@ public class LoginServiceImpl implements LoginService {
                 smsResponse = "OK";
                 uuid = String.valueOf(sendSmsResp.get("Description"));
                 result = loginDao.inserOtpDetails(otp, countryCode, mobile, message, smsResponse, smsType, uuid);
-                custId = this.healthIdDao.addNewCustomer(mobile,otp);
+                custId = this.addNewCustomer(mobile,otp);
+
 
             }
         if (custId > 0) {
@@ -68,4 +70,15 @@ public class LoginServiceImpl implements LoginService {
         }
         return response;
      }
+
+    private Long addNewCustomer(Long mobile, int otp) throws Exception {
+        Customer customer = this.healthIdDao.getCustomerByMobile(mobile);
+        if(ObjectUtils.isEmpty(customer)) {
+            Long custId = this.healthIdDao.addNewCustomer(mobile, otp);
+            return custId;
+        } else {
+            this.healthIdDao.updateCustomer(mobile,otp,customer.getId());
+            return customer.getId();
+        }
+    }
 }

@@ -8,6 +8,7 @@ import com.pb.dp.healthIdCreation.model.Customer;
 import com.pb.dp.healthIdCreation.model.CustomerDetails;
 import com.pb.dp.healthIdCreation.model.NdhmMobOtpRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -131,14 +132,14 @@ public class HealthIdDaoImpl implements HealthIdDao {
     }
 
     @Override
-    public Integer addNewCustomer(Long mobile, int otp) throws Exception{
+    public Long addNewCustomer(Long mobile, int otp) throws Exception{
         KeyHolder keyHolder = new GeneratedKeyHolder();
         MapSqlParameterSource custParams = new MapSqlParameterSource();
         custParams.addValue("firstName","New");
         custParams.addValue("otp",otp);
         custParams.addValue("mobile", mobile);
         Integer custCount  =  this.namedParameterJdbcTemplate.update(HealthIdQuery.ADD_CUSTOMER,custParams,keyHolder);
-        Integer custId = keyHolder.getKey().intValue();
+        Long custId = keyHolder.getKey().longValue() ;
         return custId;
     }
 
@@ -173,5 +174,26 @@ public class HealthIdDaoImpl implements HealthIdDao {
         params.addValue("custId",customerId);
         params.addValue("token",customerDetail.getToken());
         Integer addressCount = this.namedParameterJdbcTemplate.update(HealthIdQuery.ADD_HEALTH_ID,params);
+    }
+
+    @Override
+    public Customer getCustomerByMobile(Long mobile) throws Exception {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("mobile", mobile);
+        try {
+            Customer customer = this.namedParameterJdbcTemplate.queryForObject(HealthIdQuery.GET_CUSTOMER_BY_MOBILE, params, new Customer.CustomerRowMapper());
+            return customer;
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public void updateCustomer(Long mobile, int otp, long id)  throws Exception{
+        MapSqlParameterSource custParams = new MapSqlParameterSource();
+        custParams.addValue("id",id);
+        custParams.addValue("otp",otp);
+        custParams.addValue("mobile", mobile);
+        Integer custCount  =  this.namedParameterJdbcTemplate.update(HealthIdQuery.UPDATE_CUSTOMER,custParams);
     }
 }
