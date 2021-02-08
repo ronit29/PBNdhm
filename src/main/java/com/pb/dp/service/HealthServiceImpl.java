@@ -1,9 +1,7 @@
 package com.pb.dp.service;
 
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +37,10 @@ public class HealthServiceImpl implements HealthService {
 			throws Exception {
 		boolean isValidBoolean = true;
 		CustomerHealth response = healthDao.getHealthProfile(customerId,custHealthOtpRequest.getHealthId());
+		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+		if(Objects.nonNull(response.getDob())) {
+			response.setDobStr(formatter.format(response.getDob()));
+		}
 		if (null != custHealthOtpRequest.getHealthId() && !custHealthOtpRequest.getHealthId().isEmpty()) {
 			StringBuilder xToken = new StringBuilder("Bearer ");
 			String authToken = healthDao.getHealthToken(custHealthOtpRequest.getHealthId());

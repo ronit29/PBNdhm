@@ -14,6 +14,7 @@ public class CustomerHealth {
 	private String midName;
 	private String lastName;
 	private Date dob;
+	private String dobStr;
 	private String relationship;
 	private String emailId;
 	private String gender;
@@ -147,9 +148,13 @@ public class CustomerHealth {
 		this.txnId = txnId;
 	}
 
+	public String getDobStr() {
+		return dobStr;
+	}
 
-
-
+	public void setDobStr(String dobStr) {
+		this.dobStr = dobStr;
+	}
 
 	public static class CustomerHealthMapper implements RowMapper<CustomerHealth> {
         @Override
