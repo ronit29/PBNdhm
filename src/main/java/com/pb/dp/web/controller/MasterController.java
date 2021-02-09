@@ -104,7 +104,7 @@ public class MasterController {
 		 Map<String,Object> response = new HashMap<>();
 		 HttpStatus status = HttpStatus.OK;
 		 try {
-			 List<Map<String,Object>> result = masterService.getState();
+			 List<Map<String,Object>> result = masterService.getRelations();
 			 if(result!=null && !result.isEmpty()) {
 				 response.put("data",result);
 				 response.put(FieldKey.SK_STATUS_CODE,ResponseStatus.SUCCESS.getStatusId());

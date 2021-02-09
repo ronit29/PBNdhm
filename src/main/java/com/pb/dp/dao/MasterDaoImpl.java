@@ -11,7 +11,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 /**
- * This class implements dao layer for master
+ * This class implements dao layer for master of
+ *  <ul>
+ *   <li> get master of NDHM state code and state name</li>
+ *   <li> get master of district code and district name </li>
+ *   <li> get master of relation of 
+ *  </ul>
  * 
  * @author Aditya Rathore
  *
