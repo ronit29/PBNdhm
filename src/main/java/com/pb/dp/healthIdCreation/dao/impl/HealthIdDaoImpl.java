@@ -226,4 +226,16 @@ public class HealthIdDaoImpl implements HealthIdDao {
         params.put("txnId", txnId);
         Integer count  =  this.namedParameterJdbcTemplate.update(HealthIdQuery.UPDATE_PROFILE_TXN_ID,params);
     }
+
+    @Override
+    public HealthId getByHealth(String healthId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("healthId", healthId);
+        try {
+            HealthId healthIdResponse = this.namedParameterJdbcTemplate.queryForObject(HealthIdQuery.GET_BY_HEALTH_ID, params, new HealthId.HealthIdRowMapper());
+            return healthIdResponse;
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
 }

@@ -34,4 +34,6 @@ public interface HealthIdDao {
     HealthId getHealthIdDetails(int customerId, Integer valueOf) throws Exception;
 
     void updateProfileTxnId(int customerId, String healthId, String txnId);
+
+    HealthId getByHealth(String healthId);
 }

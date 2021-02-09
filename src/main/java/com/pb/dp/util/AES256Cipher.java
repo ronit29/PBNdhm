@@ -29,14 +29,15 @@ public class AES256Cipher {
 	}
 
 	public static void main(String[] args) throws UnsupportedEncodingException, CipherException {
-		String messageToEncrypt = "GVHIyY1Po/TlFixTccgzEw==";
+		String messageToEncrypt = "48";
 		AES256Cipher aes256Cipher = new AES256Cipher("LZO7CnfjzXD6g0mKVyV14MP1Ci2pBQXL", "FQSxN27aqtGNSdxY");
-		//String encryptedMessage = aes256Cipher.encrypt(messageToEncrypt);
-		String decryptedMessage = aes256Cipher.decrypt(messageToEncrypt);
-//		System.out.println("Original Message: {" + messageToEncrypt + "}, Encrypted Message: {" + encryptedMessage
-//				+ "}, Decrypted Message: {" + decryptedMessage + "}");
-//		System.out.println("URL encoded:- " + URLEncoder.encode(encryptedMessage, "UTF-8"));
-		System.out.println("decoded " + decryptedMessage);
+		String encryptedMessage = aes256Cipher.encrypt(messageToEncrypt);
+		String decryptedMessage = aes256Cipher.decrypt(encryptedMessage);
+		System.out.println("Original Message: {" + messageToEncrypt + "}, Encrypted Message: {" + encryptedMessage
+				+ "}, Decrypted Message: {" + decryptedMessage + "}");
+		System.out.println("URL encoded:- " + URLEncoder.encode(encryptedMessage, "UTF-8"));
+		String messageToDecrypt = "GVHIyY1Po/TlFixTccgzEw==";
+		System.out.println("decoded " + aes256Cipher.decrypt(messageToDecrypt));
 		/*
 		 * AES256Cipher myCipher = new AES256Cipher("18lk1sDd3XLVost4BIaPjptCvX2iCglR",
 		 * "2bwAHNw889fG5qN8"); String mobileNo = myCipher.encrypt("9972429140");

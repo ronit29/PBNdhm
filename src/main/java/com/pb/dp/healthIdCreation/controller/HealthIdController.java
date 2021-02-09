@@ -39,7 +39,6 @@ public class HealthIdController {
                                                                 @RequestHeader(value = "X-CLIENT-KEY") String clientKey,
                                                                 @RequestHeader(value = "X-AUTH-KEY") String authKey,
                                                                 @RequestHeader(value = "X-CID") String custId){
-
       HttpStatus status = HttpStatus.OK;
       Map<String, Object> response = new HashMap<>();
       try {

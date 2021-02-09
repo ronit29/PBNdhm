@@ -40,32 +40,37 @@ public class HealthIdServiceImpl implements HealthIdService {
     @Override
     public Map<String, Object> registerViaMobile(CustomerDetails customerDetail, int customerId) throws Exception {
         Map<String, Object> response = new HashMap<>();
-        if(Objects.nonNull(customerDetail.getRelationship())) {
+        if (Objects.nonNull(customerDetail.getRelationship())) {
             //check if healthId exist
             Integer relation = Relationship.valueOf(customerDetail.getRelationship().toUpperCase()).getRelationId();
             HealthId healthId = this.healthIdDao.getHealthIdDetails(customerId, relation);
-            if(ObjectUtils.isEmpty(healthId)) {
-                // add customer details
-//                Integer custId = this.healthIdDao.addCustomer(customerDetail, customerId);
-                 //triggerOtp on mobile
-                String txnId = this.generateOtp(customerDetail.getMobileNo());
+            if (ObjectUtils.isEmpty(healthId)) {
+                //get by healthId
+                HealthId healthId1 = this.healthIdDao.getByHealth(customerDetail.getHealthId());
+                if (null == healthId1) {
+                    //triggerOtp on mobile
+                    String txnId = this.generateOtp(customerDetail.getMobileNo());
+                    if (ObjectUtils.isNotEmpty(txnId)) {
+                        //healthId demographic details
+                        customerDetail.setRelationId(relation);
+                        Integer healthIdPk = this.healthIdDao.addHealthIdDemographics(customerDetail, customerId);
 
-                if (ObjectUtils.isNotEmpty(txnId)) {
-                    //healthId demographic details
-                    customerDetail.setRelationId(relation);
-                    Integer healthIdPk = this.healthIdDao.addHealthIdDemographics(customerDetail, customerId);
+                        // save txnId
+                        this.healthIdDao.updateNdhmTxnId(healthIdPk, txnId);
+                        response.put("txnId", txnId);
+                        response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
+                        response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
 
-                    // save txnId
-                    this.healthIdDao.updateNdhmTxnId(healthIdPk, txnId);
-                    response.put("txnId", txnId);
-                    response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
-                    response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
+                    } else {
+                        response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.FAILURE.getStatusMsg());
+                        response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
+                    }
                 } else {
-                    response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.FAILURE.getStatusMsg());
-                    response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
+                    response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_INPUT.getStatusMsg() + ": HealthId " + customerDetail.getHealthId() + " exist!!");
+                    response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_INPUT.getStatusId());
                 }
             } else {
-                response.put(FieldKey.SK_STATUS_MESSAGE, "healthId for "+customerDetail.getRelationship()+ " exists : "+healthId.getHealthId() );
+                response.put(FieldKey.SK_STATUS_MESSAGE, "healthId for " + customerDetail.getRelationship() + " exists : " + healthId.getHealthId());
                 response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_INPUT.getStatusId());
             }
         } else {

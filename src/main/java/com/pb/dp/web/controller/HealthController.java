@@ -3,6 +3,7 @@ package com.pb.dp.web.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -110,17 +111,22 @@ public class HealthController {
 					AES256Cipher cipher = configService.getAESForClientKeyMap(clientKey);
 					try {
 						int customerId = Integer.valueOf(cipher.decrypt(custId));
-						CustomerHealth responseForHealth = healthService.getHealthProfile(customerId,custHealthOtpRequest);
+						CustomerHealth responseForHealth = healthService.getHealthProfile(customerId, custHealthOtpRequest);
+						if(Objects.nonNull(responseForHealth)){
 						response.put("data", responseForHealth);
-						if(null == responseForHealth.getTxnId()) {
+						if (null == responseForHealth.getTxnId()) {
 							response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
 							response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
-						}else if(responseForHealth.getTxnId().equals(StringUtils.EMPTY)) {
+						} else if (responseForHealth.getTxnId().equals(StringUtils.EMPTY)) {
 							response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.AUTH_INIT_FAILED.getStatusMsg());
 							response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.AUTH_INIT_FAILED.getStatusId());
-						}else {
+						} else {
 							response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_XTOKEN.getStatusMsg());
 							response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_XTOKEN.getStatusId());
+						}
+					} else{
+							response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.NO_RECORD_FOUND.getStatusMsg());
+							response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.NO_RECORD_FOUND.getStatusId());
 						}
 					} catch (NumberFormatException exception) {
 						response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_FORMAT_PARAM.getStatusMsg()
@@ -140,6 +146,7 @@ public class HealthController {
 			}
 		} catch (Exception e) {
 			logger.debug(e.getMessage());
+			e.printStackTrace();
 			status = HttpStatus.INTERNAL_SERVER_ERROR;
 			response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
 			response.put(FieldKey.SK_STATUS_MESSAGE, e.getMessage());

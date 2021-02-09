@@ -13,6 +13,7 @@ import com.pb.dp.model.CustomerHealth;
 import com.pb.dp.model.GetHealthProfileRequest;
 import com.pb.dp.util.AuthTokenUtil;
 import com.pb.dp.util.HttpUtil;
+import org.springframework.util.ObjectUtils;
 
 @Service
 public class HealthServiceImpl implements HealthService {
@@ -38,47 +39,49 @@ public class HealthServiceImpl implements HealthService {
 		boolean isValidBoolean = true;
 		CustomerHealth response = healthDao.getHealthProfile(customerId,custHealthOtpRequest.getHealthId());
 		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
-		if(Objects.nonNull(response.getDob())) {
-			response.setDobStr(formatter.format(response.getDob()));
-		}
-		if (null != custHealthOtpRequest.getHealthId() && !custHealthOtpRequest.getHealthId().isEmpty()) {
-			StringBuilder xToken = new StringBuilder("Bearer ");
-			String authToken = healthDao.getHealthToken(custHealthOtpRequest.getHealthId());
-			String token = authTokenUtil.bearerAuthToken();
-			if (null != authToken) {
-				isValidBoolean = authTokenUtil.isValidToken(authToken, token);
-				if (isValidBoolean) {
-					xToken.append(authToken);
-					setQrCodeDetails(response, token, xToken.toString(), custHealthOtpRequest.getHealthId());
-					Map<String, String> header2 = new HashMap<>();
-					header2.put("Authorization", token);
-					header2.put("X-HIP-ID", "DPHIP119");
-					header2.put("X-Token", xToken.toString());
-					String url2 = configService.getPropertyConfig("NDHM_ACCOUNT_PROFILE_URL").getValue();
-					Map<String, Object> jsonMap = new HashMap<>();
-					String jsonPayload = new Gson().toJson(jsonMap);
-					Map<String, Object> responseFromApi2 = HttpUtil.post(url2, jsonPayload, header2);
-					int statusCode2 = (int) responseFromApi2.get("status");
-					if (statusCode2 == 200) {
-						String responseBody2 = (String) responseFromApi2.get("responseBody");
-						Map<String, Object> responseMap = (Map<String, Object>) new Gson().fromJson(responseBody2,
-								Map.class);
-						if (null != responseMap) {
-							response.setAddress((String) responseMap.get("address"));
-							response.setState((String) responseMap.get("stateName"));
-							response.setDistrict((String) responseMap.get("districtName"));
-							response.setHealthId((String) responseMap.get("healthId"));
-							response.setHealtIdNo((String) responseMap.get("healthIdNumber"));
-							response.setEmailId((String) responseMap.get("email"));
-							response.setGender((String) responseMap.get("gender"));
-							response.setFirstName((String) responseMap.get("firstName"));
-							response.setMiddleName((String) responseMap.get("middleName"));
-							response.setLastName((String) responseMap.get("lastName"));
+		if(!ObjectUtils.isEmpty(response)) {
+			if (Objects.nonNull(response.getDob())) {
+				response.setDobStr(formatter.format(response.getDob()));
+			}
+			if (null != custHealthOtpRequest.getHealthId() && !custHealthOtpRequest.getHealthId().isEmpty()) {
+				StringBuilder xToken = new StringBuilder("Bearer ");
+				String authToken = healthDao.getHealthToken(custHealthOtpRequest.getHealthId());
+				String token = authTokenUtil.bearerAuthToken();
+				if (null != authToken) {
+					isValidBoolean = authTokenUtil.isValidToken(authToken, token);
+					if (isValidBoolean) {
+						xToken.append(authToken);
+						setQrCodeDetails(response, token, xToken.toString(), custHealthOtpRequest.getHealthId());
+						Map<String, String> header2 = new HashMap<>();
+						header2.put("Authorization", token);
+						header2.put("X-HIP-ID", "DPHIP119");
+						header2.put("X-Token", xToken.toString());
+						String url2 = configService.getPropertyConfig("NDHM_ACCOUNT_PROFILE_URL").getValue();
+						Map<String, Object> jsonMap = new HashMap<>();
+						String jsonPayload = new Gson().toJson(jsonMap);
+						Map<String, Object> responseFromApi2 = HttpUtil.post(url2, jsonPayload, header2);
+						int statusCode2 = (int) responseFromApi2.get("status");
+						if (statusCode2 == 200) {
+							String responseBody2 = (String) responseFromApi2.get("responseBody");
+							Map<String, Object> responseMap = (Map<String, Object>) new Gson().fromJson(responseBody2,
+									Map.class);
+							if (null != responseMap) {
+								response.setAddress((String) responseMap.get("address"));
+								response.setState((String) responseMap.get("stateName"));
+								response.setDistrict((String) responseMap.get("districtName"));
+								response.setHealthId((String) responseMap.get("healthId"));
+								response.setHealtIdNo((String) responseMap.get("healthIdNumber"));
+								response.setEmailId((String) responseMap.get("email"));
+								response.setGender((String) responseMap.get("gender"));
+								response.setFirstName((String) responseMap.get("firstName"));
+								response.setMiddleName((String) responseMap.get("middleName"));
+								response.setLastName((String) responseMap.get("lastName"));
+							}
 						}
+					} else {
+						String txnId = getTxnId(token, custHealthOtpRequest.getHealthId());
+						response.setTxnId(txnId);
 					}
-				} else {
-					String txnId = getTxnId(token, custHealthOtpRequest.getHealthId());
-					response.setTxnId(txnId);
 				}
 			}
 		}

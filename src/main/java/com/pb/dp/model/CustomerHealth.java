@@ -23,7 +23,9 @@ public class CustomerHealth {
 	private int addressId;
 	private String address;
 	private String state;
+	private Long stateId;
 	private String district;
+	private Long districtId;
 	private short isKyc;
 	private String qrCode;
 	private String healthCard;
@@ -164,6 +166,22 @@ public class CustomerHealth {
 		this.dobStr = dobStr;
 	}
 
+	public Long getStateId() {
+		return stateId;
+	}
+
+	public void setStateId(Long stateId) {
+		this.stateId = stateId;
+	}
+
+	public Long getDistrictId() {
+		return districtId;
+	}
+
+	public void setDistrictId(Long districtId) {
+		this.districtId = districtId;
+	}
+
 	public static class CustomerHealthMapper implements RowMapper<CustomerHealth> {
         @Override
         public CustomerHealth mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -184,6 +202,8 @@ public class CustomerHealth {
             customerHealth.setIsKyc(rs.getShort("isKyc"));
             customerHealth.setState(rs.getString("state"));
             customerHealth.setDistrict(rs.getString("district"));
+            customerHealth.setStateId(rs.getLong("stateId"));
+            customerHealth.setDistrictId(rs.getLong("districtId"));
             return customerHealth;
         }
     }
