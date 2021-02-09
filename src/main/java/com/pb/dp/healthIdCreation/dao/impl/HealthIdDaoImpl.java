@@ -155,6 +155,7 @@ public class HealthIdDaoImpl implements HealthIdDao {
         addressParams.addValue("stateId",customerDetail.getState());
         addressParams.addValue("pincode",customerDetail.getPincode());
         addressParams.addValue("custId",customerId);
+        addressParams.addValue("healthId",customerDetail.getHealthId());
         Integer addressCount = this.namedParameterJdbcTemplate.update(HealthIdQuery.UPDATE_PROFILE_ADDRESS,addressParams);
         //update customer details
         MapSqlParameterSource custParams = new MapSqlParameterSource();
