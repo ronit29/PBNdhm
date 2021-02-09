@@ -11,7 +11,7 @@ public class CustomerHealth {
 	private int customerId;
 	private long mobile;
 	private String firstName;
-	private String midName;
+	private String middleName;
 	private String lastName;
 	private Date dob;
 	private String dobStr;
@@ -28,6 +28,7 @@ public class CustomerHealth {
 	private String qrCode;
 	private String healthCard;
 	private String txnId;
+	private int healthdbId;
 	
 	public int getCustomerId() {
 		return customerId;
@@ -47,11 +48,11 @@ public class CustomerHealth {
 	public void setFirstName(String firstName) {
 		this.firstName = firstName;
 	}
-	public String getMidName() {
-		return midName;
+	public String getMiddleName() {
+		return middleName;
 	}
-	public void setMidName(String midName) {
-		this.midName = midName;
+	public void setMiddleName(String middleName) {
+		this.middleName = middleName;
 	}
 	public String getLastName() {
 		return lastName;
@@ -95,6 +96,13 @@ public class CustomerHealth {
 	}
 	public void setGender(String gender) {
 		this.gender = gender;
+	}
+	
+	public int getHealthdbId() {
+		return healthdbId;
+	}
+	public void setHealthdbId(int healthdbId) {
+		this.healthdbId = healthdbId;
 	}
 	public String getHealtIdNo() {
 		return healtIdNo;
@@ -163,16 +171,19 @@ public class CustomerHealth {
             customerHealth.setCustomerId(rs.getInt("customerId"));
             customerHealth.setMobile(rs.getLong("mobile"));
             customerHealth.setFirstName(rs.getString("firstName"));
-            customerHealth.setMidName(rs.getString("midName"));
+            customerHealth.setMiddleName(rs.getString("middleName"));
             customerHealth.setLastName(rs.getString("lastName"));
             customerHealth.setDob(rs.getDate("dob"));
             customerHealth.setRelationship(rs.getString("relationship"));
             customerHealth.setEmailId(rs.getString("emailId"));
             customerHealth.setGender(rs.getString("gender"));
+            customerHealth.setHealthdbId(rs.getInt("healthdbId"));
             customerHealth.setHealthId(rs.getString("healthId")); 
             customerHealth.setHealtIdNo(rs.getString("healtIdNo"));
-            customerHealth.setAddressId(rs.getInt("addressId"));
+            customerHealth.setAddress(rs.getString("address"));
             customerHealth.setIsKyc(rs.getShort("isKyc"));
+            customerHealth.setState(rs.getString("state"));
+            customerHealth.setDistrict(rs.getString("district"));
             return customerHealth;
         }
     }

@@ -72,7 +72,7 @@ public class HealthServiceImpl implements HealthService {
 							response.setEmailId((String) responseMap.get("email"));
 							response.setGender((String) responseMap.get("gender"));
 							response.setFirstName((String) responseMap.get("firstName"));
-							response.setMidName((String) responseMap.get("middleName"));
+							response.setMiddleName((String) responseMap.get("middleName"));
 							response.setLastName((String) responseMap.get("lastName"));
 						}
 					}
