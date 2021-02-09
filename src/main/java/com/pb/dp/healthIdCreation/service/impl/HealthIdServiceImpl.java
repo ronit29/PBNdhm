@@ -52,7 +52,6 @@ public class HealthIdServiceImpl implements HealthIdService {
 
                 if (ObjectUtils.isNotEmpty(txnId)) {
                     //healthId demographic details
-                    // TODO: 09/02/21  healthId demographic details
                     customerDetail.setRelationId(relation);
                     Integer healthIdPk = this.healthIdDao.addHealthIdDemographics(customerDetail, customerId);
 
@@ -304,7 +303,10 @@ public class HealthIdServiceImpl implements HealthIdService {
             } else {
                 xToken.append(this.confirmWithOtp(ndhmMobOtpRequest, authToken));
             }
+        }else {
+            xToken.append(this.confirmWithOtp(ndhmMobOtpRequest, authToken));
         }
+
         token = xToken.toString();
         return token;
     }
@@ -335,8 +337,11 @@ public class HealthIdServiceImpl implements HealthIdService {
     @Override
     public Map<String, Object> generateOtpForUpdate(CustomerDetails customerDetails, int customerId) throws Exception {
         Map<String, Object> response = new HashMap<>();
+        if(!ObjectUtils.isEmpty(customerDetails.getRelationship()))
+            customerDetails.setRelationId(Relationship.valueOf(customerDetails.getRelationship().toUpperCase()).getRelationId());
         this.healthIdDao.updateProfileData(customerDetails,customerId);
         String txnId = this.authTokenUtil.authInit(customerDetails.getHealthId());
+        this.healthIdDao.updateProfileTxnId(customerId,customerDetails.getHealthId(),txnId);
         if(ObjectUtils.isNotEmpty(txnId)){
             response.put("txnId",txnId);
             response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
