@@ -3,10 +3,7 @@ package com.pb.dp.healthIdCreation.dao.impl;
 import com.pb.dp.healthIdCreation.dao.HealthIdDao;
 
 import com.pb.dp.healthIdCreation.dao.HealthIdQuery;
-import com.pb.dp.healthIdCreation.model.Address;
-import com.pb.dp.healthIdCreation.model.Customer;
-import com.pb.dp.healthIdCreation.model.CustomerDetails;
-import com.pb.dp.healthIdCreation.model.NdhmMobOtpRequest;
+import com.pb.dp.healthIdCreation.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -40,7 +37,7 @@ public class HealthIdDaoImpl implements HealthIdDao {
     }
 
     @Override
-    public Integer addCustomer(CustomerDetails customerDetail, int customerId) throws Exception {
+    public Integer addHealthIdDemographics(CustomerDetails customerDetail, int customerId) throws Exception {
         SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
         KeyHolder addKeyHolder = new GeneratedKeyHolder();
         //add customer address details
@@ -50,20 +47,23 @@ public class HealthIdDaoImpl implements HealthIdDao {
         addressParams.addValue("stateId",customerDetail.getState());
         Integer addressCount = this.namedParameterJdbcTemplate.update(HealthIdQuery.ADD_CUSTOMER_ADDRESS,addressParams,addKeyHolder);
         Integer addressId = addKeyHolder.getKey().intValue();
-        //add customer details
+        //add healthId demographic details
+        KeyHolder custKeyHolder = new GeneratedKeyHolder();
         MapSqlParameterSource custParams = new MapSqlParameterSource();
         custParams.addValue("custId",customerId);
         custParams.addValue("firstName",customerDetail.getFirstName());
         custParams.addValue("lastName",customerDetail.getLastName());
         custParams.addValue("dob",formatter.parse(customerDetail.getDob()));
-        custParams.addValue("relation",customerDetail.getRelationship());
+        custParams.addValue("relation",customerDetail.getRelationId());
         custParams.addValue("address",addressId);
         custParams.addValue("email",customerDetail.getEmailId());
         custParams.addValue("gender",customerDetail.getGender());
-        custParams.addValue("mobile", customerDetail.getMobileNo());
+//        custParams.addValue("mobile", customerDetail.getMobileNo());
         custParams.addValue("healthId",customerDetail.getHealthId());
-        Integer custCount  =  this.namedParameterJdbcTemplate.update(HealthIdQuery.UPDATE_CUSTOMER_DETAILS,custParams);
-        return customerId;
+//        Integer custCount  =  this.namedParameterJdbcTemplate.update(HealthIdQuery.UPDATE_CUSTOMER_DETAILS,custParams);
+        Integer custCount  =  this.namedParameterJdbcTemplate.update(HealthIdQuery.ADD_HEALTH_ID_DEMOGRAPHIC,custParams,custKeyHolder);
+        Integer healthIdPk = custKeyHolder.getKey().intValue();
+        return healthIdPk;
     }
 
     @Override
@@ -89,33 +89,34 @@ public class HealthIdDaoImpl implements HealthIdDao {
 
     @Override
     public void updateNdhmOtpToken(NdhmMobOtpRequest ndhmMobOtpRequest, Integer custId) throws Exception{
-        //update ndhm mobile token in customer
+        //update ndhm mobile token in healthId
         Map<String,Object> params = new HashMap<String,Object>();
         params.put("custId",custId);
-        params.put("mobile", ndhmMobOtpRequest.getMobile());
-//        params.put("txnId", ndhmMobOtpRequest.getTxnId());
+//        params.put("mobile", ndhmMobOtpRequest.getMobile());
+        params.put("txnId", ndhmMobOtpRequest.getTxnId());
         params.put("token", ndhmMobOtpRequest.getToken());
-        Integer updateCount = this.namedParameterJdbcTemplate.update(HealthIdQuery.UPDATE_NDHM_MOBILE_TOKEN,params);
+ //       Integer updateCount = this.namedParameterJdbcTemplate.update(HealthIdQuery.UPDATE_NDHM_MOBILE_TOKEN,params);
+        Integer updateCount = this.namedParameterJdbcTemplate.update(HealthIdQuery.UPDATE_HEALTH_ID_MOB_TOKEN,params);
 
     }
 
     @Override
-    public CustomerDetails getCustomerDetails(Integer custId) throws Exception{
+    public CustomerDetails getCustomerDetails(Integer custId, Long mobile, String txnId) throws Exception{
         Map<String,Object> params = new HashMap<String,Object>();
         params.put("id",custId);
-        Customer customer = this.namedParameterJdbcTemplate.queryForObject(HealthIdQuery.GET_CUSTOMER,params,new Customer.CustomerRowMapper());
+        HealthId healthId = this.namedParameterJdbcTemplate.queryForObject(HealthIdQuery.GET_HEALTH_ID_By_TXN_AND_CUST_ID,params,new HealthId.HealthIdRowMapper());
         params.clear();
-        params.put("id",customer.getAddressId());
+        params.put("id",healthId.getAddressId());
         Address address = this.namedParameterJdbcTemplate.queryForObject(HealthIdQuery.GET_ADDRESS,params,new Address.AddressRowMapper());
         CustomerDetails customerDetails = new CustomerDetails();
-        customerDetails.setFirstName(customer.getFirstName());
-        customerDetails.setLastName(customer.getLastName());
-        customerDetails.setEmailId(customer.getEmailId());
-        customerDetails.setHealthId(customer.getHealthId());
-        customerDetails.setMobileNo(customer.getMobile());
-        customerDetails.setGender(customer.getGender());
+        customerDetails.setFirstName(healthId.getFirstName());
+        customerDetails.setLastName(healthId.getLastName());
+        customerDetails.setEmailId(healthId.getEmail());
+        customerDetails.setHealthId(healthId.getHealthId());
+        customerDetails.setMobileNo(mobile);
+        customerDetails.setGender(healthId.getGender());
         SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
-        customerDetails.setDob(formatter.format(customer.getDob()));
+        customerDetails.setDob(formatter.format(healthId.getDob()));
         customerDetails.setAddress(address.getLine1());
         customerDetails.setState(address.getStateId());
         customerDetails.setDistrict(address.getDistrictId());
@@ -123,19 +124,20 @@ public class HealthIdDaoImpl implements HealthIdDao {
     }
 
     @Override
-    public void updateNdhmTxnId(Integer custId, String txnId) throws Exception{
+    public void updateNdhmTxnId(Integer id, String txnId) throws Exception{
         //update txnId in customer
         Map<String,Object> params = new HashMap<String,Object>();
-        params.put("custId",custId);
+        params.put("id",id);
         params.put("txnId", txnId);
-        Integer updateCount = this.namedParameterJdbcTemplate.update(HealthIdQuery.UPDATE_NDHM_TXN_ID,params);
+//        Integer updateCount = this.namedParameterJdbcTemplate.update(HealthIdQuery.UPDATE_NDHM_TXN_ID,params);
+        Integer updateCount = this.namedParameterJdbcTemplate.update(HealthIdQuery.UPDATE_HEALTH_ID_TXN_ID,params);
     }
 
     @Override
     public Long addNewCustomer(Long mobile, int otp) throws Exception{
         KeyHolder keyHolder = new GeneratedKeyHolder();
         MapSqlParameterSource custParams = new MapSqlParameterSource();
-        custParams.addValue("firstName","New");
+        //custParams.addValue("firstName","New");
         custParams.addValue("otp",otp);
         custParams.addValue("mobile", mobile);
         Integer custCount  =  this.namedParameterJdbcTemplate.update(HealthIdQuery.ADD_CUSTOMER,custParams,keyHolder);
@@ -195,5 +197,18 @@ public class HealthIdDaoImpl implements HealthIdDao {
         custParams.addValue("otp",otp);
         custParams.addValue("mobile", mobile);
         Integer custCount  =  this.namedParameterJdbcTemplate.update(HealthIdQuery.UPDATE_CUSTOMER,custParams);
+    }
+
+    @Override
+    public HealthId getHealthIdDetails(int customerId, Integer relation) throws Exception{
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("custId", customerId);
+        params.put("relation", relation);
+        try {
+            HealthId healthId = this.namedParameterJdbcTemplate.queryForObject(HealthIdQuery.GET_HEALTH_ID_BY_RELATION_AND_CUST_ID, params, new HealthId.HealthIdRowMapper());
+            return healthId;
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 }

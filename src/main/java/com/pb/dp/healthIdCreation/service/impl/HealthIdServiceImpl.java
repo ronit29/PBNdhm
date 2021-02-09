@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.pb.dp.dao.HealthDao;
 import com.pb.dp.enums.ResponseStatus;
 import com.pb.dp.healthIdCreation.dao.HealthIdDao;
+import com.pb.dp.healthIdCreation.enums.Relationship;
 import com.pb.dp.healthIdCreation.model.*;
 import com.pb.dp.healthIdCreation.service.HealthIdService;
 import com.pb.dp.model.FieldKey;
@@ -39,21 +40,40 @@ public class HealthIdServiceImpl implements HealthIdService {
     @Override
     public Map<String, Object> registerViaMobile(CustomerDetails customerDetail, int customerId) throws Exception {
         Map<String, Object> response = new HashMap<>();
-        // add customer details
-        Integer custId = this.healthIdDao.addCustomer(customerDetail,customerId);
-        //triggerOtp on mobile
-        String txnId = this.generateOtp(customerDetail.getMobileNo());
-        //save txnId
-        //this.healthIdDao.addNdhmOtpTxnId(customerDetail.getMobileNo(), txnId);
-        this.healthIdDao.updateNdhmTxnId(custId,txnId);
-        if (ObjectUtils.isNotEmpty(txnId)) {
-            response.put("txnId", txnId);
-            response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
-            response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
+        if(Objects.nonNull(customerDetail.getRelationship())) {
+            //check if healthId exist
+            Integer relation = Relationship.valueOf(customerDetail.getRelationship().toUpperCase()).getRelationId();
+            HealthId healthId = this.healthIdDao.getHealthIdDetails(customerId, relation);
+            if(ObjectUtils.isEmpty(healthId)) {
+                // add customer details
+//                Integer custId = this.healthIdDao.addCustomer(customerDetail, customerId);
+                 //triggerOtp on mobile
+                String txnId = this.generateOtp(customerDetail.getMobileNo());
+
+                if (ObjectUtils.isNotEmpty(txnId)) {
+                    //healthId demographic details
+                    // TODO: 09/02/21  healthId demographic details
+                    customerDetail.setRelationId(relation);
+                    Integer healthIdPk = this.healthIdDao.addHealthIdDemographics(customerDetail, customerId);
+
+                    // save txnId
+                    this.healthIdDao.updateNdhmTxnId(healthIdPk, txnId);
+                    response.put("txnId", txnId);
+                    response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
+                    response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
+                } else {
+                    response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.FAILURE.getStatusMsg());
+                    response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
+                }
+            } else {
+                response.put(FieldKey.SK_STATUS_MESSAGE, "healthId for "+customerDetail.getRelationship()+ " exists : "+healthId.getHealthId() );
+                response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_INPUT.getStatusId());
+            }
         } else {
-            response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.FAILURE.getStatusMsg());
-            response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
+            response.put(FieldKey.SK_STATUS_MESSAGE, "Relationship can not be empty or null");
+            response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_INPUT.getStatusId());
         }
+
         return response;
     }
 
@@ -86,8 +106,8 @@ public class HealthIdServiceImpl implements HealthIdService {
         String token = this.verifyMobileOtp(ndhmMobOtpRequest);
         if (ObjectUtils.isNotEmpty(token)) {
             ndhmMobOtpRequest.setToken(token);
-            //update ndhm mobile token
-            this.healthIdDao.updateNdhmOtpToken(ndhmMobOtpRequest, custId);
+            //update ndhm mobile token :: we do not need to keep the token as per current design
+//            this.healthIdDao.updateNdhmOtpToken(ndhmMobOtpRequest, custId);
             //create healthId on ndhm
             CustomerDetails customerDetails = this.createHeathId(custId, ndhmMobOtpRequest.getMobile(), ndhmMobOtpRequest.getTxnId(), token);
             if (ObjectUtils.isNotEmpty(customerDetails)) {
@@ -137,8 +157,8 @@ public class HealthIdServiceImpl implements HealthIdService {
     private CustomerDetails createHeathId(Integer custId, Long mobile, String txnId, String token) throws Exception {
         Map<String, Object> response = new HashMap<>();
         CustomerDetails customerDetails = new CustomerDetails();
-        //get customer from Db
-        CustomerDetails customer = this.healthIdDao.getCustomerDetails(custId);
+        //get healthID profile data from Db
+        CustomerDetails customer = this.healthIdDao.getCustomerDetails(custId, mobile, txnId);
         CreateHealthIdByMobRequest createHealthIdRequest = this.prepareHealthIdPayload(customer,mobile,txnId,token);
 
         String url = configService.getPropertyConfig("NDHM_CREATE_HEALTHID_URL").getValue();
@@ -225,7 +245,7 @@ public class HealthIdServiceImpl implements HealthIdService {
     public Map<String, Object> updateHealthIdProfile(NdhmMobOtpRequest ndhmMobOtpRequest, int customerId) throws Exception {
         Map<String, Object> response = new HashMap<>();
         String authToken = this.authTokenUtil.bearerAuthToken();
-        CustomerDetails customerDetails = this.healthIdDao.getCustomerDetails(customerId);
+        CustomerDetails customerDetails = this.healthIdDao.getCustomerDetails(customerId, ndhmMobOtpRequest.getMobile(), ndhmMobOtpRequest.getTxnId());
         String xToken = this.getValidToken(ndhmMobOtpRequest, authToken);
         if(ObjectUtils.isNotEmpty(xToken)) {
             UpdateAccountRequest updateAccountRequest = this.prepareUpdateProfilePayload(customerDetails);

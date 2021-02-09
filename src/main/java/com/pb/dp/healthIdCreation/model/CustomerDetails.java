@@ -10,6 +10,7 @@ public class CustomerDetails {
     private String gender;
     private String dob;
     private String relationship;
+    private Integer relationId;
     private String healthId;
     private String healthIdNo;
     private String address;
@@ -174,6 +175,14 @@ public class CustomerDetails {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public Integer getRelationId() {
+        return relationId;
+    }
+
+    public void setRelationId(Integer relationId) {
+        this.relationId = relationId;
     }
 }
 
