@@ -29,10 +29,7 @@ public class AES256Cipher {
 	}
 
 	public static void main(String[] args) throws UnsupportedEncodingException, CipherException {
-//        String messageToEncrypt = "8826275550";
-		String messageToEncrypt = "36";
-		// AES256Cipher aes256Cipher = new
-		// AES256Cipher("bzhnxuBi4RPmXDYj9juGgQQ4jW6zu6GE", "B5d8a9fWcRCzgb81");
+		String messageToEncrypt = "48";
 		AES256Cipher aes256Cipher = new AES256Cipher("LZO7CnfjzXD6g0mKVyV14MP1Ci2pBQXL", "FQSxN27aqtGNSdxY");
 		String encryptedMessage = aes256Cipher.encrypt(messageToEncrypt);
 		String decryptedMessage = aes256Cipher.decrypt(encryptedMessage);
