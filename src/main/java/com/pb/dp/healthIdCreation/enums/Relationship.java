@@ -7,7 +7,8 @@ public enum Relationship {
     SELF(1,"Self"),
     SPOUSE(2,"Spouse"),
     DAUGHTER(3,"Daughter"),
-    SON(4,"Son");
+    SON(4,"Son"),
+    WIFE(5,"WIFE");
 
     private final int relationId;
     private final String relation;

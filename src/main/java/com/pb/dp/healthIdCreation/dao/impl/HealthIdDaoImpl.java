@@ -159,11 +159,12 @@ public class HealthIdDaoImpl implements HealthIdDao {
         //update customer details
         MapSqlParameterSource custParams = new MapSqlParameterSource();
         custParams.addValue("custId",customerId);
+        custParams.addValue("healthId",customerDetail.getHealthId());
         custParams.addValue("firstName",customerDetail.getFirstName());
         custParams.addValue("lastName",customerDetail.getLastName());
         SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
         custParams.addValue("dob",formatter.parse(customerDetail.getDob()));
-        custParams.addValue("relation",customerDetail.getRelationship());
+        custParams.addValue("relation",customerDetail.getRelationId());
         custParams.addValue("email",customerDetail.getEmailId());
         custParams.addValue("gender",customerDetail.getGender());
         Integer custCount  =  this.namedParameterJdbcTemplate.update(HealthIdQuery.UPDATE_PROFILE_CUSTOMER,custParams);
@@ -214,5 +215,14 @@ public class HealthIdDaoImpl implements HealthIdDao {
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
+    }
+
+    @Override
+    public void updateProfileTxnId(int customerId, String healthId, String txnId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("custId", customerId);
+        params.put("healthId", healthId);
+        params.put("txnId", txnId);
+        Integer count  =  this.namedParameterJdbcTemplate.update(HealthIdQuery.UPDATE_PROFILE_TXN_ID,params);
     }
 }

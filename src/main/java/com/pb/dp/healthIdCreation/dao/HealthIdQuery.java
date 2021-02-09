@@ -27,7 +27,7 @@ public interface HealthIdQuery {
 
     String GET_ADDRESS = "SELECT * from DocprimeNDHM.dbo.address where id = :id";
 
-    String UPDATE_NDHM_TXN_ID = "UPDATE DocprimeNDHM.dbo.customer SET txnId = :txnId WHERE id = :custId";
+    String UPDATE_PROFILE_TXN_ID = "UPDATE DocprimeNDHM.dbo.healthId SET txnId = :txnId WHERE customerId = :custId and healthId = :healthId";
 
     String UPDATE_NDHM_MOBILE_TOKEN = "UPDATE DocprimeNDHM.dbo.customer SET token = :token WHERE id = :custId and mobile = :mobile";
 
@@ -35,12 +35,12 @@ public interface HealthIdQuery {
             "dob = :dob, relationship = :relation, address_id = :address, emailId = :email, gender = :gender, healthId = :healthId, " +
             "updatedBy = -1, updatedAt = GETDATE() WHERE id = :custId and mobile = :mobile and isActive = 1";
 
-    String UPDATE_PROFILE_CUSTOMER = "UPDATE DocprimeNDHM.dbo.customer SET firstName = :firstName, lastName = :lastName, " +
-            "dob = :dob, relationship = :relation, emailId = :email, gender = :gender, " +
-            "updatedBy = -1, updatedAt = GETDATE() WHERE id = :custId and isActive = 1";
+    String UPDATE_PROFILE_CUSTOMER = "UPDATE DocprimeNDHM.dbo.healthId SET firstName = :firstName, lastName = :lastName, " +
+            "dob = :dob, relation = :relation, email = :email, gender = :gender, " +
+            "updatedBy = -1, updatedAt = GETDATE() WHERE customerId = :custId and healthId = :healthId and isActive = 1";
 
     String UPDATE_PROFILE_ADDRESS = "UPDATE DocprimeNDHM.dbo.address SET line1 = :address, districtId = :districtId, " +
-            "stateId = :stateId, pincode = :pincode, updatedBy = -1, updatedAt = GETDATE()  WHERE id = (select c.address_id from customer c where c.id = :custId) ";
+            "stateId = :stateId, pincode = :pincode, updatedBy = -1, updatedAt = GETDATE()  WHERE id = (select h.addressId from healthId h where h.customerId = :custId) ";
 
     String ADD_HEALTH_ID = "INSERT INTO DocprimeNDHM.dbo.healthId (healthId, healtIdNo, customerId, healthIdToken, isKyc, isActive, createdAt, createdBy) "
             + " VALUES (:healthId, :healtIdNo, :custId, :token, 0, 1, GETDATE(), -1)";
@@ -60,7 +60,7 @@ public interface HealthIdQuery {
 
     String GET_HEALTH_ID_By_TXN_AND_CUST_ID = "SELECT * from DocprimeNDHM.dbo.healthId where customerId = :custId and txnId = :txnId";
 
-    String GET_HEALTH_ID_BY_RELATION_AND_CUST_ID = "SELECT * from DocprimeNDHM.dbo.healthId where customerId = :custId and relation = :relation and isActive = 0";
+    String GET_HEALTH_ID_BY_RELATION_AND_CUST_ID = "SELECT * from DocprimeNDHM.dbo.healthId where customerId = :custId and relation = :relation and isActive = 1";
 
     String UPDATE_HEALTHID_DATA = "UPDATE DocprimeNDHM.dbo.healthId SET healthId = :healthId, healtIdNo = :healtIdNo, healthIdToken = :token," +
             " isKyc = 0, isActive = 1, updatedBy = -1, updatedAt = GETDATE()  WHERE customerId = :custId and txnId = :txnId";
