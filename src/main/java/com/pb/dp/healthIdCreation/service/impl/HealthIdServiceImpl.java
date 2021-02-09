@@ -112,7 +112,7 @@ public class HealthIdServiceImpl implements HealthIdService {
             CustomerDetails customerDetails = this.createHeathId(custId, ndhmMobOtpRequest.getMobile(), ndhmMobOtpRequest.getTxnId(), token);
             if (ObjectUtils.isNotEmpty(customerDetails)) {
                 //add healthId data
-                this.healthIdDao.addHealthIdData(customerDetails,custId);
+                this.healthIdDao.addHealthIdData(customerDetails,custId, ndhmMobOtpRequest.getTxnId());
                 response.put("data", customerDetails);
                 response.put("mobileNo", ndhmMobOtpRequest.getMobile());
                 response.put("verify", true);

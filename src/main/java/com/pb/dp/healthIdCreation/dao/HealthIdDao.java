@@ -25,7 +25,7 @@ public interface HealthIdDao {
 
     void updateProfileData(CustomerDetails customerDetails, int customerId) throws ParseException;
 
-    void addHealthIdData(CustomerDetails customerDetails, int customerId) throws Exception;
+    void addHealthIdData(CustomerDetails customerDetails, int customerId,String txnId) throws Exception;
 
     Customer getCustomerByMobile(Long mobile) throws Exception;
 

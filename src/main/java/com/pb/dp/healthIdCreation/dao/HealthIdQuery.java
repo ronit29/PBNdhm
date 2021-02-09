@@ -60,5 +60,9 @@ public interface HealthIdQuery {
 
     String GET_HEALTH_ID_By_TXN_AND_CUST_ID = "SELECT * from DocprimeNDHM.dbo.healthId where customerId = :custId and txnId = :txnId";
 
-    String GET_HEALTH_ID_BY_RELATION_AND_CUST_ID = "SELECT * from DocprimeNDHM.dbo.healthId where customerId = :custId and relation = :relation";
+    String GET_HEALTH_ID_BY_RELATION_AND_CUST_ID = "SELECT * from DocprimeNDHM.dbo.healthId where customerId = :custId and relation = :relation and isActive = 0";
+
+    String UPDATE_HEALTHID_DATA = "UPDATE DocprimeNDHM.dbo.healthId SET healthId = :healthId, healtIdNo = :healtIdNo, healthIdToken = :token," +
+            " isKyc = 0, isActive = 1, updatedBy = -1, updatedAt = GETDATE()  WHERE customerId = :custId and txnId = :txnId";
+
 }
