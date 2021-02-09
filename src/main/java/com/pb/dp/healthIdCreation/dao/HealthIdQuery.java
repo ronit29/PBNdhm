@@ -65,4 +65,6 @@ public interface HealthIdQuery {
     String UPDATE_HEALTHID_DATA = "UPDATE DocprimeNDHM.dbo.healthId SET healthId = :healthId, healtIdNo = :healtIdNo, healthIdToken = :token," +
             " isKyc = 0, isActive = 1, updatedBy = -1, updatedAt = GETDATE()  WHERE customerId = :custId and txnId = :txnId";
 
+    String GET_BY_HEALTH_ID = "SELECT * from DocprimeNDHM.dbo.healthId WHERE healthId = :healthId";
+
 }
