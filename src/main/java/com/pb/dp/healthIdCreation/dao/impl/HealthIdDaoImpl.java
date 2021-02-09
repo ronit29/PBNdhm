@@ -103,7 +103,8 @@ public class HealthIdDaoImpl implements HealthIdDao {
     @Override
     public CustomerDetails getCustomerDetails(Integer custId, Long mobile, String txnId) throws Exception{
         Map<String,Object> params = new HashMap<String,Object>();
-        params.put("id",custId);
+        params.put("custId",custId);
+        params.put("txnId",txnId);
         HealthId healthId = this.namedParameterJdbcTemplate.queryForObject(HealthIdQuery.GET_HEALTH_ID_By_TXN_AND_CUST_ID,params,new HealthId.HealthIdRowMapper());
         params.clear();
         params.put("id",healthId.getAddressId());
@@ -169,13 +170,16 @@ public class HealthIdDaoImpl implements HealthIdDao {
     }
 
     @Override
-    public void addHealthIdData(CustomerDetails customerDetail, int customerId) throws Exception {
+    public void addHealthIdData(CustomerDetails customerDetail, int customerId, String txnId) throws Exception {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("healthId",customerDetail.getHealthId());
         params.addValue("healtIdNo", customerDetail.getHealthIdNo());
         params.addValue("custId",customerId);
         params.addValue("token",customerDetail.getToken());
-        Integer recordCount = this.namedParameterJdbcTemplate.update(HealthIdQuery.ADD_HEALTH_ID,params);
+        params.addValue("txnId",txnId);
+        //nteger recordCount = this.namedParameterJdbcTemplate.update(HealthIdQuery.ADD_HEALTH_ID,params);
+        Integer recordCount = this.namedParameterJdbcTemplate.update(HealthIdQuery.UPDATE_HEALTHID_DATA,params);
+
     }
 
     @Override
