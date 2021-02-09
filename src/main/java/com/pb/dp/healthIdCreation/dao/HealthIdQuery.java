@@ -40,7 +40,7 @@ public interface HealthIdQuery {
             "updatedBy = -1, updatedAt = GETDATE() WHERE customerId = :custId and healthId = :healthId and isActive = 1";
 
     String UPDATE_PROFILE_ADDRESS = "UPDATE DocprimeNDHM.dbo.address SET line1 = :address, districtId = :districtId, " +
-            "stateId = :stateId, pincode = :pincode, updatedBy = -1, updatedAt = GETDATE()  WHERE id = (select h.addressId from healthId h where h.customerId = :custId) ";
+            "stateId = :stateId, pincode = :pincode, updatedBy = -1, updatedAt = GETDATE()  WHERE id = (select h.addressId from healthId h where h.customerId = :custId and healthId = :healthId) ";
 
     String ADD_HEALTH_ID = "INSERT INTO DocprimeNDHM.dbo.healthId (healthId, healtIdNo, customerId, healthIdToken, isKyc, isActive, createdAt, createdBy) "
             + " VALUES (:healthId, :healtIdNo, :custId, :token, 0, 1, GETDATE(), -1)";
