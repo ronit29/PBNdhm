@@ -27,4 +27,8 @@ public interface MasterService {
 	 * @throws Exception
 	 */
 	List<Map<String,Object>> getDistrictsForState(Integer stateCode) throws Exception;
+	
+	
+	public List<Map<String, Object>> getRelations() throws Exception ;
+	
 }

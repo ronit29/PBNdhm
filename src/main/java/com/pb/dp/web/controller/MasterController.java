@@ -55,7 +55,7 @@ public class MasterController {
 			 }
 			 
 		 } catch(Exception e) {
-			 logger.error("Exception caught in getState method:"+e.getMessage(),e);
+			 logger.error("Exception caught in getState method: {}", e.getMessage(),e);
 			 response.put(FieldKey.SK_STATUS_CODE,ResponseStatus.FAILURE.getStatusId());
 			 response.put(FieldKey.SK_STATUS_MESSAGE,ResponseStatus.FAILURE.getStatusMsg());
 		 }
@@ -86,7 +86,36 @@ public class MasterController {
 			 }
 			 
 		 } catch(Exception e) {
-			 logger.error("Exception caught in getDistrictsForState method:"+e.getMessage(),e);
+			 logger.error("Exception caught in getDistrictsForState method: {}", e.getMessage(),e);
+			 response.put(FieldKey.SK_STATUS_CODE,ResponseStatus.FAILURE.getStatusId());
+			 response.put(FieldKey.SK_STATUS_MESSAGE,ResponseStatus.FAILURE.getStatusMsg());
+		 }
+		 return new ResponseEntity<>(response,status);
+		 
+	 }
+	
+	/**
+	  * This method is used to get list of relations
+	  * 
+	 * @return <code>List<Map<Strig, Object>></code> of relations
+	 */
+	@RequestMapping(value = "/relation/list",method = RequestMethod.GET,produces = {MediaType.APPLICATION_JSON_VALUE})
+	 public ResponseEntity<Map<String,Object>> getRelation(){
+		 Map<String,Object> response = new HashMap<>();
+		 HttpStatus status = HttpStatus.OK;
+		 try {
+			 List<Map<String,Object>> result = masterService.getState();
+			 if(result!=null && !result.isEmpty()) {
+				 response.put("data",result);
+				 response.put(FieldKey.SK_STATUS_CODE,ResponseStatus.SUCCESS.getStatusId());
+				 response.put(FieldKey.SK_STATUS_MESSAGE,ResponseStatus.SUCCESS.getStatusMsg());
+			 } else {
+				 response.put(FieldKey.SK_STATUS_CODE,ResponseStatus.NO_RECORD_FOUND.getStatusId());
+				 response.put(FieldKey.SK_STATUS_MESSAGE,ResponseStatus.NO_RECORD_FOUND.getStatusMsg());
+			 }
+			 
+		 } catch(Exception e) {
+			 logger.error("Exception caught in getState method: {} ", e.getMessage(),e);
 			 response.put(FieldKey.SK_STATUS_CODE,ResponseStatus.FAILURE.getStatusId());
 			 response.put(FieldKey.SK_STATUS_MESSAGE,ResponseStatus.FAILURE.getStatusMsg());
 		 }

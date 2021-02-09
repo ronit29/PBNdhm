@@ -27,4 +27,12 @@ public interface MasterDao {
 	 * @throws Exception
 	 */
 	List<Map<String,Object>> getDistrictsForState(Integer stateCode) throws Exception;
+	
+	/**
+	 * This method is used to get list of relations
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	public List<Map<String, Object>> getRelations() throws Exception ;
 }

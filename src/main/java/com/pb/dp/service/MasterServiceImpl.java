@@ -30,4 +30,9 @@ public class MasterServiceImpl implements MasterService {
 		return masterDao.getDistrictsForState(stateCode);
 	}
 	
+	@Override
+	public List<Map<String, Object>> getRelations() throws Exception {
+		return masterDao.getRelations();
+	}
+	
 }
