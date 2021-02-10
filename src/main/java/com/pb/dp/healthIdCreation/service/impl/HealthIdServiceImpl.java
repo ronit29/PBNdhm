@@ -132,12 +132,13 @@ public class HealthIdServiceImpl implements HealthIdService {
                 response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
                 response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
             } else {
-               // this.healthIdDao.deleteHealthId(customerDetails,custId, ndhmMobOtpRequest.getTxnId());
+                this.healthIdDao.deleteHealthIdData(custId,ndhmMobOtpRequest.getTxnId());
                 response.put("verify", false);
                 response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.FAILURE.getStatusMsg()+" : HealthId Creation on NDHM failed");
                 response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
             }
         } else {
+           // this.healthIdDao.deleteHealthIdData(custId,ndhmMobOtpRequest.getTxnId());
             response.put("verify", false);
             response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.FAILURE.getStatusMsg());
             response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
@@ -196,7 +197,7 @@ public class HealthIdServiceImpl implements HealthIdService {
                 }
             }
         }
-        return customerDetails;
+         return customerDetails;
     }
 
     private CreateHealthIdByMobRequest prepareHealthIdPayload(CustomerDetails customer, Long mobile, String txnId, String token) throws Exception{
