@@ -29,6 +29,7 @@ public class ConfigController {
         DBObject json = new BasicDBObject();
         try {
             configService.refreshMaps();
+            logger.debug("All configs refreshed..");
             json.put("msg", "All configs refreshed..");
             json.put("ok", 1);
         } catch (Exception e) {

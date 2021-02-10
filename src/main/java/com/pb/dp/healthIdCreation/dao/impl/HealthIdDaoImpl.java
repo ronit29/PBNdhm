@@ -121,6 +121,8 @@ public class HealthIdDaoImpl implements HealthIdDao {
         customerDetails.setAddress(address.getLine1());
         customerDetails.setState(address.getStateId());
         customerDetails.setDistrict(address.getDistrictId());
+        customerDetails.setDbId(healthId.getId());
+        customerDetails.setAddressId(address.getId());
         return customerDetails;
     }
 
@@ -237,5 +239,14 @@ public class HealthIdDaoImpl implements HealthIdDao {
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
+    }
+
+    @Override
+    public void deleteHealthIdData(Integer custId, String txnId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("custId", custId);
+        params.put("txnId", txnId);
+        Integer count  =  this.namedParameterJdbcTemplate.update(HealthIdQuery.DELETE_ADDRESS_BY_TXN_AND_CUST_ID,params);
+        Integer count1  =  this.namedParameterJdbcTemplate.update(HealthIdQuery.DELETE_HEALTHID_BY_TXN_AND_CUST_ID,params);
     }
 }
