@@ -168,4 +168,11 @@ public class HealthServiceImpl implements HealthService {
 
 	}
 
+	@Override
+	public Map<String, Object> getCustomerProfile(int customerId) {
+		Map<String, Object> response = new HashMap<>();
+		response.putAll(healthDao.getCustomerProfile(customerId));
+		return response;
+	}
+
 }
