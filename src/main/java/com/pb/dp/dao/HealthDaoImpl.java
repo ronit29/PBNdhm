@@ -1,5 +1,6 @@
 package com.pb.dp.dao;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -73,6 +74,20 @@ public class HealthDaoImpl implements HealthDao {
 	public void updateCard(String byteStringCard, String healthId) {
 		jdbcTemplate.update(HealthQuery.UPDATE_CARD_BYTE, byteStringCard,healthId);
 		
+	}
+
+	@Override
+	public Map<String, Object> getCustomerProfile(int customerId) {
+		Map<String, Object> response = null;
+		try {
+			response = jdbcTemplate.queryForMap(HealthQuery.GET_CUSTOMER_PROFILE, customerId);
+			if(response.get("firstName") == null && response.get("middleName") == null && response.get("lastName") == null) {
+				response = jdbcTemplate.queryForMap(HealthQuery.GET_CUSTOMER_PROFILE_HEALTH, customerId);
+			}
+		}catch (EmptyResultDataAccessException e) {
+			response = new HashMap<>();
+		}
+		return response;
 	}
 
 }
