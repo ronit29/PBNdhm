@@ -18,6 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -38,7 +39,7 @@ public class HealthIdController {
    public ResponseEntity<Map<String, Object>> registerViaMobile(@RequestBody CustomerDetails customerDetail,
                                                                 @RequestHeader(value = "X-CLIENT-KEY") String clientKey,
                                                                 @RequestHeader(value = "X-AUTH-KEY") String authKey,
-                                                                @RequestHeader(value = "X-CID") String custId){
+                                                                @RequestHeader(value = "X-CID") String custId, HttpSession httpSession){
       HttpStatus status = HttpStatus.OK;
       Map<String, Object> response = new HashMap<>();
       try {
@@ -54,6 +55,9 @@ public class HealthIdController {
                AES256Cipher cipher = configService.getAESForClientKeyMap(clientKey);
                try {
                   int customerId = Integer.valueOf(cipher.decrypt(custId));
+                  Map<String,CustomerDetails> registerProfileData = new HashMap<>();
+                  registerProfileData.put(custId,customerDetail);
+                  httpSession.setAttribute("profileData",registerProfileData);
                   response = this.healthIdService.registerViaMobile(customerDetail,customerId);
                } catch (NumberFormatException exception) {
                   response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_FORMAT_PARAM.getStatusMsg()
@@ -86,7 +90,7 @@ public class HealthIdController {
    public ResponseEntity<Map<String, Object>> verifyViaMobile(@RequestBody NdhmMobOtpRequest ndhmMobOtpRequest,
                                                               @RequestHeader(value = "X-CLIENT-KEY") String clientKey,
                                                               @RequestHeader(value = "X-AUTH-KEY") String authKey,
-                                                              @RequestHeader(value = "X-CID") String custId) throws Exception {
+                                                              @RequestHeader(value = "X-CID") String custId, HttpSession httpSession) throws Exception {
 
       HttpStatus status = HttpStatus.OK;
       Map<String, Object> response = new HashMap<>();
@@ -102,6 +106,7 @@ public class HealthIdController {
                   AES256Cipher cipher = configService.getAESForClientKeyMap(clientKey);
                   try {
                      int customerId = Integer.valueOf(cipher.decrypt(custId));
+                     if(Objects.nonNull(httpSession.getAttribute("profileData")))
                      if(Objects.isNull(ndhmMobOtpRequest.getOperation())){
                         response = this.healthIdService.verifyForRegistration(ndhmMobOtpRequest, customerId);
                      }
