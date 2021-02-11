@@ -231,8 +231,9 @@ public class HealthController {
 					AES256Cipher cipher = configService.getAESForClientKeyMap(clientKey);
 					try {
 						int customerId = Integer.valueOf(cipher.decrypt(custId));
-						response = healthService.getCustomerProfile(customerId);
-					if(!response.isEmpty()) {	
+						Map<String, Object> responseMap = healthService.getCustomerProfile(customerId);
+					if(!responseMap.isEmpty()) {
+						response.put("data",responseMap);
 						response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
 						response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
 					} else{
