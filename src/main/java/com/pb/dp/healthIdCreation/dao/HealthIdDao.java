@@ -36,4 +36,6 @@ public interface HealthIdDao {
     void updateProfileTxnId(int customerId, String healthId, String txnId);
 
     HealthId getByHealth(String healthId);
+
+    void deleteHealthIdData(Integer customerId, String txnId);
 }

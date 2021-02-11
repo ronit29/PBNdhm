@@ -22,6 +22,8 @@ public class CustomerDetails {
     private Boolean isKyc;
     private Long pincode;
     private String token;
+    private Long dbId;
+    private Long addressId;
 
 
 
@@ -183,6 +185,22 @@ public class CustomerDetails {
 
     public void setRelationId(Integer relationId) {
         this.relationId = relationId;
+    }
+
+    public Long getDbId() {
+        return dbId;
+    }
+
+    public void setDbId(Long dbId) {
+        this.dbId = dbId;
+    }
+
+    public Long getAddressId() {
+        return addressId;
+    }
+
+    public void setAddressId(Long addressId) {
+        this.addressId = addressId;
     }
 }
 

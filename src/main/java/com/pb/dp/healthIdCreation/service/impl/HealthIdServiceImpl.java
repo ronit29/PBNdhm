@@ -12,7 +12,10 @@ import com.pb.dp.service.ConfigService;
 import com.pb.dp.util.AuthTokenUtil;
 import com.pb.dp.util.HttpUtil;
 
+import com.pb.dp.util.LoggerUtil;
 import org.apache.commons.lang3.ObjectUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,7 +38,12 @@ public class HealthIdServiceImpl implements HealthIdService {
     @Autowired
     ConfigService configService;
 
+    @Autowired
+    LoggerUtil loggerUtil;
+
     String hipId = "DPHIP119";
+
+    private static final Logger logger = LoggerFactory.getLogger(HealthIdServiceImpl.class);
 
     @Override
     public Map<String, Object> registerViaMobile(CustomerDetails customerDetail, int customerId) throws Exception {
@@ -96,8 +104,9 @@ public class HealthIdServiceImpl implements HealthIdService {
             Object responseBody = response.get("responseBody");
             if(Objects.nonNull(responseBody) && response.get("status").equals(200)) {
                 Map<String, Object> responseBodyMap = new Gson().fromJson(responseBody.toString(), Map.class);
-                txnId = (String)responseBodyMap.get("txnId");
-
+                if(ObjectUtils.isNotEmpty(responseBodyMap.get("txnId"))) {
+                    txnId = (String) responseBodyMap.get("txnId");
+                }
             }
         }
         return txnId;
@@ -123,11 +132,13 @@ public class HealthIdServiceImpl implements HealthIdService {
                 response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
                 response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
             } else {
+                this.healthIdDao.deleteHealthIdData(custId,ndhmMobOtpRequest.getTxnId());
                 response.put("verify", false);
-                response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.FAILURE.getStatusMsg());
+                response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.FAILURE.getStatusMsg()+" : HealthId Creation on NDHM failed");
                 response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
             }
         } else {
+           // this.healthIdDao.deleteHealthIdData(custId,ndhmMobOtpRequest.getTxnId());
             response.put("verify", false);
             response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.FAILURE.getStatusMsg());
             response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
@@ -147,12 +158,14 @@ public class HealthIdServiceImpl implements HealthIdService {
         payload.put("txnId", ndhmMobOtpRequest.getTxnId());
         String jsonPayload = new Gson().toJson(payload);
         response = HttpUtil.post(url, jsonPayload, headers);
+        loggerUtil.logApiData(url,jsonPayload,headers,response);
         if(Objects.nonNull(response)) {
             Object responseBody = response.get("responseBody");
             if(Objects.nonNull(responseBody) && response.get("status").equals(200)) {
                 Map<String, Object> responseBodyMap = new Gson().fromJson(responseBody.toString(), Map.class);
-                token = (String)responseBodyMap.get("token");
-
+                if(ObjectUtils.isNotEmpty(responseBodyMap.get("token"))) {
+                    token = (String) responseBodyMap.get("token");
+                }
             }
         }
         return token;
@@ -160,7 +173,7 @@ public class HealthIdServiceImpl implements HealthIdService {
 
     private CustomerDetails createHeathId(Integer custId, Long mobile, String txnId, String token) throws Exception {
         Map<String, Object> response = new HashMap<>();
-        CustomerDetails customerDetails = new CustomerDetails();
+        CustomerDetails customerDetails = null;
         //get healthID profile data from Db
         CustomerDetails customer = this.healthIdDao.getCustomerDetails(custId, mobile, txnId);
         CreateHealthIdByMobRequest createHealthIdRequest = this.prepareHealthIdPayload(customer,mobile,txnId,token);
@@ -169,19 +182,22 @@ public class HealthIdServiceImpl implements HealthIdService {
         Map<String, String> headers = new HashMap<>();
         headers.put("X-HIP-ID", hipId);
         headers.put("Authorization", this.authTokenUtil.bearerAuthToken());
-
-        response = HttpUtil.post(url, new Gson().toJson(createHealthIdRequest), headers);
+        String jsonPayload = new Gson().toJson(createHealthIdRequest);
+        response = HttpUtil.post(url, jsonPayload, headers);
+        loggerUtil.logApiData(url,jsonPayload,headers,response);
         if(Objects.nonNull(response)) {
             Object responseBody = response.get("responseBody");
             if(Objects.nonNull(responseBody) && response.get("status").equals(200)) {
                 Map<String, Object> responseBodyMap = new Gson().fromJson(responseBody.toString(), Map.class);
-                customerDetails = this.prepareCustomerDetailsResponse(responseBodyMap);
-                customerDetails.setDob(customer.getDob());
-                customerDetails.setRelationship(customer.getRelationship());
-
+                if(ObjectUtils.isNotEmpty(responseBodyMap)) {
+                    customerDetails = new CustomerDetails();
+                    customerDetails = this.prepareCustomerDetailsResponse(responseBodyMap);
+                    customerDetails.setDob(customer.getDob());
+                    customerDetails.setRelationship(customer.getRelationship());
+                }
             }
         }
-        return customerDetails;
+         return customerDetails;
     }
 
     private CreateHealthIdByMobRequest prepareHealthIdPayload(CustomerDetails customer, Long mobile, String txnId, String token) throws Exception{
@@ -227,7 +243,9 @@ public class HealthIdServiceImpl implements HealthIdService {
         headers.put("Authorization", this.authTokenUtil.bearerAuthToken());
         Map<String, Object> payload = new HashMap<>();
         payload.put("txnId",txnId);
+        String jsonPayload = new Gson().toJson(payload);
         Map<String, Object> responseMap = HttpUtil.post(url, new Gson().toJson(payload), headers);
+        loggerUtil.logApiData(url,jsonPayload,headers,response);
         if(Objects.nonNull(responseMap)) {
             if(Objects.nonNull(responseMap.get("responseBody")) && responseMap.get("status").equals(200)) {
                 String responseBody = (String) responseMap.get("responseBody");
@@ -254,9 +272,9 @@ public class HealthIdServiceImpl implements HealthIdService {
         if(ObjectUtils.isNotEmpty(xToken)) {
             UpdateAccountRequest updateAccountRequest = this.prepareUpdateProfilePayload(customerDetails);
             CustomerDetails updateProfileMap = this.updateProfileOnNdhm(updateAccountRequest, xToken);
-            updateProfileMap.setDob(customerDetails.getDob());
-            updateProfileMap.setRelationship(customerDetails.getRelationship());
             if(Objects.nonNull(updateProfileMap)) {
+                updateProfileMap.setDob(customerDetails.getDob());
+                updateProfileMap.setRelationship(customerDetails.getRelationship());
                 response.put("data", updateProfileMap);
                 response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
                 response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
@@ -328,12 +346,14 @@ public class HealthIdServiceImpl implements HealthIdService {
         payload.put("txnId", ndhmMobOtpRequest.getTxnId());
         String jsonPayload = new Gson().toJson(payload);
         response = HttpUtil.post(url, jsonPayload, headers);
+        loggerUtil.logApiData(url,jsonPayload,headers,response);
         if(Objects.nonNull(response)) {
             Object responseBody = response.get("responseBody");
             if(Objects.nonNull(responseBody) && response.get("status").equals(200)) {
                 Map<String, Object> responseBodyMap = new Gson().fromJson(responseBody.toString(), Map.class);
-                token = (String)responseBodyMap.get("token");
-
+                if(ObjectUtils.isNotEmpty(responseBodyMap.get("token"))) {
+                    token = (String) responseBodyMap.get("token");
+                }
             }
         }
         return token;
@@ -366,12 +386,14 @@ public class HealthIdServiceImpl implements HealthIdService {
         headers.put("X-HIP-ID", hipId);
         headers.put("Authorization", this.authTokenUtil.bearerAuthToken());
         headers.put("X-Token", xToken);
+        String jsonPayload = new Gson().toJson(payload);
         Map<String, Object> response = HttpUtil.post(url, new Gson().toJson(payload), headers);
+        loggerUtil.logApiData(url,jsonPayload,headers,response);
         if(Objects.nonNull(response)) {
             Object responseBody = response.get("responseBody");
             if(Objects.nonNull(responseBody) && response.get("status").equals(200)) {
                 responseBodyMap = new Gson().fromJson(responseBody.toString(), Map.class);
-                if (null != responseBodyMap) {
+                if(ObjectUtils.isNotEmpty(responseBodyMap)) {
                     customerDetails = this.prepareCustomerDetailsResponse(responseBodyMap);
                 }
             }

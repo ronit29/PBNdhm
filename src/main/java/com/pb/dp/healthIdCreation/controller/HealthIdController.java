@@ -128,7 +128,7 @@ public class HealthIdController {
             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
          }
       } catch (Exception e) {
-         logger.debug(e.getMessage());
+         logger.error(e.getMessage());
          e.printStackTrace();
          status = HttpStatus.INTERNAL_SERVER_ERROR;
          response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
@@ -177,7 +177,7 @@ public class HealthIdController {
             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
          }
       } catch (Exception e) {
-         logger.debug(e.getMessage());
+         logger.error(e.getMessage());
          e.printStackTrace();
          status = HttpStatus.INTERNAL_SERVER_ERROR;
          response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
@@ -227,7 +227,7 @@ public class HealthIdController {
             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
          }
       } catch (Exception e) {
-         logger.debug(e.getMessage());
+         logger.error(e.getMessage());
          e.printStackTrace();
          status = HttpStatus.INTERNAL_SERVER_ERROR;
          response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());

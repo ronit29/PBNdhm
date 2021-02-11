@@ -3,6 +3,7 @@ package com.pb.dp.service;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import com.pb.dp.util.LoggerUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,9 @@ public class HealthServiceImpl implements HealthService {
 
 	@Autowired
 	private AuthTokenUtil authTokenUtil;
+
+	@Autowired
+	LoggerUtil loggerUtil;
 
 	@Override
 	public List<CustomerHealth> getCustHealthDetails(long mobileNo, int customerId) {
@@ -60,11 +64,13 @@ public class HealthServiceImpl implements HealthService {
 						Map<String, Object> jsonMap = new HashMap<>();
 						String jsonPayload = new Gson().toJson(jsonMap);
 						Map<String, Object> responseFromApi2 = HttpUtil.post(url2, jsonPayload, header2);
+						loggerUtil.logApiData(url2,jsonPayload,header2,responseFromApi2);
 						int statusCode2 = (int) responseFromApi2.get("status");
 						if (statusCode2 == 200) {
 							String responseBody2 = (String) responseFromApi2.get("responseBody");
 							Map<String, Object> responseMap = (Map<String, Object>) new Gson().fromJson(responseBody2,
 									Map.class);
+							loggerUtil.logApiData(url2,jsonPayload,header2,responseFromApi2);
 							if (null != responseMap) {
 								response.setAddress((String) responseMap.get("address"));
 								response.setState((String) responseMap.get("stateName"));
@@ -76,6 +82,23 @@ public class HealthServiceImpl implements HealthService {
 								response.setFirstName((String) responseMap.get("firstName"));
 								response.setMiddleName((String) responseMap.get("middleName"));
 								response.setLastName((String) responseMap.get("lastName"));
+								response.setIsKyc((boolean)responseMap.get("kycVerified")?(short)1:(short)0);
+								if(null!=(String) responseMap.get("stateCode")) {
+									response.setStateId(Long.valueOf((String) responseMap.get("stateCode")));
+								}
+								if(null!=(String) responseMap.get("districtCode")) {
+									response.setDistrictId(Long.valueOf((String) responseMap.get("districtCode")));
+								}
+								if(null!=(String) responseMap.get("yearOfBirth") && null!=(String) responseMap.get("dayOfBirth") 
+										&& null!=(String) responseMap.get("monthOfBirth")) {
+									Calendar cal = Calendar.getInstance(TimeZone.getDefault());
+									int year = Integer.valueOf((String) responseMap.get("yearOfBirth"));
+									int month = Integer.valueOf((String) responseMap.get("monthOfBirth"));
+									int date = Integer.valueOf((String) responseMap.get("dayOfBirth"));
+									cal.set(year, month-1, date);
+									response.setDobStr(formatter.format(cal.getTime().getTime()));
+								}
+								healthDao.updateHealth(response);
 							}
 						}
 					} else {
@@ -100,6 +123,7 @@ public class HealthServiceImpl implements HealthService {
 		jsonMap.put("healthid", healthId);
 		String jsonPayload = new Gson().toJson(jsonMap);
 		Map<String, Object> responseFromApi = HttpUtil.post(url, jsonPayload, header);
+		loggerUtil.logApiData(url,jsonPayload,header,responseFromApi);
 		int statusCode2 = (int) responseFromApi.get("status");
 		if (statusCode2 == 200) {
 			String responseBody = (String) responseFromApi.get("responseBody");
@@ -119,6 +143,7 @@ public class HealthServiceImpl implements HealthService {
 		header.put("X-Token", xToken);
 		String url = configService.getPropertyConfig("NDHM_QR_CODE_URL").getValue();
 		Map<String, Object> responseFromApi = HttpUtil.getContentByteByURLWithHeader(url, header);
+		loggerUtil.logApiData(url,null,header,responseFromApi);
 		if (null != responseFromApi.get("Bytes")) {
 			byte[] qrByteArray = (byte[]) responseFromApi.get("Bytes");
 			String qrCode = Base64.getEncoder().encodeToString(qrByteArray);
@@ -146,6 +171,7 @@ public class HealthServiceImpl implements HealthService {
 					header.put("X-Token", xToken.toString());
 					String url = configService.getPropertyConfig("NDHM_PNG_CARD_URL").getValue();
 					Map<String, Object> responseFromApi = HttpUtil.getContentByteByURLWithHeader(url, header);
+					loggerUtil.logApiData(url,null,header,responseFromApi);
 					if (null != responseFromApi.get("Bytes")) {
 						byte[] qrByteArray = (byte[]) responseFromApi.get("Bytes");
 						byteStringCard = Base64.getEncoder().encodeToString(qrByteArray);
@@ -159,4 +185,11 @@ public class HealthServiceImpl implements HealthService {
 
 	}
 
+	@Override
+	public Map<String, Object> getCustomerProfile(int customerId) {
+		Map<String, Object> response = new HashMap<>();
+		response.putAll(healthDao.getCustomerProfile(customerId));
+		return response;
+	}
+	
 }
