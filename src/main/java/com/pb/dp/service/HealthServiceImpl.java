@@ -82,6 +82,23 @@ public class HealthServiceImpl implements HealthService {
 								response.setFirstName((String) responseMap.get("firstName"));
 								response.setMiddleName((String) responseMap.get("middleName"));
 								response.setLastName((String) responseMap.get("lastName"));
+								response.setIsKyc((boolean)responseMap.get("kycVerified")?(short)1:(short)0);
+								if(null!=(String) responseMap.get("stateCode")) {
+									response.setStateId(Long.valueOf((String) responseMap.get("stateCode")));
+								}
+								if(null!=(String) responseMap.get("districtCode")) {
+									response.setDistrictId(Long.valueOf((String) responseMap.get("districtCode")));
+								}
+								if(null!=(String) responseMap.get("yearOfBirth") && null!=(String) responseMap.get("dayOfBirth") 
+										&& null!=(String) responseMap.get("monthOfBirth")) {
+									Calendar cal = Calendar.getInstance(TimeZone.getDefault());
+									int year = Integer.valueOf((String) responseMap.get("yearOfBirth"));
+									int month = Integer.valueOf((String) responseMap.get("monthOfBirth"));
+									int date = Integer.valueOf((String) responseMap.get("dayOfBirth"));
+									cal.set(year, month-1, date);
+									response.setDobStr(formatter.format(cal.getTime().getTime()));
+								}
+								healthDao.updateHealth(response);
 							}
 						}
 					} else {
@@ -174,5 +191,5 @@ public class HealthServiceImpl implements HealthService {
 		response.putAll(healthDao.getCustomerProfile(customerId));
 		return response;
 	}
-
+	
 }
