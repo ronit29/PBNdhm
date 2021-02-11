@@ -19,4 +19,6 @@ public interface HealthDao {
 
 	Map<String,Object> getCustomerProfile(int customerId);
 
+	void updateHealth(CustomerHealth response);
+
 }
