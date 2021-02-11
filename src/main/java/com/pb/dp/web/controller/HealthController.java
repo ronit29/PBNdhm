@@ -145,6 +145,7 @@ public class HealthController {
 				status =  HttpStatus.UNAUTHORIZED;
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			logger.debug(e.getMessage());
 			status = HttpStatus.INTERNAL_SERVER_ERROR;
 			response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());

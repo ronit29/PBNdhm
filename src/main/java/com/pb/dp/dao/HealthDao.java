@@ -1,5 +1,6 @@
 package com.pb.dp.dao;
 
+import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +20,6 @@ public interface HealthDao {
 
 	Map<String,Object> getCustomerProfile(int customerId);
 
-	void updateHealth(CustomerHealth response);
+	void updateHealth(CustomerHealth response) throws ParseException;
 
 }

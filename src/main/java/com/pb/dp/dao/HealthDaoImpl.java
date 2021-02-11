@@ -1,5 +1,8 @@
 package com.pb.dp.dao;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -99,23 +102,25 @@ public class HealthDaoImpl implements HealthDao {
 	}
 
 	@Override
-	public void updateHealth(CustomerHealth response) {
-		 Map<String, Object> callParams = new HashMap<String, Object>();
-	     callParams.put("address",response.getCustomerId());
-	     callParams.put("stateId",response.getStateId());
-	     callParams.put("districtId",response.getDistrictId());
-	     callParams.put("healthId",response.getHealthId());
-	     callParams.put("healthIdNumber",response.getHealtIdNo());
-	     callParams.put("email",response.getEmailId());
-	     callParams.put("gender",response.getGender());
-	     callParams.put("firstName",response.getFirstName());
-	     callParams.put("middleName",response.getMiddleName());
-	     callParams.put("lastName",response.getLastName());
-	     callParams.put("isKyc",response.getIsKyc());
-	     callParams.put("dob",response.getDobStr());
-	     SqlParameterSource inParams = new MapSqlParameterSource(callParams);
-	     updateCustomerHealth.execute(inParams);
-		
+	public void updateHealth(CustomerHealth response) throws ParseException {
+		Map<String, Object> callParams = new HashMap<String, Object>();
+		callParams.put("address", response.getCustomerId());
+		callParams.put("stateId", response.getStateId());
+		callParams.put("districtId", response.getDistrictId());
+		callParams.put("healthId", response.getHealthId());
+		callParams.put("healthIdNumber", response.getHealtIdNo());
+		callParams.put("email", response.getEmailId());
+		callParams.put("gender", response.getGender());
+		callParams.put("firstName", response.getFirstName());
+		callParams.put("middleName", response.getMiddleName());
+		callParams.put("lastName", response.getLastName());
+		callParams.put("isKyc", response.getIsKyc());
+		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+		Date dob = sdf.parse(response.getDobStr());
+		callParams.put("dob", dob);
+		SqlParameterSource inParams = new MapSqlParameterSource(callParams);
+		updateCustomerHealth.execute(inParams);
+
 	}
 
 }
