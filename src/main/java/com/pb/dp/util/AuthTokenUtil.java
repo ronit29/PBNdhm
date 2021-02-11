@@ -46,7 +46,7 @@ public class AuthTokenUtil {
 		String jsonPayload = new Gson().toJson(jsonMap);
 		String url = configService.getPropertyConfig("NDHM_ACCOUNT_TOKEN_URL").getValue();
 		Map<String, Object> responseFromApi = HttpUtil.post(url, jsonPayload, header);
-        loggerUtil.logApiData(url,jsonPayload,header,responseFromApi);
+        //loggerUtil.logApiData(url,jsonPayload,header,responseFromApi);
 		int statusCode = (int) responseFromApi.get("status");
 		Boolean isValidBoolean = false;
 		if (statusCode == 200) {
@@ -67,7 +67,7 @@ public class AuthTokenUtil {
         jsonMap.put("healthid", healthId);
         String jsonPayload = new Gson().toJson(jsonMap);
         Map<String, Object> responseFromApi = HttpUtil.post(url, jsonPayload, header);
-        loggerUtil.logApiData(url,jsonPayload,header,responseFromApi);
+        //loggerUtil.logApiData(url,jsonPayload,header,responseFromApi);
         int statusCode2 = (int) responseFromApi.get("status");
         if (statusCode2 == 200) {
             String responseBody = (String) responseFromApi.get("responseBody");

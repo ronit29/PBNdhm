@@ -102,8 +102,8 @@ public class HealthServiceImpl implements HealthService {
 							}
 						}
 					} else {
-						String txnId = getTxnId(token, custHealthOtpRequest.getHealthId());
-						response.setTxnId(txnId);
+//						String txnId = getTxnId(token, custHealthOtpRequest.getHealthId());
+//						response.setTxnId(txnId);
 					}
 				}
 			}
@@ -123,7 +123,7 @@ public class HealthServiceImpl implements HealthService {
 		jsonMap.put("healthid", healthId);
 		String jsonPayload = new Gson().toJson(jsonMap);
 		Map<String, Object> responseFromApi = HttpUtil.post(url, jsonPayload, header);
-		loggerUtil.logApiData(url,jsonPayload,header,responseFromApi);
+		//loggerUtil.logApiData(url,jsonPayload,header,responseFromApi);
 		int statusCode2 = (int) responseFromApi.get("status");
 		if (statusCode2 == 200) {
 			String responseBody = (String) responseFromApi.get("responseBody");
@@ -143,7 +143,7 @@ public class HealthServiceImpl implements HealthService {
 		header.put("X-Token", xToken);
 		String url = configService.getPropertyConfig("NDHM_QR_CODE_URL").getValue();
 		Map<String, Object> responseFromApi = HttpUtil.getContentByteByURLWithHeader(url, header);
-		loggerUtil.logApiData(url,null,header,responseFromApi);
+		//loggerUtil.logApiData(url,null,header,responseFromApi);
 		if (null != responseFromApi.get("Bytes")) {
 			byte[] qrByteArray = (byte[]) responseFromApi.get("Bytes");
 			String qrCode = Base64.getEncoder().encodeToString(qrByteArray);
@@ -171,7 +171,7 @@ public class HealthServiceImpl implements HealthService {
 					header.put("X-Token", xToken.toString());
 					String url = configService.getPropertyConfig("NDHM_PNG_CARD_URL").getValue();
 					Map<String, Object> responseFromApi = HttpUtil.getContentByteByURLWithHeader(url, header);
-					loggerUtil.logApiData(url,null,header,responseFromApi);
+					//loggerUtil.logApiData(url,null,header,responseFromApi);
 					if (null != responseFromApi.get("Bytes")) {
 						byte[] qrByteArray = (byte[]) responseFromApi.get("Bytes");
 						byteStringCard = Base64.getEncoder().encodeToString(qrByteArray);
