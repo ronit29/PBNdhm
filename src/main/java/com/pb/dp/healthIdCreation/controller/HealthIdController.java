@@ -10,6 +10,7 @@ import com.pb.dp.service.ConfigService;
 import com.pb.dp.enums.ResponseStatus;
 
 import com.pb.dp.util.AES256Cipher;
+import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,8 +56,8 @@ public class HealthIdController {
                AES256Cipher cipher = configService.getAESForClientKeyMap(clientKey);
                try {
                   int customerId = Integer.valueOf(cipher.decrypt(custId));
-                  Map<String,CustomerDetails> registerProfileData = new HashMap<>();
-                  registerProfileData.put(custId,customerDetail);
+                  Map<Integer,CustomerDetails> registerProfileData = new HashMap<>();
+                  registerProfileData.put(customerId,customerDetail);
                   httpSession.setAttribute("profileData",registerProfileData);
                   response = this.healthIdService.registerViaMobile(customerDetail,customerId);
                } catch (NumberFormatException exception) {
@@ -106,15 +107,26 @@ public class HealthIdController {
                   AES256Cipher cipher = configService.getAESForClientKeyMap(clientKey);
                   try {
                      int customerId = Integer.valueOf(cipher.decrypt(custId));
-                     if(Objects.nonNull(httpSession.getAttribute("profileData")))
-                     if(Objects.isNull(ndhmMobOtpRequest.getOperation())){
-                        response = this.healthIdService.verifyForRegistration(ndhmMobOtpRequest, customerId);
-                     }
-                     else if(ndhmMobOtpRequest.getOperation().equals(NdhmVerifyOperation.REGISTER.getOperationId())) {
-                        response = this.healthIdService.verifyForRegistration(ndhmMobOtpRequest, customerId);
-                     }
-                     else if(ndhmMobOtpRequest.getOperation().equals(NdhmVerifyOperation.UPDATE_PROFILE  .getOperationId())) {
-                        response = this.healthIdService.updateHealthIdProfile(ndhmMobOtpRequest, customerId);
+                     Map<Integer,CustomerDetails> custProfileMap = (Map<Integer,CustomerDetails>)httpSession.getAttribute("profileData");
+                     if(!custProfileMap.isEmpty()) {
+                        CustomerDetails customerProfileData = custProfileMap.get(customerId);
+                        if(ObjectUtils.isNotEmpty(customerProfileData)) {
+                           if (ObjectUtils.isNotEmpty(httpSession.getAttribute("profileData"))) {
+                              //CustomerDetails customerProfileData = (CustomerDetails) httpSession.getAttribute("profileData");
+                              if (Objects.isNull(ndhmMobOtpRequest.getOperation())) {
+                                 response = this.healthIdService.verifyForRegistration(ndhmMobOtpRequest, customerProfileData, customerId);
+                              } else if (ndhmMobOtpRequest.getOperation().equals(NdhmVerifyOperation.REGISTER.getOperationId())) {
+                                 response = this.healthIdService.verifyForRegistration(ndhmMobOtpRequest, customerProfileData, customerId);
+                                 if (response.get("verify").equals(true)) {
+                                    custProfileMap.put(customerId,null);
+                                    httpSession.setAttribute("profileData",custProfileMap);
+                                 }
+
+                              } else if (ndhmMobOtpRequest.getOperation().equals(NdhmVerifyOperation.UPDATE_PROFILE.getOperationId())) {
+                                 response = this.healthIdService.updateHealthIdProfile(ndhmMobOtpRequest, customerId);
+                              }
+                           }
+                        }
                      }
                   } catch (NumberFormatException exception) {
                      response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_FORMAT_PARAM.getStatusMsg()

@@ -10,7 +10,7 @@ import java.util.Map;
 public interface HealthIdService {
     Map<String, Object> registerViaMobile(CustomerDetails customerDetail, int customerId) throws ParseException, Exception;
 
-    Map<String, Object> verifyForRegistration(NdhmMobOtpRequest ndhmMobOtpRequest, Integer custId) throws Exception;
+    Map<String, Object> verifyForRegistration(NdhmMobOtpRequest ndhmMobOtpRequest, CustomerDetails customerProfileData, Integer custId) throws Exception;
 
     Map<String, Object> resendNdhmOtp(String txnId) throws Exception;
 
