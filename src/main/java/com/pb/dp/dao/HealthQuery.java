@@ -15,6 +15,6 @@ public interface HealthQuery {
 	String UPDATE_QR_CODE = "UPDATE healthId SET qrCode=? WHERE healthId=?";
 	String UPDATE_CARD_BYTE = "UPDATE healthId SET healthCard=? WHERE healthId=?";
 	String GET_CUST_HEALTH_PROFILE_ID = "select c.id as customerId,c.mobile,h.firstName,h.middleName,h.lastName,h.dob,mr.name as relationship,h.email as emailId ,h.gender,h.id as healthdbId,h.healthId,h.healtIdNo,a2.line1 as address,a2.stateId as stateId,a2.districtId as districtId,ms.ndhm_name as state,md.ndhm_name as district,h.isKyc,h.qrCode,h.healthCard from customer c(nolock) inner join healthId h(nolock) on h.customerId=c.id inner join address a2 on a2.id=h.addressId inner join m_district md on md.ndhm_id = a2.districtId inner join m_state ms on ms.ndhm_id = a2.stateId inner join m_relation mr on mr.id = h.relation where c.id=? and h.healthId =? and h.isActive=1";
-	String GET_CUSTOMER_PROFILE = "select c.mobile, c.firstName,c.midName as middleName,c.lastName from customer c(nolock) where c.id=?";
-	String GET_CUSTOMER_PROFILE_HEALTH = "select top 1 c.mobile,h.firstName,h.middleName,h.lastName from customer c(nolock) inner join healthId h(nolock) on h.customerId=c.id where c.id=? and h.isActive=1 ORDER by h.createdAt DESC";
+	String GET_CUSTOMER_PROFILE = "select c.mobile, c.firstName,c.midName as middleName,c.lastName, c.relationship, c.gender from customer c(nolock) where c.id=?";
+	String GET_CUSTOMER_PROFILE_HEALTH = "select top 1 c.mobile,h.firstName,h.middleName,h.lastName,mr.name as relationship,h.gender from customer c(nolock) inner join healthId h(nolock) on h.customerId=c.id inner join m_relation mr on mr.id = h.relation where c.id=? and h.isActive=1 ORDER by h.createdAt DESC";
 }

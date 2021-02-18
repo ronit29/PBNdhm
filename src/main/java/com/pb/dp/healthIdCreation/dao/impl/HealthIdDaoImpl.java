@@ -4,7 +4,10 @@ import com.pb.dp.healthIdCreation.dao.HealthIdDao;
 
 import com.pb.dp.healthIdCreation.dao.HealthIdQuery;
 import com.pb.dp.healthIdCreation.model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -30,6 +33,8 @@ public class HealthIdDaoImpl implements HealthIdDao {
 
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
+    private static final Logger logger = LoggerFactory.getLogger(HealthIdDaoImpl.class);
+
     @PostConstruct
     public void init() {
         namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
@@ -38,6 +43,7 @@ public class HealthIdDaoImpl implements HealthIdDao {
 
     @Override
     public Integer addHealthIdDemographics(CustomerDetails customerDetail, int customerId) throws Exception {
+        Integer healthIdPk = 0;
         SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
         KeyHolder addKeyHolder = new GeneratedKeyHolder();
         //add customer address details
@@ -60,9 +66,16 @@ public class HealthIdDaoImpl implements HealthIdDao {
         custParams.addValue("gender",customerDetail.getGender());
 //        custParams.addValue("mobile", customerDetail.getMobileNo());
         custParams.addValue("healthId",customerDetail.getHealthId());
-//        Integer custCount  =  this.namedParameterJdbcTemplate.update(HealthIdQuery.UPDATE_CUSTOMER_DETAILS,custParams);
-        Integer custCount  =  this.namedParameterJdbcTemplate.update(HealthIdQuery.ADD_HEALTH_ID_DEMOGRAPHIC,custParams,custKeyHolder);
-        Integer healthIdPk = custKeyHolder.getKey().intValue();
+        custParams.addValue("healtIdNo", customerDetail.getHealthIdNo());
+        custParams.addValue("token",customerDetail.getToken());
+        custParams.addValue("txnId",customerDetail.getTxnId());
+        try {
+            Integer custCount = this.namedParameterJdbcTemplate.update(HealthIdQuery.ADD_HEALTH_ID_DEMOGRAPHIC, custParams, custKeyHolder);
+            healthIdPk = custKeyHolder.getKey().intValue();
+        }catch (DuplicateKeyException exception){
+            logger.debug("Duplicate Key Exception :{}", exception.getMessage());
+            healthIdPk = -1;
+        }
         return healthIdPk;
     }
 
@@ -140,7 +153,7 @@ public class HealthIdDaoImpl implements HealthIdDao {
     public Long addNewCustomer(Long mobile, int otp) throws Exception{
         KeyHolder keyHolder = new GeneratedKeyHolder();
         MapSqlParameterSource custParams = new MapSqlParameterSource();
-        //custParams.addValue("firstName","New");
+        custParams.addValue("firstName","Guest");
         custParams.addValue("otp",otp);
         custParams.addValue("mobile", mobile);
         Integer custCount  =  this.namedParameterJdbcTemplate.update(HealthIdQuery.ADD_CUSTOMER,custParams,keyHolder);

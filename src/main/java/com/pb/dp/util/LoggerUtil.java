@@ -10,6 +10,6 @@ import java.util.Map;
 public class LoggerUtil {
     private static final Logger logger = LoggerFactory.getLogger(LoggerUtil.class);
      public void logApiData(String url, String jsonPayload, Map<String, String> headers, Map<String, Object> response){
-        logger.info("url : {},\"+'\\n'+\" headers : {},\"+'\\n'+\" jsonPayload :{},\"+'\\n'+\" api Response ",url,headers,jsonPayload,response);
+        logger.info("url : {},"+'\n'+" headers : {},"+'\n'+" jsonPayload :{},"+'\n'+" api Response : {} ",url,headers,jsonPayload,response);
     }
 }
