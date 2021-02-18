@@ -276,9 +276,9 @@ public class HealthIdServiceImpl implements HealthIdService {
     @Override
     public Map<String, Object> updateHealthIdProfile(NdhmMobOtpRequest ndhmMobOtpRequest, CustomerDetails customerDetails, int customerId) throws Exception {
         Map<String, Object> response = new HashMap<>();
-        String authToken = this.authTokenUtil.bearerAuthToken();
+        String authToken = authTokenUtil.bearerAuthToken();
  //       CustomerDetails customerDetails = this.healthIdDao.getCustomerDetails(customerId, ndhmMobOtpRequest.getMobile(), ndhmMobOtpRequest.getTxnId());
-        String xToken = this.getValidToken(ndhmMobOtpRequest, authToken);
+        String xToken = authTokenUtil.getValidToken(ndhmMobOtpRequest, authToken);
         if(ObjectUtils.isNotEmpty(xToken)) {
             UpdateAccountRequest updateAccountRequest = this.prepareUpdateProfilePayload(customerDetails);
             CustomerDetails updatedProfileMap = this.updateProfileOnNdhm(updateAccountRequest, authToken, xToken);
@@ -327,51 +327,6 @@ public class HealthIdServiceImpl implements HealthIdService {
         updateAccountRequest.setGender(customerDetails.getGender());
         updateAccountRequest.setHealthId(customerDetails.getHealthId());
         return updateAccountRequest;
-    }
-
-    private String getValidToken(NdhmMobOtpRequest ndhmMobOtpRequest, String authToken) throws Exception {
-        String token = null;
-        boolean isValidToken = true;
-        StringBuilder xToken = new StringBuilder("Bearer ");
-        String oldToken = healthDao.getHealthToken(ndhmMobOtpRequest.getHealthId());
-        if (null != oldToken) {
-            isValidToken = authTokenUtil.isValidToken(oldToken, token);
-            if (isValidToken) {
-                xToken.append(oldToken);
-            } else {
-                xToken.append(this.confirmWithOtp(ndhmMobOtpRequest, authToken));
-            }
-        }else {
-            xToken.append(this.confirmWithOtp(ndhmMobOtpRequest, authToken));
-        }
-
-        token = xToken.toString();
-        return token;
-    }
-
-    private String confirmWithOtp(NdhmMobOtpRequest ndhmMobOtpRequest, String authToken) throws Exception {
-        Map<String, Object> response = new HashMap<>();
-        String token = null;
-        String url = configService.getPropertyConfig("NDHM_CONFIRM_MOB_OTP_URL").getValue();
-        Map<String, String> headers = new HashMap<>();
-        headers.put("X-HIP-ID", hipId);
-        headers.put("Authorization", authToken);
-        Map<String, Object> payload = new HashMap<>();
-        payload.put("otp", String.valueOf(ndhmMobOtpRequest.getOtp()));
-        payload.put("txnId", ndhmMobOtpRequest.getTxnId());
-        String jsonPayload = new Gson().toJson(payload);
-        response = HttpUtil.post(url, jsonPayload, headers);
-        loggerUtil.logApiData(url,jsonPayload,headers,response);
-        if(Objects.nonNull(response)) {
-            Object responseBody = response.get("responseBody");
-            if(Objects.nonNull(responseBody) && response.get("status").equals(200)) {
-                Map<String, Object> responseBodyMap = new Gson().fromJson(responseBody.toString(), Map.class);
-                if(ObjectUtils.isNotEmpty(responseBodyMap.get("token"))) {
-                    token = (String) responseBodyMap.get("token");
-                }
-            }
-        }
-        return token;
     }
 
     @Override

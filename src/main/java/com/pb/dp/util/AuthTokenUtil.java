@@ -1,13 +1,17 @@
 package com.pb.dp.util;
 
 import com.google.gson.Gson;
+import com.pb.dp.dao.HealthDao;
+import com.pb.dp.healthIdCreation.model.NdhmMobOtpRequest;
 import com.pb.dp.service.ConfigService;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @Component
 public class AuthTokenUtil {
@@ -16,7 +20,10 @@ public class AuthTokenUtil {
     private ConfigService configService;
 
     @Autowired
-    LoggerUtil loggerUtil;
+    private LoggerUtil loggerUtil;
+
+    @Autowired
+    private HealthDao healthDao;
 
     @SuppressWarnings("unchecked")
     public String bearerAuthToken() throws Exception {
@@ -77,5 +84,50 @@ public class AuthTokenUtil {
             txnId = StringUtils.EMPTY;
         }
         return txnId;
+    }
+
+    public String getValidToken(NdhmMobOtpRequest ndhmMobOtpRequest, String authToken) throws Exception {
+        String token = null;
+        boolean isValidToken = true;
+        StringBuilder xToken = new StringBuilder("Bearer ");
+        String oldToken = healthDao.getHealthToken(ndhmMobOtpRequest.getHealthId());
+        if (null != oldToken) {
+            isValidToken = isValidToken(oldToken, token);
+            if (isValidToken) {
+                xToken.append(oldToken);
+            } else {
+                xToken.append(this.confirmWithOtp(ndhmMobOtpRequest, authToken));
+            }
+        }else {
+            xToken.append(this.confirmWithOtp(ndhmMobOtpRequest, authToken));
+        }
+
+        token = xToken.toString();
+        return token;
+    }
+
+    private String confirmWithOtp(NdhmMobOtpRequest ndhmMobOtpRequest, String authToken) throws Exception {
+        Map<String, Object> response = new HashMap<>();
+        String token = null;
+        String url = configService.getPropertyConfig("NDHM_CONFIRM_MOB_OTP_URL").getValue();
+        Map<String, String> headers = new HashMap<>();
+        headers.put("X-HIP-ID", "DPHIP119");
+        headers.put("Authorization", authToken);
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("otp", String.valueOf(ndhmMobOtpRequest.getOtp()));
+        payload.put("txnId", ndhmMobOtpRequest.getTxnId());
+        String jsonPayload = new Gson().toJson(payload);
+        response = HttpUtil.post(url, jsonPayload, headers);
+        loggerUtil.logApiData(url,jsonPayload,headers,response);
+        if(Objects.nonNull(response)) {
+            Object responseBody = response.get("responseBody");
+            if(Objects.nonNull(responseBody) && response.get("status").equals(200)) {
+                Map<String, Object> responseBodyMap = new Gson().fromJson(responseBody.toString(), Map.class);
+                if(ObjectUtils.isNotEmpty(responseBodyMap.get("token"))) {
+                    token = (String) responseBodyMap.get("token");
+                }
+            }
+        }
+        return token;
     }
 }
