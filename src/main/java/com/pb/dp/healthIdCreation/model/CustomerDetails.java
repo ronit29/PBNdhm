@@ -20,7 +20,7 @@ public class CustomerDetails {
     private String districtName;
     private String emailId;
     private Boolean isKyc;
-    private Long pincode;
+    private Integer pincode;
     private String token;
     private Long dbId;
     private Long addressId;
@@ -164,11 +164,11 @@ public class CustomerDetails {
         isKyc = kyc;
     }
 
-    public Long getPincode() {
+    public Integer getPincode() {
         return pincode;
     }
 
-    public void setPincode(Long pincode) {
+    public void setPincode(Integer pincode) {
         this.pincode = pincode;
     }
 

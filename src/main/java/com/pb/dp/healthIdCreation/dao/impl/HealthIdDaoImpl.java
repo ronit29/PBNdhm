@@ -134,6 +134,7 @@ public class HealthIdDaoImpl implements HealthIdDao {
         customerDetails.setAddress(address.getLine1());
         customerDetails.setState(address.getStateId());
         customerDetails.setDistrict(address.getDistrictId());
+        customerDetails.setPincode(address.getPincode());
         customerDetails.setDbId(healthId.getId());
         customerDetails.setAddressId(address.getId());
         return customerDetails;

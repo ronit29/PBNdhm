@@ -107,23 +107,22 @@ public class HealthIdController {
                   AES256Cipher cipher = configService.getAESForClientKeyMap(clientKey);
                   try {
                      int customerId = Integer.valueOf(cipher.decrypt(custId));
-                     Map<Integer,CustomerDetails> custProfileMap = (Map<Integer,CustomerDetails>)httpSession.getAttribute("profileData");
-                     if(!custProfileMap.isEmpty()) {
-                        CustomerDetails customerProfileData = custProfileMap.get(customerId);
-                        if(ObjectUtils.isNotEmpty(customerProfileData)) {
-                           if (ObjectUtils.isNotEmpty(httpSession.getAttribute("profileData"))) {
+                     if (ObjectUtils.isNotEmpty(httpSession.getAttribute("profileData"))) {
+                        Map<Integer, CustomerDetails> custProfileMap = (Map<Integer, CustomerDetails>) httpSession.getAttribute("profileData");
+                        if (!custProfileMap.isEmpty()) {
+                           CustomerDetails customerProfileData = custProfileMap.get(customerId);
+                           if (ObjectUtils.isNotEmpty(customerProfileData)) {
                               //CustomerDetails customerProfileData = (CustomerDetails) httpSession.getAttribute("profileData");
                               if (Objects.isNull(ndhmMobOtpRequest.getOperation())) {
                                  response = this.healthIdService.verifyForRegistration(ndhmMobOtpRequest, customerProfileData, customerId);
                               } else if (ndhmMobOtpRequest.getOperation().equals(NdhmVerifyOperation.REGISTER.getOperationId())) {
                                  response = this.healthIdService.verifyForRegistration(ndhmMobOtpRequest, customerProfileData, customerId);
                                  if (response.get("verify").equals(true)) {
-                                    custProfileMap.put(customerId,null);
-                                    httpSession.setAttribute("profileData",custProfileMap);
+                                    custProfileMap.replace(customerId, customerProfileData, null);
+                                    httpSession.setAttribute("profileData", custProfileMap);
                                  }
-
                               } else if (ndhmMobOtpRequest.getOperation().equals(NdhmVerifyOperation.UPDATE_PROFILE.getOperationId())) {
-                                 response = this.healthIdService.updateHealthIdProfile(ndhmMobOtpRequest, customerId);
+                                 response = this.healthIdService.updateHealthIdProfile(ndhmMobOtpRequest, customerProfileData, customerId);
                               }
                            }
                         }
@@ -133,7 +132,6 @@ public class HealthIdController {
                              + " Reason: customerId must be a number");
                      response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
                   }
-
                } else {
                response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_AUTH_KEY.getStatusMsg());
                response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_AUTH_KEY.getStatusId());
@@ -210,7 +208,7 @@ public class HealthIdController {
    public ResponseEntity<Map<String, Object>> updateHealthIdProfile(@RequestBody CustomerDetails customerDetails,
                                                                   @RequestHeader(value = "X-CLIENT-KEY") String clientKey,
                                                                   @RequestHeader(value = "X-AUTH-KEY") String authKey,
-                                                                  @RequestHeader(value = "X-CID") String custId) throws Exception {
+                                                                  @RequestHeader(value = "X-CID") String custId, HttpSession httpSession) throws Exception {
 
       HttpStatus status = HttpStatus.OK;
       Map<String, Object> response = new HashMap<>();
@@ -226,6 +224,25 @@ public class HealthIdController {
                AES256Cipher cipher = configService.getAESForClientKeyMap(clientKey);
                try {
                   int customerId = Integer.valueOf(cipher.decrypt(custId));
+                  Map<Integer,CustomerDetails> registerProfileData = null;
+                  if (ObjectUtils.isNotEmpty(httpSession.getAttribute("profileData"))) {
+                     Map<Integer, CustomerDetails> custProfileMap = (Map<Integer, CustomerDetails>) httpSession.getAttribute("profileData");
+                     if (!custProfileMap.isEmpty()) {
+                        CustomerDetails customerProfileData = custProfileMap.get(customerId);
+                        if (ObjectUtils.isNotEmpty(customerProfileData)) {
+                           custProfileMap.replace(customerId,customerProfileData,customerDetails);
+                        }
+                     }else{
+                        //custProfileMap = new HashMap<>();
+                        custProfileMap.put(customerId,customerDetails);
+                        httpSession.setAttribute("profileData",custProfileMap);
+                     }
+                  }else{
+                     registerProfileData = new HashMap<>();
+                     registerProfileData.put(customerId,customerDetails);
+                     httpSession.setAttribute("profileData",registerProfileData);
+                  }
+
                   response = this.healthIdService.generateOtpForUpdate(customerDetails,customerId);
                } catch (NumberFormatException exception) {
                   response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_FORMAT_PARAM.getStatusMsg()

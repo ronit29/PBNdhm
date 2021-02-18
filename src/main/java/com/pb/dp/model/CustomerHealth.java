@@ -31,6 +31,7 @@ public class CustomerHealth {
 	private String healthCard;
 	private String txnId;
 	private int healthdbId;
+	private int pincode;
 	
 	public int getCustomerId() {
 		return customerId;
@@ -182,6 +183,14 @@ public class CustomerHealth {
 		this.districtId = districtId;
 	}
 
+	public int getPincode() {
+		return pincode;
+	}
+
+	public void setPincode(int pincode) {
+		this.pincode = pincode;
+	}
+
 	public static class CustomerHealthMapper implements RowMapper<CustomerHealth> {
         @Override
         public CustomerHealth mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -204,6 +213,7 @@ public class CustomerHealth {
             customerHealth.setDistrict(rs.getString("district"));
             customerHealth.setStateId(rs.getLong("stateId"));
             customerHealth.setDistrictId(rs.getLong("districtId"));
+            customerHealth.setPincode(rs.getInt("pincode"));
             return customerHealth;
         }
     }

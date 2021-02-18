@@ -274,18 +274,22 @@ public class HealthIdServiceImpl implements HealthIdService {
     }
 
     @Override
-    public Map<String, Object> updateHealthIdProfile(NdhmMobOtpRequest ndhmMobOtpRequest, int customerId) throws Exception {
+    public Map<String, Object> updateHealthIdProfile(NdhmMobOtpRequest ndhmMobOtpRequest, CustomerDetails customerDetails, int customerId) throws Exception {
         Map<String, Object> response = new HashMap<>();
         String authToken = this.authTokenUtil.bearerAuthToken();
-        CustomerDetails customerDetails = this.healthIdDao.getCustomerDetails(customerId, ndhmMobOtpRequest.getMobile(), ndhmMobOtpRequest.getTxnId());
+ //       CustomerDetails customerDetails = this.healthIdDao.getCustomerDetails(customerId, ndhmMobOtpRequest.getMobile(), ndhmMobOtpRequest.getTxnId());
         String xToken = this.getValidToken(ndhmMobOtpRequest, authToken);
         if(ObjectUtils.isNotEmpty(xToken)) {
             UpdateAccountRequest updateAccountRequest = this.prepareUpdateProfilePayload(customerDetails);
-            CustomerDetails updateProfileMap = this.updateProfileOnNdhm(updateAccountRequest, xToken);
-            if(Objects.nonNull(updateProfileMap)) {
-                updateProfileMap.setDob(customerDetails.getDob());
-                updateProfileMap.setRelationship(customerDetails.getRelationship());
-                response.put("data", updateProfileMap);
+            CustomerDetails updatedProfileMap = this.updateProfileOnNdhm(updateAccountRequest, authToken, xToken);
+            if(Objects.nonNull(updatedProfileMap)) {
+                updatedProfileMap.setDob(customerDetails.getDob());
+                if(!ObjectUtils.isEmpty(customerDetails.getRelationship())) {
+                    updatedProfileMap.setRelationId(Relationship.valueOf(customerDetails.getRelationship().toUpperCase()).getRelationId());
+                    updatedProfileMap.setRelationship(customerDetails.getRelationship());
+                }
+                this.healthIdDao.updateProfileData(updatedProfileMap,customerId);
+                response.put("data", updatedProfileMap);
                 response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
                 response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
             } else{
@@ -308,6 +312,7 @@ public class HealthIdServiceImpl implements HealthIdService {
         updateAccountRequest.setStateCode(customerDetails.getState().toString());
         updateAccountRequest.setDistrictCode(customerDetails.getDistrict().toString());
         updateAccountRequest.setAddress(customerDetails.getAddress());
+        updateAccountRequest.setPincode(customerDetails.getPincode());
         String dobString = customerDetails.getDob();
         String[] dobArray = dobString.split("-");
         String date = dobArray[0];
@@ -372,11 +377,11 @@ public class HealthIdServiceImpl implements HealthIdService {
     @Override
     public Map<String, Object> generateOtpForUpdate(CustomerDetails customerDetails, int customerId) throws Exception {
         Map<String, Object> response = new HashMap<>();
-        if(!ObjectUtils.isEmpty(customerDetails.getRelationship()))
-            customerDetails.setRelationId(Relationship.valueOf(customerDetails.getRelationship().toUpperCase()).getRelationId());
-        this.healthIdDao.updateProfileData(customerDetails,customerId);
+//        if(!ObjectUtils.isEmpty(customerDetails.getRelationship()))
+//            customerDetails.setRelationId(Relationship.valueOf(customerDetails.getRelationship().toUpperCase()).getRelationId());
+        //this.healthIdDao.updateProfileData(customerDetails,customerId);
         String txnId = this.authTokenUtil.authInit(customerDetails.getHealthId());
-        this.healthIdDao.updateProfileTxnId(customerId,customerDetails.getHealthId(),txnId);
+        //this.healthIdDao.updateProfileTxnId(customerId,customerDetails.getHealthId(),txnId);
         if(ObjectUtils.isNotEmpty(txnId)){
             response.put("txnId",txnId);
             response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
@@ -388,13 +393,13 @@ public class HealthIdServiceImpl implements HealthIdService {
         return response;
     }
 
-    private CustomerDetails updateProfileOnNdhm(UpdateAccountRequest payload, String xToken) throws Exception {
+    private CustomerDetails updateProfileOnNdhm(UpdateAccountRequest payload, String authToken, String xToken) throws Exception {
         CustomerDetails customerDetails = null;
         Map<String, Object> responseBodyMap = new HashMap<>();
         String url = configService.getPropertyConfig("NDHM_ACCOUNT_PROFILE_URL").getValue();
         Map<String, String> headers = new HashMap<>();
         headers.put("X-HIP-ID", hipId);
-        headers.put("Authorization", this.authTokenUtil.bearerAuthToken());
+        headers.put("Authorization", authToken);
         headers.put("X-Token", xToken);
         String jsonPayload = new Gson().toJson(payload);
         Map<String, Object> response = HttpUtil.post(url, new Gson().toJson(payload), headers);

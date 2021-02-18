@@ -98,6 +98,9 @@ public class HealthServiceImpl implements HealthService {
 									cal.set(year, month-1, date);
 									response.setDobStr(formatter.format(cal.getTime().getTime()));
 								}
+								if(null!=(String) responseMap.get("pincode")){
+									response.setPincode(Integer.valueOf((String) responseMap.get("pincode")));
+								}
 								healthDao.updateHealth(response);
 							}
 						}

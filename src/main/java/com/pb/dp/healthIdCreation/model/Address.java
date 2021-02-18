@@ -17,6 +17,7 @@ public class Address {
   private long createdBy;
   private long updatedBy;
   private java.sql.Timestamp updatedAt;
+  private Integer pincode;
 
 
   public long getId() {
@@ -99,6 +100,14 @@ public class Address {
     this.updatedAt = updatedAt;
   }
 
+  public Integer getPincode() {
+    return pincode;
+  }
+
+  public void setPincode(Integer pincode) {
+    this.pincode = pincode;
+  }
+
   @Override
   public String toString() {
     return "Address{" +
@@ -111,6 +120,7 @@ public class Address {
             ", createdBy=" + createdBy +
             ", updatedBy=" + updatedBy +
             ", updatedAt=" + updatedAt +
+            ", pincode=" + pincode +
             '}';
   }
 
@@ -127,6 +137,7 @@ public class Address {
       address.setCreatedBy(rs.getLong("createdBy"));
       address.setUpdatedAt(rs.getTimestamp("updatedAt"));
       address.setUpdatedBy(rs.getLong("updatedBy"));
+      address.setPincode(rs.getInt("pincode"));
       return address;
     }
   }
