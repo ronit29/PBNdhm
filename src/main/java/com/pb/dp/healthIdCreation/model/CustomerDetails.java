@@ -20,10 +20,11 @@ public class CustomerDetails {
     private String districtName;
     private String emailId;
     private Boolean isKyc;
-    private Long pincode;
+    private Integer pincode;
     private String token;
     private Long dbId;
     private Long addressId;
+    private String txnId;
 
 
 
@@ -163,11 +164,11 @@ public class CustomerDetails {
         isKyc = kyc;
     }
 
-    public Long getPincode() {
+    public Integer getPincode() {
         return pincode;
     }
 
-    public void setPincode(Long pincode) {
+    public void setPincode(Integer pincode) {
         this.pincode = pincode;
     }
 
@@ -201,6 +202,43 @@ public class CustomerDetails {
 
     public void setAddressId(Long addressId) {
         this.addressId = addressId;
+    }
+
+    public String getTxnId() {
+        return txnId;
+    }
+
+    public void setTxnId(String txnId) {
+        this.txnId = txnId;
+    }
+
+    @Override
+    public String toString() {
+        return "CustomerDetails{" +
+                "mobileNo=" + mobileNo +
+                ", firstName='" + firstName + '\'' +
+                ", midName='" + midName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", fullName='" + fullName + '\'' +
+                ", gender='" + gender + '\'' +
+                ", dob='" + dob + '\'' +
+                ", relationship='" + relationship + '\'' +
+                ", relationId=" + relationId +
+                ", healthId='" + healthId + '\'' +
+                ", healthIdNo='" + healthIdNo + '\'' +
+                ", address='" + address + '\'' +
+                ", state=" + state +
+                ", stateName='" + stateName + '\'' +
+                ", district=" + district +
+                ", districtName='" + districtName + '\'' +
+                ", emailId='" + emailId + '\'' +
+                ", isKyc=" + isKyc +
+                ", pincode=" + pincode +
+                ", token='" + token + '\'' +
+                ", dbId=" + dbId +
+                ", addressId=" + addressId +
+                ", txnId=" + txnId +
+                '}';
     }
 }
 

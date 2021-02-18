@@ -2,8 +2,8 @@ package com.pb.dp.healthIdCreation.dao;
 
 public interface HealthIdQuery {
 
-    String ADD_CUSTOMER = "INSERT INTO DocprimeNDHM.dbo.customer (mobile, otp, otpCreatedAt, isActive, createdAt, createdBy) "
-            + " VALUES (:mobile, :otp, GETDATE(), 1, GETDATE(), -1)";
+    String ADD_CUSTOMER = "INSERT INTO DocprimeNDHM.dbo.customer (firstName,mobile, otp, otpCreatedAt, isActive, createdAt, createdBy) "
+            + " VALUES (:firstName,:mobile, :otp, GETDATE(), 1, GETDATE(), -1)";
 
     String ADD_CUSTOMER1 = "INSERT INTO DocprimeNDHM.dbo.customer (firstName, lastName, dob, relationship, address_id,"
             + " emailId, mobile, gender, isActive, createdAt, createdBy) "
@@ -50,9 +50,9 @@ public interface HealthIdQuery {
     String UPDATE_CUSTOMER = "UPDATE DocprimeNDHM.dbo.customer SET otp = :otp, otpCreatedAt = GETDATE(), " +
             "updatedBy = -1, updatedAt = GETDATE() WHERE id = :id and mobile = :mobile and isActive = 1";
 
-    String ADD_HEALTH_ID_DEMOGRAPHIC = "INSERT INTO DocprimeNDHM.dbo.healthId (healthId, customerId, isActive, createdAt, createdBy, relation," +
-            " firstName, lastName, addressId, email, dob, gender) VALUES (:healthId, :custId, 0, GETDATE(), -1, :relation, :firstName," +
-            " :lastName, :address, :email, :dob, :gender)";
+    String ADD_HEALTH_ID_DEMOGRAPHIC = "INSERT INTO DocprimeNDHM.dbo.healthId (healthId, healtIdNo, customerId, isActive, createdAt, createdBy, relation," +
+            " firstName, lastName, addressId, email, dob, gender, healthIdToken, txnId) VALUES (:healthId, :healtIdNo, :custId, 0, GETDATE(), -1, :relation, :firstName," +
+            " :lastName, :address, :email, :dob, :gender, :token, :txnId)";
 
     String UPDATE_HEALTH_ID_TXN_ID = "UPDATE DocprimeNDHM.dbo.healthId SET txnId = :txnId WHERE id = :id";
 
