@@ -123,4 +123,9 @@ public class HealthDaoImpl implements HealthDao {
 
 	}
 
+	@Override
+	public void deleteHealthId(String healthId) {
+		jdbcTemplate.update(HealthQuery.DELETE_HEALTH_ID, healthId);
+	}
+
 }

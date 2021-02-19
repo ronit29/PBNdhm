@@ -17,4 +17,8 @@ public interface HealthIdService {
     Map<String, Object> updateHealthIdProfile(NdhmMobOtpRequest ndhmMobOtpRequest, CustomerDetails customerProfileData, int customerId) throws Exception;
 
     Map<String, Object> generateOtpForUpdate(CustomerDetails customerDetails, int customerId) throws Exception;
+
+	Map<String, Object> deleteHealthId(String healthId) throws Exception;
+
+	Map<String, Object> deleteHealthId(NdhmMobOtpRequest ndhmMobOtpRequest) throws Exception;
 }

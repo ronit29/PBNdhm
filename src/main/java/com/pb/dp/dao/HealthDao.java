@@ -22,4 +22,6 @@ public interface HealthDao {
 
 	void updateHealth(CustomerHealth response) throws ParseException;
 
+	void deleteHealthId(String healthId);
+
 }

@@ -397,4 +397,70 @@ public class HealthIdServiceImpl implements HealthIdService {
 
         return customerDetails;
     }
+
+	@Override
+	public Map<String, Object> deleteHealthId(String healthId) throws Exception {
+		 Map<String, Object> response = new HashMap<>();
+		if(null!=healthId) {
+			StringBuilder xToken = new StringBuilder("Bearer ");
+			String authToken = healthDao.getHealthToken(healthId);
+			String token = authTokenUtil.bearerAuthToken();
+			if (null != authToken) {
+				boolean isValidBoolean = authTokenUtil.isValidToken(authToken, token);
+				if (isValidBoolean) {
+					xToken.append(authToken);
+					ndhmDeleteProfile(healthId, response, xToken.toString(), token);
+				}else {
+					response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_XTOKEN.getStatusMsg());
+		            response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_XTOKEN.getStatusId());
+				}
+			}else {
+				response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.FAILURE.getStatusMsg());
+				response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
+			}
+			
+		}
+		return response;
+	}
+
+	private void ndhmDeleteProfile(String healthId, Map<String, Object> response, String xToken, String token) {
+		Map<String, String> header = new HashMap<>();
+		header.put("Authorization", token);
+		header.put("X-HIP-ID", "DPHIP119");
+		header.put("X-Token", xToken.toString());
+		String url = configService.getPropertyConfig("NDHM_PROFILE_DELETE_URL").getValue();
+		Map<String, Object> jsonMap = new HashMap<>();
+		String jsonPayload = new Gson().toJson(jsonMap);
+		Map<String, Object> responseFromApi = HttpUtil.deleteWithHeader(url,header);
+		loggerUtil.logApiData(url,jsonPayload,header,responseFromApi);
+		int statusCode = (int) responseFromApi.get("status");
+		if (statusCode == 200) {
+			String responseBody = (String) responseFromApi.get("responseBody");
+			boolean isValid  = Boolean.valueOf(responseBody);
+			if(isValid) {
+				response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
+				response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
+				healthDao.deleteHealthId(healthId);
+			}else {
+				response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.FAILURE.getStatusMsg());
+				response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
+			}
+		}
+	}
+
+	@Override
+	public Map<String, Object> deleteHealthId(NdhmMobOtpRequest ndhmMobOtpRequest) throws Exception {
+		Map<String, Object> response = new HashMap<>();
+		if(null!=ndhmMobOtpRequest.getHealthId()) {
+			String authToken = authTokenUtil.bearerAuthToken();
+			String xToken = authTokenUtil.getValidToken(ndhmMobOtpRequest, authToken);
+			if (null != authToken) {
+				ndhmDeleteProfile(ndhmMobOtpRequest.getHealthId(), response, xToken, authToken);
+			}else {
+				response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.FAILURE.getStatusMsg());
+				response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
+			}
+		}
+		return response;
+	}
 }

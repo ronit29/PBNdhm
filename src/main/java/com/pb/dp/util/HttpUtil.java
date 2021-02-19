@@ -5,6 +5,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
@@ -399,5 +400,27 @@ public class HttpUtil {
 			}
 		}
 		return null;
+	}
+	
+	public static Map<String,Object> deleteWithHeader(String targetURL,Map<String,String> header) {
+		Map<String, Object> output = new HashMap<>();
+		try (CloseableHttpClient client = HttpClients.custom().setDefaultRequestConfig(RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build()).build()) {
+			HttpRequestBase request = new HttpDelete(targetURL);
+			if (header != null) {
+				for (Entry<String, String> entry : header.entrySet()) {
+					request.setHeader(entry.getKey(), entry.getValue());
+				}
+			}
+			HttpResponse response = client.execute(request);
+			if (response != null) {
+				output.put("status",Integer.toString((response.getStatusLine().getStatusCode())));
+				output.put("responseBody",EntityUtils.toString(response.getEntity()));
+			}
+		} catch (ClientProtocolException e) {
+			logger.error("ClientProtocolException getContentByteByURL() URI=" + targetURL + " , msg:" + e.getMessage(), e);
+		} catch (IOException e) {
+			logger.error("IOException getContentByteByURL() URI=" + targetURL + " , msg:" + e.getMessage(), e);
+		}
+		return output;
 	}
 }

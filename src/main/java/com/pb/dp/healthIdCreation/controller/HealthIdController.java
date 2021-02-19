@@ -6,6 +6,7 @@ import com.pb.dp.healthIdCreation.model.NdhmMobOtpRequest;
 import com.pb.dp.healthIdCreation.service.HealthIdService;
 import com.pb.dp.model.AuthDetail;
 import com.pb.dp.model.FieldKey;
+import com.pb.dp.model.GetHealthProfileRequest;
 import com.pb.dp.service.ConfigService;
 import com.pb.dp.enums.ResponseStatus;
 
@@ -123,6 +124,8 @@ public class HealthIdController {
                                  }
                               } else if (ndhmMobOtpRequest.getOperation().equals(NdhmVerifyOperation.UPDATE_PROFILE.getOperationId())) {
                                  response = this.healthIdService.updateHealthIdProfile(ndhmMobOtpRequest, customerProfileData, customerId);
+                              }else if (ndhmMobOtpRequest.getOperation().equals(NdhmVerifyOperation.DELETE_PROFILE.getOperationId())) {
+                                  response = this.healthIdService.deleteHealthId(ndhmMobOtpRequest);
                               }
                            }
                         }
@@ -263,6 +266,45 @@ public class HealthIdController {
       } catch (Exception e) {
          logger.error(e.getMessage());
          e.printStackTrace();
+         status = HttpStatus.INTERNAL_SERVER_ERROR;
+         response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
+         response.put(FieldKey.SK_STATUS_MESSAGE, e.getMessage());
+      }
+
+      return new ResponseEntity<>(response, status);
+
+   }
+   
+   @RequestMapping(value = "/delete", method = RequestMethod.POST, produces = { MediaType.APPLICATION_JSON_VALUE })
+   public ResponseEntity<Map<String, Object>> deleteHealthId(@RequestBody GetHealthProfileRequest getHealthProfileRequest,
+                                                              @RequestHeader(value = "X-CLIENT-KEY") String clientKey,
+                                                              @RequestHeader(value = "X-AUTH-KEY") String authKey,
+                                                              @RequestHeader(value = "X-CID") String custId){
+
+      HttpStatus status = HttpStatus.OK;
+      Map<String, Object> response = new HashMap<>();
+      try {
+         if (clientKey != null && !clientKey.isEmpty()) {
+            AuthDetail authDetail = configService.getAuthDetail(clientKey);
+            if (authDetail == null) {
+               response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_CLIENT_KEY.getStatusMsg());
+               response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_CLIENT_KEY.getStatusId());
+               return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+            }
+            if (authDetail.getAuth_key().equals(authKey)) {
+               response = healthIdService.deleteHealthId(getHealthProfileRequest.getHealthId());
+            } else {
+               response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_AUTH_KEY.getStatusMsg());
+               response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_AUTH_KEY.getStatusId());
+               return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+            }
+         } else {
+            response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_CLIENT_KEY.getStatusMsg() + " Empty");
+            response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_CLIENT_KEY.getStatusId());
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+         }
+      } catch (Exception e) {
+         logger.error(e.getMessage());
          status = HttpStatus.INTERNAL_SERVER_ERROR;
          response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
          response.put(FieldKey.SK_STATUS_MESSAGE, e.getMessage());
