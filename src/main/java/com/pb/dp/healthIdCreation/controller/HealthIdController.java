@@ -226,7 +226,7 @@ public class HealthIdController {
 		try {
 			CustomerDetails customerDetails = new CustomerDetails();
 			ObjectMapper mapper = new ObjectMapper();
-			customerDetails = mapper.convertValue(payloadJSON, CustomerDetails.class);
+			customerDetails = mapper.readValue(payloadJSON, CustomerDetails.class);
 			customerDetails.setProfilePhoto(Base64.getEncoder().encodeToString(file.getBytes()));
 			if (clientKey != null && !clientKey.isEmpty()) {
 				AuthDetail authDetail = configService.getAuthDetail(clientKey);
