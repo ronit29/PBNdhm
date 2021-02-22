@@ -184,6 +184,7 @@ public class HealthIdDaoImpl implements HealthIdDao {
         custParams.addValue("relation",customerDetail.getRelationId());
         custParams.addValue("email",customerDetail.getEmailId());
         custParams.addValue("gender",customerDetail.getGender());
+        custParams.addValue("profilePhoto",customerDetail.getProfilePhoto());
         Integer custCount  =  this.namedParameterJdbcTemplate.update(HealthIdQuery.UPDATE_PROFILE_CUSTOMER,custParams);
     }
 

@@ -395,6 +395,7 @@ public class HealthIdServiceImpl implements HealthIdService {
             customerDetails.setKyc((Boolean)responseMap.get("kycVerified"));
         }
 
+        customerDetails.setProfilePhoto((String) responseMap.get("profilePhoto"));
 
         return customerDetails;
     }

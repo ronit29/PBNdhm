@@ -247,6 +247,7 @@ public class HealthIdController {
 								CustomerDetails customerProfileData = custProfileMap.get(customerId);
 								if (ObjectUtils.isNotEmpty(customerProfileData)) {
 									custProfileMap.replace(customerId, customerProfileData, customerDetails);
+									httpSession.setAttribute("profileData", custProfileMap);
 								}
 							} else {
 								// custProfileMap = new HashMap<>();
