@@ -170,7 +170,7 @@ public class HealthIdDaoImpl implements HealthIdDao {
     public void updateProfileData(CustomerDetails customerDetail, int customerId) throws ParseException {
         //update address details
         MapSqlParameterSource addressParams = new MapSqlParameterSource();
-        addressParams.addValue("address",customerDetail.getAddress());
+        addressParams.addValue("address",helperUtil.capitailizeWord(customerDetail.getAddress()));
         addressParams.addValue("districtId", customerDetail.getDistrict());
         addressParams.addValue("stateId",customerDetail.getState());
         addressParams.addValue("pincode",customerDetail.getPincode());
@@ -181,8 +181,8 @@ public class HealthIdDaoImpl implements HealthIdDao {
         MapSqlParameterSource custParams = new MapSqlParameterSource();
         custParams.addValue("custId",customerId);
         custParams.addValue("healthId",customerDetail.getHealthId());
-        custParams.addValue("firstName",customerDetail.getFirstName());
-        custParams.addValue("lastName",customerDetail.getLastName());
+        custParams.addValue("firstName",helperUtil.capitailizeWord(customerDetail.getFirstName()));
+        custParams.addValue("lastName",helperUtil.capitailizeWord(customerDetail.getLastName()));
         SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
         custParams.addValue("dob",formatter.parse(customerDetail.getDob()));
         custParams.addValue("relation",customerDetail.getRelationId());
