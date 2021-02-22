@@ -1,5 +1,6 @@
 package com.pb.dp.healthIdCreation.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.pb.dp.dao.HealthDao;
 import com.pb.dp.enums.ResponseStatus;
@@ -20,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -119,30 +121,29 @@ public class HealthIdServiceImpl implements HealthIdService {
         if (ObjectUtils.isNotEmpty(token)) {
             ndhmMobOtpRequest.setToken(token);
             //create healthId on ndhm
-            CustomerDetails customerDetails = this.createHeathId(custId, customerProfileData, ndhmMobOtpRequest.getMobile(), ndhmMobOtpRequest.getTxnId(), token);
-            if (ObjectUtils.isNotEmpty(customerDetails)) {
-                customerDetails.setTxnId(ndhmMobOtpRequest.getTxnId());
-                //Todo new = true/false check and its handling, also check or update the existing data if new false
-                Integer healthIdPk = this.healthIdDao.addHealthIdDemographics(customerDetails,custId);
-                //add healthId data
-                //this.healthIdDao.addHealthIdData(customerDetails,custId, ndhmMobOtpRequest.getTxnId());
-                if (healthIdPk > 0) {
-                    response.put("data", customerDetails);
-                    response.put("mobileNo", ndhmMobOtpRequest.getMobile());
-                    response.put("verify", true);
-                    response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
-                    response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
-                }else {
+            response = this.createHeathId(custId, customerProfileData, ndhmMobOtpRequest.getMobile(), ndhmMobOtpRequest.getTxnId(), token);
+            if (response.get("statusCode").equals(200)) {
+                CustomerDetails customerDetails = (CustomerDetails) response.get("data");
+                if (ObjectUtils.isNotEmpty(customerDetails)) {
+                    customerDetails.setTxnId(ndhmMobOtpRequest.getTxnId());
+                    //Todo new = true/false check and its handling, also check or update the existing data if new false
+                    Integer healthIdPk = this.healthIdDao.addHealthIdDemographics(customerDetails, custId);
+                    if (healthIdPk > 0) {
+                        response.put("data", customerDetails);
+                        response.put("mobileNo", ndhmMobOtpRequest.getMobile());
+                        response.put("verify", true);
+                        response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
+                        response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
+                    } else {
+                        response.put("verify", false);
+                        response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.FAILURE.getStatusMsg() + " : HealthId for user exist!!");
+                        response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
+                    }
+                } else {
                     response.put("verify", false);
-                    response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.FAILURE.getStatusMsg()+" : HealthId for user exist!!");
-                    response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
+                    response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.NDHM_FAILURE.getStatusMsg() + " : HealthId Creation on NDHM failed");
+                    response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.NDHM_FAILURE.getStatusId());
                 }
-            } else {
-                //todo deletion in DB will not be required because of caching
-               // this.healthIdDao.deleteHealthIdData(custId,ndhmMobOtpRequest.getTxnId());
-                response.put("verify", false);
-                response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.FAILURE.getStatusMsg()+" : HealthId Creation on NDHM failed");
-                response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
             }
         } else {
             response.put("verify", false);
@@ -177,34 +178,41 @@ public class HealthIdServiceImpl implements HealthIdService {
         return token;
     }
 
-    private CustomerDetails createHeathId(Integer custId, CustomerDetails customerProfileData, Long mobile, String txnId, String token) throws Exception {
+    private Map<String,Object> createHeathId(Integer custId, CustomerDetails customerProfileData, Long mobile, String txnId, String token) throws Exception {
         Map<String, Object> response = new HashMap<>();
+        response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
         CustomerDetails customerDetails = null;
-//        //get healthID profile data from Db
-//        CustomerDetails customer = this.healthIdDao.getCustomerDetails(custId, mobile, txnId);
         CreateHealthIdByMobRequest createHealthIdRequest = this.prepareHealthIdPayload(customerProfileData,mobile,txnId,token);
-
         String url = configService.getPropertyConfig("NDHM_CREATE_HEALTHID_URL").getValue();
         Map<String, String> headers = new HashMap<>();
         headers.put("X-HIP-ID", hipId);
         headers.put("Authorization", this.authTokenUtil.bearerAuthToken());
         String jsonPayload = new Gson().toJson(createHealthIdRequest);
-        response = HttpUtil.post(url, jsonPayload, headers);
-        loggerUtil.logApiData(url,jsonPayload,headers,response);
-        if(Objects.nonNull(response)) {
-            Object responseBody = response.get("responseBody");
-            if(Objects.nonNull(responseBody) && response.get("status").equals(200)) {
+        Map<String,Object> apiResponse = HttpUtil.post(url, jsonPayload, headers);
+        loggerUtil.logApiData(url,jsonPayload,headers,apiResponse);
+        if(Objects.nonNull(apiResponse)) {
+            Object responseBody = apiResponse.get("responseBody");
+            if(Objects.nonNull(responseBody)) {
                 Map<String, Object> responseBodyMap = new Gson().fromJson(responseBody.toString(), Map.class);
-                if(ObjectUtils.isNotEmpty(responseBodyMap)) {
-                    customerDetails = new CustomerDetails();
-                    customerDetails = this.prepareCustomerDetailsResponse(responseBodyMap);
-                    customerDetails.setDob(customerProfileData.getDob());
-                    customerDetails.setRelationship(customerProfileData.getRelationship());
-                    customerDetails.setRelationId(Relationship.valueOf(customerProfileData.getRelationship().toUpperCase()).getRelationId());
+                if (apiResponse.get("status").equals(200)) {
+                    if (ObjectUtils.isNotEmpty(responseBodyMap)) {
+                        customerDetails = new CustomerDetails();
+                        customerDetails = this.prepareCustomerDetailsResponse(responseBodyMap);
+                        customerDetails.setDob(customerProfileData.getDob());
+                        customerDetails.setRelationship(customerProfileData.getRelationship());
+                        customerDetails.setRelationId(Relationship.valueOf(customerProfileData.getRelationship().toUpperCase()).getRelationId());
+                    }
+                } else if (apiResponse.get("status").equals(422)) {
+                    ObjectMapper mapper = new ObjectMapper();
+                    List<Map<String, Object>> errorDetails = mapper.convertValue(responseBodyMap.get("details"), List.class);
+                    String error = (String) errorDetails.get(0).get("message");
+                    response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.NDHM_FAILURE.getStatusMsg()+ " :"+error);
+                    response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.NDHM_FAILURE.getStatusId());
                 }
             }
         }
-         return customerDetails;
+        response.put("data",customerDetails);
+        return response;
     }
 
     private CreateHealthIdByMobRequest prepareHealthIdPayload(CustomerDetails customer, Long mobile, String txnId, String token) throws Exception{

@@ -59,7 +59,6 @@ public class HealthIdController {
                return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
             }
             if (authDetail.getAuth_key().equals(authKey)) {
-
                AES256Cipher cipher = configService.getAESForClientKeyMap(clientKey);
                try {
                   int customerId = Integer.valueOf(cipher.decrypt(custId));
@@ -67,6 +66,7 @@ public class HealthIdController {
                   registerProfileData.put(customerId,customerDetail);
                   httpSession.setAttribute("profileData",registerProfileData);
                   response = this.healthIdService.registerViaMobile(customerDetail,customerId);
+                   logger.info("[registerViaMobile] profile data:: {}",httpSession.getAttribute("profileData"));
                } catch (NumberFormatException exception) {
                   response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_FORMAT_PARAM.getStatusMsg()
                           + " Reason: customerId must be a number");
@@ -114,17 +114,17 @@ public class HealthIdController {
                   AES256Cipher cipher = configService.getAESForClientKeyMap(clientKey);
                   try {
                      int customerId = Integer.valueOf(cipher.decrypt(custId));
+                     logger.info("[verifyViaMobile] profile data:: {}",httpSession.getAttribute("profileData"));
                      if (ObjectUtils.isNotEmpty(httpSession.getAttribute("profileData"))) {
                         Map<Integer, CustomerDetails> custProfileMap = (Map<Integer, CustomerDetails>) httpSession.getAttribute("profileData");
                         if (!custProfileMap.isEmpty()) {
                            CustomerDetails customerProfileData = custProfileMap.get(customerId);
                            if (ObjectUtils.isNotEmpty(customerProfileData)) {
-                              //CustomerDetails customerProfileData = (CustomerDetails) httpSession.getAttribute("profileData");
                               if (Objects.isNull(ndhmMobOtpRequest.getOperation())) {
                                  response = this.healthIdService.verifyForRegistration(ndhmMobOtpRequest, customerProfileData, customerId);
                               } else if (ndhmMobOtpRequest.getOperation().equals(NdhmVerifyOperation.REGISTER.getOperationId())) {
                                  response = this.healthIdService.verifyForRegistration(ndhmMobOtpRequest, customerProfileData, customerId);
-                                 if (response.get("verify").equals(true)) {
+                                 if (ObjectUtils.isNotEmpty(response.get("verify")) && response.get("verify").equals(true)) {
                                     custProfileMap.replace(customerId, customerProfileData, null);
                                     httpSession.setAttribute("profileData", custProfileMap);
                                  }
@@ -143,6 +143,10 @@ public class HealthIdController {
                             response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_SESSION.getStatusId());
                             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
                         }
+                     } else {
+                         response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_SESSION.getStatusMsg());
+                         response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_SESSION.getStatusId());
+                         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
                      }
                   } catch (NumberFormatException exception) {
                      response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_FORMAT_PARAM.getStatusMsg()
@@ -269,7 +273,7 @@ public class HealthIdController {
 							registerProfileData.put(customerId, customerDetails);
 							httpSession.setAttribute("profileData", registerProfileData);
 						}
-
+                        logger.info("[updateHealthIdProfile] profile data:: {}",httpSession.getAttribute("profileData"));
 						response = this.healthIdService.generateOtpForUpdate(customerDetails, customerId);
 					} catch (NumberFormatException exception) {
 						response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_FORMAT_PARAM.getStatusMsg()

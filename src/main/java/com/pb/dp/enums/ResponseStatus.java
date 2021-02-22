@@ -27,8 +27,8 @@ public enum ResponseStatus {
 	AUTH_INIT_FAILED(22,"Auth Init Api Failed for invalid xToken"),
 	INVALID_SESSION(23,"Invalid Session Id"),
 	NDHM_FAILURE(24,"NDHM API Failed"),
-	NDHM_HEALTHID_EXIST(25,"Health Id not available"),
-	NDHM_USER_EXIST(25,"Health Id for user exist on provided mobile no");
+	NDHM_HEALTHID_EXIST(25,"Requested Health Id not available"),
+	NDHM_USER_EXIST(26,"Health Id for user is registered on provided mobile no");
 
 	private final int statusId;
 	
