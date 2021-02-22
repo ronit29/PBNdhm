@@ -4,6 +4,7 @@ import com.pb.dp.healthIdCreation.dao.HealthIdDao;
 
 import com.pb.dp.healthIdCreation.dao.HealthIdQuery;
 import com.pb.dp.healthIdCreation.model.*;
+import com.pb.dp.util.HelperUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,9 @@ import java.util.Map;
 public class HealthIdDaoImpl implements HealthIdDao {
 
     @Autowired
+    HelperUtil helperUtil;
+
+    @Autowired
     private DataSource dataSource;
 
     private JdbcTemplate jdbcTemplate;
@@ -48,7 +52,7 @@ public class HealthIdDaoImpl implements HealthIdDao {
         KeyHolder addKeyHolder = new GeneratedKeyHolder();
         //add customer address details
         MapSqlParameterSource addressParams = new MapSqlParameterSource();
-        addressParams.addValue("line1",customerDetail.getAddress());
+        addressParams.addValue("line1",helperUtil.capitailizeWord(customerDetail.getAddress()));
         addressParams.addValue("districtId", customerDetail.getDistrict());
         addressParams.addValue("stateId",customerDetail.getState());
         Integer addressCount = this.namedParameterJdbcTemplate.update(HealthIdQuery.ADD_CUSTOMER_ADDRESS,addressParams,addKeyHolder);
@@ -57,8 +61,8 @@ public class HealthIdDaoImpl implements HealthIdDao {
         KeyHolder custKeyHolder = new GeneratedKeyHolder();
         MapSqlParameterSource custParams = new MapSqlParameterSource();
         custParams.addValue("custId",customerId);
-        custParams.addValue("firstName",customerDetail.getFirstName());
-        custParams.addValue("lastName",customerDetail.getLastName());
+        custParams.addValue("firstName",helperUtil.capitailizeWord(customerDetail.getFirstName()));
+        custParams.addValue("lastName",helperUtil.capitailizeWord(customerDetail.getLastName()));
         custParams.addValue("dob",formatter.parse(customerDetail.getDob()));
         custParams.addValue("relation",customerDetail.getRelationId());
         custParams.addValue("address",addressId);
