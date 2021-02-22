@@ -25,6 +25,7 @@ public class CustomerDetails {
     private Long dbId;
     private Long addressId;
     private String txnId;
+    private String profilePhoto;
 
 
 
@@ -212,7 +213,24 @@ public class CustomerDetails {
         this.txnId = txnId;
     }
 
-    @Override
+    
+    public Boolean getIsKyc() {
+		return isKyc;
+	}
+
+	public void setIsKyc(Boolean isKyc) {
+		this.isKyc = isKyc;
+	}
+
+	public String getProfilePhoto() {
+		return profilePhoto;
+	}
+
+	public void setProfilePhoto(String profilePhoto) {
+		this.profilePhoto = profilePhoto;
+	}
+
+	@Override
     public String toString() {
         return "CustomerDetails{" +
                 "mobileNo=" + mobileNo +

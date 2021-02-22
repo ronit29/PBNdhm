@@ -323,6 +323,7 @@ public class HealthIdServiceImpl implements HealthIdService {
         updateAccountRequest.setYearOfBirth(year);
         updateAccountRequest.setGender(customerDetails.getGender());
         updateAccountRequest.setHealthId(customerDetails.getHealthId());
+        updateAccountRequest.setProfilePhoto(customerDetails.getProfilePhoto());
         return updateAccountRequest;
     }
 
@@ -391,7 +392,178 @@ public class HealthIdServiceImpl implements HealthIdService {
             customerDetails.setKyc((Boolean)responseMap.get("kycVerified"));
         }
 
+        customerDetails.setProfilePhoto((String) responseMap.get("profilePhoto"));
 
         return customerDetails;
     }
+
+	@Override
+	public Map<String, Object> deleteHealthId(String healthId) throws Exception {
+		 Map<String, Object> response = new HashMap<>();
+		if(null!=healthId) {
+			StringBuilder xToken = new StringBuilder("Bearer ");
+			String authToken = healthDao.getHealthToken(healthId);
+			String token = authTokenUtil.bearerAuthToken();
+			if (null != authToken) {
+				boolean isValidBoolean = authTokenUtil.isValidToken(authToken, token);
+				if (isValidBoolean) {
+					xToken.append(authToken);
+					ndhmDeleteProfile(healthId, response, xToken.toString(), token);
+				}else {
+					response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_XTOKEN.getStatusMsg());
+		            response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_XTOKEN.getStatusId());
+				}
+			}else {
+				response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.FAILURE.getStatusMsg());
+				response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
+			}
+			
+		}
+		return response;
+	}
+
+	private void ndhmDeleteProfile(String healthId, Map<String, Object> response, String xToken, String token) {
+		Map<String, String> header = new HashMap<>();
+		header.put("Authorization", token);
+		header.put("X-HIP-ID", hipId);
+		header.put("X-Token", xToken);
+		String url = configService.getPropertyConfig("NDHM_PROFILE_DELETE_URL").getValue();
+		Map<String, Object> responseFromApi = HttpUtil.deleteWithHeader(url,header);
+		loggerUtil.logApiData(url,null,header,responseFromApi);
+		int statusCode = (int) responseFromApi.get("status");
+		if (statusCode == 200) {
+			String responseBody = (String) responseFromApi.get("responseBody");
+			boolean isValid  = Boolean.valueOf(responseBody);
+			if(isValid) {
+				response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
+				response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
+				healthDao.deleteHealthId(healthId);
+			}else {
+				response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.FAILURE.getStatusMsg());
+				response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
+			}
+		}
+	}
+
+	@Override
+	public Map<String, Object> deleteHealthId(NdhmMobOtpRequest ndhmMobOtpRequest) throws Exception {
+		Map<String, Object> response = new HashMap<>();
+		if(null!=ndhmMobOtpRequest.getHealthId()) {
+			String authToken = authTokenUtil.bearerAuthToken();
+			String xToken = authTokenUtil.getValidToken(ndhmMobOtpRequest, authToken);
+			if (null != authToken) {
+				ndhmDeleteProfile(ndhmMobOtpRequest.getHealthId(), response, xToken, authToken);
+			}else {
+				response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.FAILURE.getStatusMsg());
+				response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
+			}
+		}
+		return response;
+	}
+
+	@Override
+	public Map<String, Object> registerWithAadhar(RegisterAadharRequest registerAadharRequest) throws Exception {
+		Map<String, Object> response = new HashMap<>();
+		if (null != registerAadharRequest.getHealthId()) {
+			StringBuilder xToken = new StringBuilder("Bearer ");
+			String authToken = healthDao.getHealthToken(registerAadharRequest.getHealthId());
+			String token = authTokenUtil.bearerAuthToken();
+			if (null != authToken) {
+				boolean isValidBoolean = authTokenUtil.isValidToken(authToken, token);
+				if (isValidBoolean) {
+					xToken.append(authToken);
+					registerWithAadhar(response, xToken.toString(), token);
+				} else {
+					response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_XTOKEN.getStatusMsg());
+					response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_XTOKEN.getStatusId());
+				}
+			} else {
+				response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.FAILURE.getStatusMsg());
+				response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
+			}
+
+		}
+		return response;
+	}
+
+	@SuppressWarnings("unchecked")
+	private void registerWithAadhar(Map<String, Object> response, String xToken, String token) throws Exception {
+		Map<String, String> header = new HashMap<>();
+		header.put("Authorization", token);
+		header.put("X-HIP-ID", hipId);
+		header.put("X-Token", xToken);
+		String url = configService.getPropertyConfig("NDHM_REGISTER_AADHAR_URL").getValue();
+		Map<String, Object> jsonMap = new HashMap<>();
+		String jsonPayload = new Gson().toJson(jsonMap);
+		Map<String, Object> responseFromApi = HttpUtil.post(url,jsonPayload,header);
+		loggerUtil.logApiData(url,jsonPayload,header,responseFromApi);
+		int statusCode = (int) responseFromApi.get("status");
+		if (statusCode == 200) {
+			String responseBody = (String) responseFromApi.get("responseBody");
+			Map<String, Object> responseMap = (Map<String, Object>) new Gson().fromJson(responseBody, Map.class);
+			String txnId = (String) responseMap.get("txnId");
+			response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
+			response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
+			response.put("txnId", txnId);
+		}else {
+			response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.FAILURE.getStatusMsg());
+			response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
+		}
+	}
+
+	@Override
+	public Map<String, Object> verifyOtpWithAadhar(VerifyOtpWithAadharRequest verifyOtpWithAadharRequest)
+			throws Exception {
+		Map<String, Object> response = new HashMap<>();
+		StringBuilder xToken = new StringBuilder("Bearer ");
+		String authToken = healthDao.getHealthToken(verifyOtpWithAadharRequest.getHealthId());
+		String token = authTokenUtil.bearerAuthToken();
+		if (null != authToken) {
+			boolean isValidBoolean = authTokenUtil.isValidToken(authToken, token);
+			if (isValidBoolean) {
+				xToken.append(authToken);
+				verifyOtpWithAadhar(response, xToken.toString(), token,verifyOtpWithAadharRequest);
+			} else {
+				response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_XTOKEN.getStatusMsg());
+				response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_XTOKEN.getStatusId());
+			}
+		} else {
+			response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.FAILURE.getStatusMsg());
+			response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
+		}
+
+		return response;
+	}
+
+	private void verifyOtpWithAadhar(Map<String, Object> response, String xToken, String token,
+			VerifyOtpWithAadharRequest verifyOtpWithAadharRequest) throws Exception {
+		Map<String, String> header = new HashMap<>();
+		header.put("Authorization", token);
+		header.put("X-HIP-ID", hipId);
+		header.put("X-Token", xToken);
+		String url = configService.getPropertyConfig("NDHM_VERIFY_AADHAR_URL").getValue();
+		Map<String, Object> jsonMap = new HashMap<>();
+		jsonMap.put("otp", verifyOtpWithAadharRequest.getOtp());
+		jsonMap.put("restrictions", verifyOtpWithAadharRequest.getRestrictions());
+		jsonMap.put("txnId", verifyOtpWithAadharRequest.getTxnId());
+		String jsonPayload = new Gson().toJson(jsonMap);
+		Map<String, Object> responseFromApi = HttpUtil.post(url,jsonPayload,header);
+		loggerUtil.logApiData(url,jsonPayload,header,responseFromApi);
+		int statusCode = (int) responseFromApi.get("status");
+		if (statusCode == 200) {
+			String responseBody = (String) responseFromApi.get("responseBody");
+			boolean isValidBoolean  = Boolean.valueOf(responseBody);
+			if(isValidBoolean) {
+				response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
+				response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
+			}else {
+				response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.FAILURE.getStatusMsg());
+				response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
+			}
+		}else {
+			response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.FAILURE.getStatusMsg());
+			response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
+		}
+		
+	}
 }
