@@ -28,7 +28,8 @@ public enum ResponseStatus {
 	INVALID_SESSION(23,"Invalid Session Id"),
 	NDHM_FAILURE(24,"NDHM API Failed"),
 	NDHM_HEALTHID_EXIST(25,"Requested Health Id not available"),
-	NDHM_USER_EXIST(26,"Health Id for user is registered on provided mobile no");
+	NDHM_USER_EXIST(26,"Health Id for user is registered on provided mobile no"),
+	PROFILE_DATA_MISSING(27,"Profile Data missing, please try again!");
 
 	private final int statusId;
 	

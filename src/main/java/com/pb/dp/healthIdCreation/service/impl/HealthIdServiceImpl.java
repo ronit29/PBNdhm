@@ -298,8 +298,8 @@ public class HealthIdServiceImpl implements HealthIdService {
                 response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
                 response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
             } else{
-                response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.FAILURE.getStatusMsg());
-                response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
+                response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.NDHM_FAILURE.getStatusMsg());
+                response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.NDHM_FAILURE.getStatusId());
             }
         }
         else{

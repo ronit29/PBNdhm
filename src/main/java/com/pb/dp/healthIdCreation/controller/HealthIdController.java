@@ -1,10 +1,7 @@
 package com.pb.dp.healthIdCreation.controller;
 
 import com.pb.dp.healthIdCreation.enums.NdhmVerifyOperation;
-import com.pb.dp.healthIdCreation.model.CustomerDetails;
-import com.pb.dp.healthIdCreation.model.NdhmMobOtpRequest;
-import com.pb.dp.healthIdCreation.model.RegisterAadharRequest;
-import com.pb.dp.healthIdCreation.model.VerifyOtpWithAadharRequest;
+import com.pb.dp.healthIdCreation.model.*;
 import com.pb.dp.healthIdCreation.service.HealthIdService;
 import com.pb.dp.model.AuthDetail;
 import com.pb.dp.model.FieldKey;
@@ -43,6 +40,8 @@ public class HealthIdController {
 
    private static final Logger logger = LoggerFactory.getLogger(HealthIdController.class);
 
+   private static Map<Integer, CustomerDetails> profileData = new HashMap<>();
+
    @RequestMapping(value = "/register/mobile", method = RequestMethod.POST, produces = { MediaType.APPLICATION_JSON_VALUE })
    public ResponseEntity<Map<String, Object>> registerViaMobile(@RequestBody CustomerDetails customerDetail,
                                                                 @RequestHeader(value = "X-CLIENT-KEY") String clientKey,
@@ -63,10 +62,11 @@ public class HealthIdController {
                try {
                   int customerId = Integer.valueOf(cipher.decrypt(custId));
                   Map<Integer,CustomerDetails> registerProfileData = new HashMap<>();
-                  registerProfileData.put(customerId,customerDetail);
-                  httpSession.setAttribute("profileData",registerProfileData);
+//                  registerProfileData.put(customerId,customerDetail);
+//                  httpSession.setAttribute("profileData",registerProfileData);
+                  profileData.put(customerId,customerDetail);
                   response = this.healthIdService.registerViaMobile(customerDetail,customerId);
-                   logger.info("[registerViaMobile] profile data:: {}",httpSession.getAttribute("profileData"));
+                  logger.info("[registerViaMobile] profile data:: {}",profileData.get(customerId));
                } catch (NumberFormatException exception) {
                   response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_FORMAT_PARAM.getStatusMsg()
                           + " Reason: customerId must be a number");
@@ -114,40 +114,42 @@ public class HealthIdController {
                   AES256Cipher cipher = configService.getAESForClientKeyMap(clientKey);
                   try {
                      int customerId = Integer.valueOf(cipher.decrypt(custId));
-                     logger.info("[verifyViaMobile] profile data:: {}",httpSession.getAttribute("profileData"));
-                     if (ObjectUtils.isNotEmpty(httpSession.getAttribute("profileData"))) {
-                        Map<Integer, CustomerDetails> custProfileMap = (Map<Integer, CustomerDetails>) httpSession.getAttribute("profileData");
-                        if (!custProfileMap.isEmpty()) {
-                           CustomerDetails customerProfileData = custProfileMap.get(customerId);
+                     logger.info("[verifyViaMobile] profile data:: {}",profileData.get(customerId));
+//                     if (ObjectUtils.isNotEmpty(httpSession.getAttribute("profileData"))) {
+//                        Map<Integer, CustomerDetails> custProfileMap = (Map<Integer, CustomerDetails>) httpSession.getAttribute("profileData");
+//                        if (!custProfileMap.isEmpty()) {
+                           //CustomerDetails customerProfileData = custProfileMap.get(customerId);
+                            CustomerDetails customerProfileData = profileData.get(customerId);
                            if (ObjectUtils.isNotEmpty(customerProfileData)) {
                               if (Objects.isNull(ndhmMobOtpRequest.getOperation())) {
                                  response = this.healthIdService.verifyForRegistration(ndhmMobOtpRequest, customerProfileData, customerId);
                               } else if (ndhmMobOtpRequest.getOperation().equals(NdhmVerifyOperation.REGISTER.getOperationId())) {
                                  response = this.healthIdService.verifyForRegistration(ndhmMobOtpRequest, customerProfileData, customerId);
                                  if (ObjectUtils.isNotEmpty(response.get("verify")) && response.get("verify").equals(true)) {
-                                    custProfileMap.replace(customerId, customerProfileData, null);
-                                    httpSession.setAttribute("profileData", custProfileMap);
+//                                    custProfileMap.replace(customerId, customerProfileData, null);
+                                    profileData.replace(customerId,customerProfileData,null);
+//                                    httpSession.setAttribute("profileData", custProfileMap);
                                  }
                               } else if (ndhmMobOtpRequest.getOperation().equals(NdhmVerifyOperation.UPDATE_PROFILE.getOperationId())) {
                                  response = this.healthIdService.updateHealthIdProfile(ndhmMobOtpRequest, customerProfileData, customerId);
+                                  //profileData.replace(customerId,customerProfileData,null);
                               }else if (ndhmMobOtpRequest.getOperation().equals(NdhmVerifyOperation.DELETE_PROFILE.getOperationId())) {
                                   response = this.healthIdService.deleteHealthId(ndhmMobOtpRequest);
                               }
                            }else {
-                               response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_SESSION.getStatusMsg());
-                               response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_SESSION.getStatusId());
-                               return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+                               response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.PROFILE_DATA_MISSING.getStatusMsg());
+                               response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.PROFILE_DATA_MISSING.getStatusId());
                            }
-                        }else {
-                            response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_SESSION.getStatusMsg());
-                            response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_SESSION.getStatusId());
-                            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
-                        }
-                     } else {
-                         response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_SESSION.getStatusMsg());
-                         response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_SESSION.getStatusId());
-                         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
-                     }
+//                        }else {
+//                            response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_SESSION.getStatusMsg());
+//                            response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_SESSION.getStatusId());
+//                            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+//                        }
+//                     } else {
+//                         response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_SESSION.getStatusMsg());
+//                         response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_SESSION.getStatusId());
+//                         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+//                     }
                   } catch (NumberFormatException exception) {
                      response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_FORMAT_PARAM.getStatusMsg()
                              + " Reason: customerId must be a number");
@@ -252,28 +254,25 @@ public class HealthIdController {
 					try {
 						int customerId = Integer.valueOf(cipher.decrypt(custId));
 						Map<Integer, CustomerDetails> registerProfileData = null;
-						if (ObjectUtils.isNotEmpty(httpSession.getAttribute("profileData"))) {
-							Map<Integer, CustomerDetails> custProfileMap = (Map<Integer, CustomerDetails>) httpSession
-									.getAttribute("profileData");
-							if (!custProfileMap.isEmpty()) {
-								CustomerDetails customerProfileData = custProfileMap.get(customerId);
+//						if (ObjectUtils.isNotEmpty(httpSession.getAttribute("profileData"))) {
+                        if (ObjectUtils.isNotEmpty(profileData.get(customerId))) {
+//							Map<Integer, CustomerDetails> custProfileMap = (Map<Integer, CustomerDetails>) httpSession
+//									.getAttribute("profileData");
+//							if (!custProfileMap.isEmpty()) {
+								CustomerDetails customerProfileData = profileData.get(customerId);
 								if (ObjectUtils.isNotEmpty(customerProfileData)) {
-									custProfileMap.replace(customerId, customerProfileData, customerDetails);
+									profileData.replace(customerId, customerProfileData, customerDetails);
 								} else{
-                                    custProfileMap.put(customerId, customerDetails);
+                                    profileData.put(customerId, customerDetails);
                                 }
-                                httpSession.setAttribute("profileData", custProfileMap);
+//                                httpSession.setAttribute("profileData", custProfileMap);
 							} else {
-								// custProfileMap = new HashMap<>();
-								custProfileMap.put(customerId, customerDetails);
-								httpSession.setAttribute("profileData", custProfileMap);
-							}
-						} else {
-							registerProfileData = new HashMap<>();
-							registerProfileData.put(customerId, customerDetails);
-							httpSession.setAttribute("profileData", registerProfileData);
+//							registerProfileData = new HashMap<>();
+//							registerProfileData.put(customerId, customerDetails);
+//							httpSession.setAttribute("profileData", registerProfileData);
+                            profileData.put(customerId,customerDetails);
 						}
-                        logger.info("[updateHealthIdProfile] profile data:: {}",httpSession.getAttribute("profileData"));
+                        logger.info("[updateHealthIdProfile] profile data:: {}",profileData.get(customerId));
 						response = this.healthIdService.generateOtpForUpdate(customerDetails, customerId);
 					} catch (NumberFormatException exception) {
 						response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_FORMAT_PARAM.getStatusMsg()
