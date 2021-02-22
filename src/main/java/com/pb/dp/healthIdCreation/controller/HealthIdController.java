@@ -133,7 +133,15 @@ public class HealthIdController {
                               }else if (ndhmMobOtpRequest.getOperation().equals(NdhmVerifyOperation.DELETE_PROFILE.getOperationId())) {
                                   response = this.healthIdService.deleteHealthId(ndhmMobOtpRequest);
                               }
+                           }else {
+                               response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_SESSION.getStatusMsg());
+                               response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_SESSION.getStatusId());
+                               return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
                            }
+                        }else {
+                            response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_SESSION.getStatusMsg());
+                            response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_SESSION.getStatusId());
+                            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
                         }
                      }
                   } catch (NumberFormatException exception) {
@@ -247,8 +255,10 @@ public class HealthIdController {
 								CustomerDetails customerProfileData = custProfileMap.get(customerId);
 								if (ObjectUtils.isNotEmpty(customerProfileData)) {
 									custProfileMap.replace(customerId, customerProfileData, customerDetails);
-									httpSession.setAttribute("profileData", custProfileMap);
-								}
+								} else{
+                                    custProfileMap.put(customerId, customerDetails);
+                                }
+                                httpSession.setAttribute("profileData", custProfileMap);
 							} else {
 								// custProfileMap = new HashMap<>();
 								custProfileMap.put(customerId, customerDetails);

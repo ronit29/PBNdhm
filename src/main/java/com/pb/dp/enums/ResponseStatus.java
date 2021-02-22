@@ -24,7 +24,11 @@ public enum ResponseStatus {
 	INVALID_CUSTOMER_ID(19,"CustomerId Invalid for CLient Key"),
 	INVALID_INPUT(20,"Invalid input"),
 	INVALID_XTOKEN(21,"Invalid xToken"), 
-	AUTH_INIT_FAILED(22,"Auth Init Api Failed for invalid xToken");
+	AUTH_INIT_FAILED(22,"Auth Init Api Failed for invalid xToken"),
+	INVALID_SESSION(23,"Invalid Session Id"),
+	NDHM_FAILURE(24,"NDHM API Failed"),
+	NDHM_HEALTHID_EXIST(25,"Health Id not available"),
+	NDHM_USER_EXIST(25,"Health Id for user exist on provided mobile no");
 
 	private final int statusId;
 	
