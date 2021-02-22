@@ -3,6 +3,8 @@ package com.pb.dp.healthIdCreation.service;
 
 import com.pb.dp.healthIdCreation.model.CustomerDetails;
 import com.pb.dp.healthIdCreation.model.NdhmMobOtpRequest;
+import com.pb.dp.healthIdCreation.model.RegisterAadharRequest;
+import com.pb.dp.healthIdCreation.model.VerifyOtpWithAadharRequest;
 
 import java.text.ParseException;
 import java.util.Map;
@@ -21,4 +23,8 @@ public interface HealthIdService {
 	Map<String, Object> deleteHealthId(String healthId) throws Exception;
 
 	Map<String, Object> deleteHealthId(NdhmMobOtpRequest ndhmMobOtpRequest) throws Exception;
+
+	Map<String, Object> registerWithAadhar(RegisterAadharRequest registerAadharRequest) throws Exception;
+
+	Map<String, Object> verifyOtpWithAadhar(VerifyOtpWithAadharRequest verifyOtpWithAadharRequest)throws Exception;
 }
