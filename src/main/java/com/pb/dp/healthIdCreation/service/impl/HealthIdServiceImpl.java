@@ -122,7 +122,7 @@ public class HealthIdServiceImpl implements HealthIdService {
             ndhmMobOtpRequest.setToken(token);
             //create healthId on ndhm
             response = this.createHeathId(custId, customerProfileData, ndhmMobOtpRequest.getMobile(), ndhmMobOtpRequest.getTxnId(), token);
-            if (response.get("statusCode").equals(200)) {
+            if (response.get("statusCode").equals(1)) {
                 CustomerDetails customerDetails = (CustomerDetails) response.get("data");
                 if (ObjectUtils.isNotEmpty(customerDetails)) {
                     customerDetails.setTxnId(ndhmMobOtpRequest.getTxnId());
