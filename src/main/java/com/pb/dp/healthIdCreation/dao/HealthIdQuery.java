@@ -36,7 +36,7 @@ public interface HealthIdQuery {
             "updatedBy = -1, updatedAt = GETDATE() WHERE id = :custId and mobile = :mobile and isActive = 1";
 
     String UPDATE_PROFILE_CUSTOMER = "UPDATE DocprimeNDHM.dbo.healthId SET firstName = :firstName, lastName = :lastName, " +
-            "dob = :dob, relation = :relation, email = :email, gender = :gender, " +
+            "dob = :dob, relation = :relation, email = :email, gender = :gender, profilePhoto = :profilePhoto, " +
             "updatedBy = -1, updatedAt = GETDATE() WHERE customerId = :custId and healthId = :healthId and isActive = 1";
 
     String UPDATE_PROFILE_ADDRESS = "UPDATE DocprimeNDHM.dbo.address SET line1 = :address, districtId = :districtId, " +
