@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import com.pb.dp.util.LoggerUtil;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,7 +15,6 @@ import com.pb.dp.model.CustomerHealth;
 import com.pb.dp.model.GetHealthProfileRequest;
 import com.pb.dp.util.AuthTokenUtil;
 import com.pb.dp.util.HttpUtil;
-import org.springframework.util.ObjectUtils;
 
 @Service
 public class HealthServiceImpl implements HealthService {
@@ -46,6 +46,9 @@ public class HealthServiceImpl implements HealthService {
 		if(!ObjectUtils.isEmpty(response)) {
 			if (Objects.nonNull(response.getDob())) {
 				response.setDobStr(formatter.format(response.getDob()));
+			}
+			if(ObjectUtils.isNotEmpty(response.getGender())){
+				response.setGenderStr(response.getGender().equalsIgnoreCase("M")?"Male":"Female");
 			}
 			if (null != custHealthOtpRequest.getHealthId() && !custHealthOtpRequest.getHealthId().isEmpty()) {
 				StringBuilder xToken = new StringBuilder("Bearer ");
@@ -79,6 +82,9 @@ public class HealthServiceImpl implements HealthService {
 								response.setHealtIdNo((String) responseMap.get("healthIdNumber"));
 								response.setEmailId((String) responseMap.get("email"));
 								response.setGender((String) responseMap.get("gender"));
+								if(ObjectUtils.isNotEmpty(responseMap.get("gender"))) {
+									response.setGenderStr(((String) responseMap.get("gender")).equalsIgnoreCase("M")?"Male":"Female");
+								}
 								response.setFirstName((String) responseMap.get("firstName"));
 								response.setMiddleName((String) responseMap.get("middleName"));
 								response.setLastName((String) responseMap.get("lastName"));
