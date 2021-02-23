@@ -51,7 +51,7 @@ public interface HealthIdQuery {
             "updatedBy = -1, updatedAt = GETDATE() WHERE id = :id and mobile = :mobile and isActive = 1";
 
     String ADD_HEALTH_ID_DEMOGRAPHIC = "INSERT INTO DocprimeNDHM.dbo.healthId (healthId, healtIdNo, customerId, isActive, createdAt, createdBy, relation," +
-            " firstName, lastName, addressId, email, dob, gender, healthIdToken, txnId) VALUES (:healthId, :healtIdNo, :custId, 0, GETDATE(), -1, :relation, :firstName," +
+            " firstName, lastName, addressId, email, dob, gender, healthIdToken, txnId) VALUES (:healthId, :healtIdNo, :custId, 1, GETDATE(), -1, :relation, :firstName," +
             " :lastName, :address, :email, :dob, :gender, :token, :txnId)";
 
     String UPDATE_HEALTH_ID_TXN_ID = "UPDATE DocprimeNDHM.dbo.healthId SET txnId = :txnId WHERE id = :id";

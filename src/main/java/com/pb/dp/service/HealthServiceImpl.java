@@ -101,6 +101,7 @@ public class HealthServiceImpl implements HealthService {
 								if(null!=(String) responseMap.get("pincode")){
 									response.setPincode(Integer.valueOf((String) responseMap.get("pincode")));
 								}
+								response.setProfilePhoto((String) responseMap.get("profilePhoto"));
 								healthDao.updateHealth(response);
 							}
 						}
