@@ -115,6 +115,7 @@ public class HealthDaoImpl implements HealthDao {
 		callParams.put("middleName", response.getMiddleName());
 		callParams.put("lastName", response.getLastName());
 		callParams.put("isKyc", response.getIsKyc());
+		callParams.put("profilePhoto", response.getProfilePhoto());
 		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
 		Date dob = sdf.parse(response.getDobStr());
 		callParams.put("dob", dob);

@@ -31,7 +31,8 @@ public class CustomerHealth {
 	private String healthCard;
 	private String txnId;
 	private int healthdbId;
-	private int pincode;
+	private Integer pincode;
+	private String profilePhoto;
 	
 	public int getCustomerId() {
 		return customerId;
@@ -183,12 +184,20 @@ public class CustomerHealth {
 		this.districtId = districtId;
 	}
 
-	public int getPincode() {
+	public Integer getPincode() {
 		return pincode;
 	}
 
-	public void setPincode(int pincode) {
+	public void setPincode(Integer pincode) {
 		this.pincode = pincode;
+	}
+
+	public String getProfilePhoto() {
+		return profilePhoto;
+	}
+
+	public void setProfilePhoto(String profilePhoto) {
+		this.profilePhoto = profilePhoto;
 	}
 
 	public static class CustomerHealthMapper implements RowMapper<CustomerHealth> {
@@ -214,6 +223,7 @@ public class CustomerHealth {
             customerHealth.setStateId(rs.getLong("stateId"));
             customerHealth.setDistrictId(rs.getLong("districtId"));
             customerHealth.setPincode(rs.getInt("pincode"));
+			customerHealth.setProfilePhoto(rs.getString("profilePhoto"));
             return customerHealth;
         }
     }
