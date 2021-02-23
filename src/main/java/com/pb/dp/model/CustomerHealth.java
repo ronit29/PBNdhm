@@ -33,7 +33,7 @@ public class CustomerHealth {
 	private int healthdbId;
 	private Integer pincode;
 	private String profilePhoto;
-	
+	private String genderStr;
 	public int getCustomerId() {
 		return customerId;
 	}
@@ -198,6 +198,14 @@ public class CustomerHealth {
 
 	public void setProfilePhoto(String profilePhoto) {
 		this.profilePhoto = profilePhoto;
+	}
+
+	public String getGenderStr() {
+		return genderStr;
+	}
+
+	public void setGenderStr(String genderStr) {
+		this.genderStr = genderStr;
 	}
 
 	public static class CustomerHealthMapper implements RowMapper<CustomerHealth> {
