@@ -73,5 +73,10 @@ public class MasterServiceImpl implements MasterService {
 		}
 		return relationsList;
 	}
+
+	@Override
+	public List<Map<String, Object>> getdocType() throws Exception {
+		return masterDao.getDocTypes();
+	}
 	
 }

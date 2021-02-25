@@ -30,5 +30,7 @@ public interface MasterService {
 	
 	
 	public List<Map<String, Object>> getRelations(int customerId) throws Exception ;
+
+	List<Map<String, Object>> getdocType() throws Exception ;
 	
 }

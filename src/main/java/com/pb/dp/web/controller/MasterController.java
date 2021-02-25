@@ -153,4 +153,28 @@ public class MasterController {
 		 
 	 }
 	
+	@RequestMapping(value = "/docType",method = RequestMethod.GET,produces = {MediaType.APPLICATION_JSON_VALUE})
+	 public ResponseEntity<Map<String,Object>> getdocType(){
+		 Map<String,Object> response = new HashMap<>();
+		 HttpStatus status = HttpStatus.OK;
+		 try {
+			 List<Map<String,Object>> result = masterService.getdocType();
+			 if(result!=null && !result.isEmpty()) {
+				 response.put("data",result);
+				 response.put(FieldKey.SK_STATUS_CODE,ResponseStatus.SUCCESS.getStatusId());
+				 response.put(FieldKey.SK_STATUS_MESSAGE,ResponseStatus.SUCCESS.getStatusMsg());
+			 } else {
+				 response.put(FieldKey.SK_STATUS_CODE,ResponseStatus.NO_RECORD_FOUND.getStatusId());
+				 response.put(FieldKey.SK_STATUS_MESSAGE,ResponseStatus.NO_RECORD_FOUND.getStatusMsg());
+			 }
+			 
+		 } catch(Exception e) {
+			 logger.error("Exception caught in getState method: {}", e.getMessage(),e);
+			 response.put(FieldKey.SK_STATUS_CODE,ResponseStatus.FAILURE.getStatusId());
+			 response.put(FieldKey.SK_STATUS_MESSAGE,ResponseStatus.FAILURE.getStatusMsg());
+		 }
+		 return new ResponseEntity<>(response,status);
+		 
+	 }
+	
 }

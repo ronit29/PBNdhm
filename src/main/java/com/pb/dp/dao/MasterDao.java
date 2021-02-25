@@ -35,4 +35,6 @@ public interface MasterDao {
 	 * @throws Exception
 	 */
 	public List<Map<String, Object>> getRelations() throws Exception ;
+
+	List<Map<String, Object>> getDocTypes() throws Exception;
 }
