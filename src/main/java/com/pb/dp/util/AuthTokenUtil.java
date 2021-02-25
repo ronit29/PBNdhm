@@ -2,7 +2,7 @@ package com.pb.dp.util;
 
 import com.google.gson.Gson;
 import com.pb.dp.dao.HealthDao;
-import com.pb.dp.healthIdCreation.model.NdhmMobOtpRequest;
+import com.pb.dp.model.NdhmMobOtpRequest;
 import com.pb.dp.service.ConfigService;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
