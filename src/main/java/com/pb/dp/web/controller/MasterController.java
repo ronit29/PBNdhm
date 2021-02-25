@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.pb.dp.healthIdCreation.model.CustomerDetails;
 import com.pb.dp.model.AuthDetail;
 import com.pb.dp.service.ConfigService;
 import com.pb.dp.util.AES256Cipher;
