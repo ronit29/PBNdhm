@@ -394,10 +394,15 @@ public class HealthDocController {
 					AES256Cipher cipher = configService.getAESForClientKeyMap(clientKey);
 					try {
 						int customerId = Integer.valueOf(cipher.decrypt(custId));
-						List<Map<String, Object>> documentList = healthDocService.getDocOwners(customerId);
-						response.put("data", documentList);
-						response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
-						response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
+						List<String> docOwners = healthDocService.getDocOwners(customerId);
+						if(null!=docOwners && !docOwners.isEmpty()) {
+							response.put("docOwners", docOwners);
+							response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
+							response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
+						}else {
+							response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.FAILURE.getStatusMsg());
+							response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
+						}
 
 					} catch (NumberFormatException exception) {
 						response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_FORMAT_PARAM.getStatusMsg()

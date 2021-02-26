@@ -90,8 +90,8 @@ public class HealthDocServiceImpl implements HealthDocService {
 	 * @return the doc owners
 	 */
 	@Override
-	public List<Map<String, Object>> getDocOwners(int customerId) {
-		return null;
+	public List<String> getDocOwners(int customerId) {
+		return healthDocDao.getDocOwners(customerId);
 	}
 	
 	
