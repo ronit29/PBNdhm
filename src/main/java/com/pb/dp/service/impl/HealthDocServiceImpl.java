@@ -7,7 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pb.dp.dao.HealthDocDao;
+import com.pb.dp.model.SearchDocFilter;
 import com.pb.dp.service.HealthDocService;
 
 
@@ -68,7 +71,10 @@ public class HealthDocServiceImpl implements HealthDocService {
 	 */
 	@Override
 	public List<Map<String, Object>> docSearch(Map<String, Object> payloadJson, int customerId) {
-		return null;
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+		SearchDocFilter searchDocFilter = mapper.convertValue(payloadJson, SearchDocFilter.class);
+		return healthDocDao.getDocs(searchDocFilter, customerId);
 	}
 
 	/**
