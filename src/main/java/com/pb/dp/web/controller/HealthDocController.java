@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pb.dp.model.HealthDoc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,15 +116,14 @@ public class HealthDocController {
 	 * @param clientKey the client key
 	 * @param authKey the auth key
 	 * @param custId the cust id
-	 * @param custHealthOtpRequest the cust health otp request
 	 * @return the response entity
 	 */
 	@RequestMapping(value = "/docUpload", method = RequestMethod.POST, produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Map<String, Object>> docUpload(@RequestParam(value = "file") MultipartFile file,
-			@RequestParam(value = "payloadJSON") String payloadJSON,
-			@RequestHeader(value = "X-CLIENT-KEY") String clientKey,
-			@RequestHeader(value = "X-AUTH-KEY") String authKey, @RequestHeader(value = "X-CID") String custId,
-			@RequestBody CustHealthOtpRequest custHealthOtpRequest) {
+														@RequestParam(value = "payloadJSON") String payloadJSON,
+														@RequestHeader(value = "X-CLIENT-KEY") String clientKey,
+														@RequestHeader(value = "X-AUTH-KEY") String authKey, @RequestHeader(value = "X-CID") String custId)
+	{
 		HttpStatus status = HttpStatus.OK;
 		Map<String, Object> response = new HashMap<>();
 		try {
@@ -138,7 +139,7 @@ public class HealthDocController {
 					try {
 						int customerId = Integer.valueOf(cipher.decrypt(custId));
 						boolean documentUpload = healthDocService.docUpload(file, payloadJSON, customerId);
-						response.put("isUpload", documentUpload);
+						response.put("isUploaded", documentUpload);
 						if (documentUpload) {
 							response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
 							response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
