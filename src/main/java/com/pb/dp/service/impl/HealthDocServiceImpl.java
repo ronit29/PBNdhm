@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.relational.core.sql.In;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,13 +28,12 @@ public class HealthDocServiceImpl implements HealthDocService {
 	/**
 	 * Gets the document list.
 	 *
-	 * @param payloadJson the payload json
 	 * @param customerId the customer id
 	 * @return the document list
 	 */
 	@Override
-	public List<Map<String, Object>> getDocumentList(Map<String, Object> payloadJson, int customerId) {
-		return null;
+	public List<Map<String, Object>> getDocumentList(int customerId) {
+		return healthDocDao.getDocumentList(customerId);
 	}
 
 	/**
@@ -85,8 +85,13 @@ public class HealthDocServiceImpl implements HealthDocService {
 	 * @return true, if successful
 	 */
 	@Override
-	public boolean docDelete(Map<String, Object> payloadJson, int customerId) {
-		return false;
+	public boolean docDelete(Map<String, Object> payloadJson, int customerId) throws Exception{
+		Boolean result = false;
+		// hard delete document in db
+		result = this.healthDocDao.deleteDocument((Integer) payloadJson.get("id"),customerId);
+		// soft delete document in db
+		result = this.healthDocDao.softDeleteDocument((Integer) payloadJson.get("id"),customerId);
+		return result;
 	}
 
 	/**

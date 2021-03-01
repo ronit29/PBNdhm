@@ -7,7 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface HealthDocService {
 
-	List<Map<String, Object>> getDocumentList(Map<String, Object> payloadJson, int customerId);
+	List<Map<String, Object>> getDocumentList(int customerId);
 
 	boolean docUpload(MultipartFile file, String payloadJSON, int customerId);
 
@@ -15,7 +15,7 @@ public interface HealthDocService {
 
 	List<Map<String, Object>> docSearch(Map<String, Object> payloadJson, int customerId);
 
-	boolean docDelete(Map<String, Object> payloadJson, int customerId);
+	boolean docDelete(Map<String, Object> payloadJson, int customerId) throws Exception;
 
 	List<String> getDocOwners(int customerId);
 

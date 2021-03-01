@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.pb.dp.model.HealthDoc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,19 +48,15 @@ public class HealthDocController {
 	/**
 	 * Gets the document list.
 	 *
-	 * @param payloadJson the payload json
 	 * @param clientKey the client key
 	 * @param authKey the auth key
 	 * @param custId the cust id
-	 * @param custHealthOtpRequest the cust health otp request
 	 * @return the document list
 	 */
-	@RequestMapping(value = "/getDocumentList", method = RequestMethod.POST, produces = {
+	@RequestMapping(value = "/getList", method = RequestMethod.GET, produces = {
 			MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<Map<String, Object>> getDocumentList(@RequestBody Map<String, Object> payloadJson,
-			@RequestHeader(value = "X-CLIENT-KEY") String clientKey,
-			@RequestHeader(value = "X-AUTH-KEY") String authKey, @RequestHeader(value = "X-CID") String custId,
-			@RequestBody CustHealthOtpRequest custHealthOtpRequest) {
+	public ResponseEntity<Map<String, Object>> getDocumentList(@RequestHeader(value = "X-CLIENT-KEY") String clientKey,
+			@RequestHeader(value = "X-AUTH-KEY") String authKey, @RequestHeader(value = "X-CID") String custId) {
 		HttpStatus status = HttpStatus.OK;
 		Map<String, Object> response = new HashMap<>();
 		try {
@@ -74,8 +71,7 @@ public class HealthDocController {
 					AES256Cipher cipher = configService.getAESForClientKeyMap(clientKey);
 					try {
 						int customerId = Integer.valueOf(cipher.decrypt(custId));
-						List<Map<String, Object>> documentList = healthDocService.getDocumentList(payloadJson,
-								customerId);
+						List<Map<String, Object>> documentList = healthDocService.getDocumentList(customerId);
 						response.put("data", documentList);
 						response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
 						response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
@@ -98,6 +94,7 @@ public class HealthDocController {
 			}
 		} catch (Exception e) {
 			logger.debug(e.getMessage());
+			e.printStackTrace();
 			status = HttpStatus.INTERNAL_SERVER_ERROR;
 			response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
 			response.put(FieldKey.SK_STATUS_MESSAGE, e.getMessage());
@@ -247,7 +244,6 @@ public class HealthDocController {
 	 * @param clientKey the client key
 	 * @param authKey the auth key
 	 * @param custId the cust id
-	 * @param custHealthOtpRequest the cust health otp request
 	 * @return the response entity
 	 */
 	@RequestMapping(value = "/docSearch", method = RequestMethod.POST, produces = { MediaType.APPLICATION_JSON_VALUE })
@@ -309,7 +305,7 @@ public class HealthDocController {
 	 * @param custHealthOtpRequest the cust health otp request
 	 * @return the response entity
 	 */
-	@RequestMapping(value = "/docDelete", method = RequestMethod.POST, produces = { MediaType.APPLICATION_JSON_VALUE })
+	@RequestMapping(value = "/docDelete", method = RequestMethod.DELETE, produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Map<String, Object>> docDelete(@RequestBody Map<String, Object> payloadJson,
 			@RequestHeader(value = "X-CLIENT-KEY") String clientKey,
 			@RequestHeader(value = "X-AUTH-KEY") String authKey, @RequestHeader(value = "X-CID") String custId,

@@ -11,4 +11,11 @@ public interface HealthDocDao {
 
 	List<Map<String, Object>> getDocs(SearchDocFilter searchDocFilter, int customerId);
 
+	List<Map<String, Object>> getDocumentList(Integer customerId);
+
+	Boolean deleteDocument(Integer id,Integer customerId) throws Exception;
+
+	Boolean softDeleteDocument(Integer id,Integer customerId) throws Exception;
+
+
 }
