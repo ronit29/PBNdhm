@@ -7,7 +7,7 @@ import com.pb.dp.model.SearchDocFilter;
 
 public interface HealthDocDao {
 
-	List<String> getDocOwners(int customerId);
+	List<Map<String, Object>> getDocOwners(int customerId);
 
 	List<Map<String, Object>> getDocs(SearchDocFilter searchDocFilter, int customerId);
 

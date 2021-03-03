@@ -17,6 +17,6 @@ public interface HealthDocService {
 
 	boolean docDelete(Map<String, Object> payloadJson, int customerId) throws Exception;
 
-	List<String> getDocOwners(int customerId);
+	List<Map<String, Object>> getDocOwners(int customerId);
 
 }

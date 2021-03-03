@@ -101,7 +101,7 @@ public class HealthDocServiceImpl implements HealthDocService {
 	 * @return the doc owners
 	 */
 	@Override
-	public List<String> getDocOwners(int customerId) {
+	public List<Map<String, Object>> getDocOwners(int customerId) {
 		return healthDocDao.getDocOwners(customerId);
 	}
 	

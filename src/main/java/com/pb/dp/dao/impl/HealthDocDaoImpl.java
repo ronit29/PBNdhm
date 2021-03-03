@@ -41,8 +41,8 @@ public class HealthDocDaoImpl implements HealthDocDao {
 	}
 
 	@Override
-	public List<String> getDocOwners(int customerId) {
-		return jdbcTemplate.queryForList(HealthQuery.GET_DOC_OWNERS, String.class, customerId);
+	public List<Map<String,Object>> getDocOwners(int customerId) {
+		return jdbcTemplate.queryForList(HealthQuery.GET_DOC_OWNERS,customerId);
 	}
 
 	@Override

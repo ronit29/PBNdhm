@@ -389,7 +389,7 @@ public class HealthDocController {
 					AES256Cipher cipher = configService.getAESForClientKeyMap(clientKey);
 					try {
 						int customerId = Integer.valueOf(cipher.decrypt(custId));
-						List<String> docOwners = healthDocService.getDocOwners(customerId);
+						List<Map<String,Object>> docOwners = healthDocService.getDocOwners(customerId);
 						if(null!=docOwners && !docOwners.isEmpty()) {
 							response.put("data", docOwners);
 							response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
