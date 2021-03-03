@@ -33,7 +33,7 @@ public class S3Util{
         return "test";
     }
 
-    public String localFileUpload(MultipartFile file) {
+    public static String localFileUpload(MultipartFile file) {
         InputStream inputStream = null;
         OutputStream outputStream = null;
 

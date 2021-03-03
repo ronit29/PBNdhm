@@ -65,7 +65,8 @@ public class HealthDocServiceImpl implements HealthDocService {
 		healthDoc = mapper.readValue(payloadJSON, HealthDoc.class);
 		healthDoc.setCustomerId(customerId);
 		/**upload to S3*/
-//		S3Util.postRequestMultiPart(file, payloadJSON);
+		String url = S3Util.localFileUpload(file);
+		healthDoc.setDocS3Url(url);
 		boolean uploaded = this.healthDocDao.uploadDocs(healthDoc, customerId);
 		return uploaded;
 	}
@@ -79,7 +80,19 @@ public class HealthDocServiceImpl implements HealthDocService {
 	 * @return true, if successful
 	 */
 	@Override
-	public boolean docUpdate(MultipartFile file, String payloadJSON, int customerId) {
+	public boolean docUpdate(MultipartFile file, String payloadJSON, int customerId) throws Exception{
+
+		HealthDoc healthDoc = new HealthDoc();
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+		healthDoc = mapper.readValue(payloadJSON, HealthDoc.class);
+		healthDoc.setCustomerId(customerId);
+
+		boolean isValid = this.healthDocDao.validateDocs(healthDoc.getHealthId(), customerId);
+		if(isValid){
+			boolean updated = this.healthDocDao.updateDocs(healthDoc, customerId);
+			return updated;
+		}
 		return false;
 	}
 

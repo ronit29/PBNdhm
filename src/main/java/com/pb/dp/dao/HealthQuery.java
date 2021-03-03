@@ -20,6 +20,11 @@ public interface HealthQuery {
 
 	String CREATE_DOCUMENT = "INSERT INTO health_doc (customerId,healthId, docName, docOwner, docTypeId, docS3Url,docTags, doctorName, medicEntityName, isActive, createdAt, createdBy) "
 			+ " VALUES (:customerId,:healthId,:docName,:docOwner,:docTypeId,:docS3Url,:docTags,:doctorName, :medicEntityName, 1, GETDATE(), :customerId)";
+	String UPDATE_DOCUMENT = "UPDATE  health_doc SET docName=:docName, docOwner=:docOwner, docTypeId=:docTypeId, docS3Url=:docS3Url,docTags=:docTags, doctorName=:doctorName, medicEntityName=:medicEntityName, updatedAt=:GETDATE(), updatedBy=:customerId) "
+			+ "WHERE customerId=:customerId AND healthId=:healthId";
+	String VALIDATE_DOCUMENT = "SELECT COUNT(id) FROM health_doc "
+			+ " WHERE customerId=:customerId AND healthId=:healthId";
+
 	String GET_DOC_OWNERS = "select hi.id,CONCAT(hi.firstName,' ',hi.middleName,' ',hi.lastName) from healthId hi (nolock) where hi .customerId = ?";
 	String GET_DOCS = "select hd.docName,hd.docS3Url from health_doc hd (nolock) inner join m_docType mdt on mdt.id = hd.docTypeId where hd.customerId = :customerId";
 }

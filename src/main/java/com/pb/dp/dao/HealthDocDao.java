@@ -11,6 +11,11 @@ import java.util.Map;
 public interface HealthDocDao {
 
 	boolean uploadDocs(HealthDoc healthDoc, int customerId);
+
+	boolean validateDocs(String healthId, int customerId);
+
+	boolean updateDocs(HealthDoc healthDoc, int customerId);
+
 	List<Map<String, Object>> getDocOwners(int customerId);
 
 	List<Map<String, Object>> getDocs(SearchDocFilter searchDocFilter, int customerId);

@@ -11,7 +11,7 @@ public interface HealthDocService {
 
 	boolean docUpload(MultipartFile file, String payloadJSON, int customerId) throws Exception;
 
-	boolean docUpdate(MultipartFile file, String payloadJSON, int customerId);
+	boolean docUpdate(MultipartFile file, String payloadJSON, int customerId) throws Exception;
 
 	List<Map<String, Object>> docSearch(Map<String, Object> payloadJson, int customerId);
 
