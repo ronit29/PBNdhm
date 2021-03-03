@@ -1,15 +1,18 @@
 package com.pb.dp.service.impl;
 
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pb.dp.enums.ResponseStatus;
 import com.pb.dp.model.CustomerDetails;
 import com.pb.dp.model.FieldKey;
 import com.pb.dp.model.HealthDoc;
 import com.pb.dp.model.HealthId;
+import com.pb.dp.util.S3Util;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,21 +53,18 @@ public class HealthDocServiceImpl implements HealthDocService {
 	 * @return true, if successful
 	 */
 	@Override
-	public boolean docUpload(MultipartFile file, String payloadJSON, int customerId){
+	public boolean docUpload(MultipartFile file, String payloadJSON, int customerId) throws Exception{
 
 		HealthDoc healthDoc = new HealthDoc();
 		ObjectMapper mapper = new ObjectMapper();
+		mapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
 
-		try{
-			healthDoc = mapper.readValue(payloadJSON, HealthDoc.class);
-			/**upload to S3*/
-//			uploadtoS3(file);
-		}
-		catch (Exception exception){
-//			log()
-		}
-		Boolean uploaded = this.healthDocDao.uploadDocs(payloadJSON, customerId);
-        return uploaded;
+		healthDoc = mapper.readValue(payloadJSON, HealthDoc.class);
+		healthDoc.setCustomerId(customerId);
+		/**upload to S3*/
+//		S3Util.postRequestMultiPart(file, payloadJSON);
+		boolean uploaded = this.healthDocDao.uploadDocs(healthDoc, customerId);
+		return uploaded;
 	}
 
 	/**

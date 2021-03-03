@@ -9,9 +9,12 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
+import com.pb.dp.dao.HealthIdQuery;
+import com.pb.dp.model.HealthDoc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
@@ -29,23 +32,32 @@ public class HealthDocDaoImpl implements HealthDocDao{
 
 	private JdbcTemplate jdbcTemplate;
 
+	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
 	@PostConstruct
 	public void setJdbcTemplate() {
 		this.jdbcTemplate = new JdbcTemplate(this.dataSource);
+		this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 	}
-	
+
 	@Override
 	public List<String> getDocOwners(int customerId) {
 		return jdbcTemplate.queryForList(HealthQuery.GET_DOC_OWNERS, String.class,customerId);
 	}
 
 	@Override
-	public boolean uploadDocs(String payloadJson, int customerId) {
-//		Map<String, Object> callParams = new HashMap<String, Object>();
-		jdbcTemplate.queryForList(HealthQuery.CREATE_DOC, String.class,customerId);
-
-//		SqlParameterSource inParams = new MapSqlParameterSource(callParams);
-
-		return false;
+	public boolean uploadDocs(HealthDoc healthDoc, int customerId) {
+		MapSqlParameterSource docParams = new MapSqlParameterSource();
+		docParams.addValue("docName", healthDoc.getDocName());
+		docParams.addValue("docOwner",healthDoc.getDocOwner());
+		docParams.addValue("docTypeId",healthDoc.getDocTypeId());
+		docParams.addValue("docS3Url",healthDoc.getDocS3Url());
+		docParams.addValue("docTags",healthDoc.getDocTags());
+		docParams.addValue("medicEntityName",healthDoc.getMedicEntityName());
+		docParams.addValue("doctorName",healthDoc.getDoctorName());
+		docParams.addValue("customerId",customerId);
+		docParams.addValue("healthId",healthDoc.getHealthId());
+		this.namedParameterJdbcTemplate.update(HealthQuery.CREATE_DOCUMENT, docParams);
+		return true;
 	}
 }

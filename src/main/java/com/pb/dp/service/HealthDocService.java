@@ -9,7 +9,7 @@ public interface HealthDocService {
 
 	List<Map<String, Object>> getDocumentList(Map<String, Object> payloadJson, int customerId);
 
-	boolean docUpload(MultipartFile file, String payloadJSON, int customerId);
+	boolean docUpload(MultipartFile file, String payloadJSON, int customerId) throws Exception;
 
 	boolean docUpdate(MultipartFile file, String payloadJSON, int customerId);
 

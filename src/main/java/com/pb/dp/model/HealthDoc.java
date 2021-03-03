@@ -1,23 +1,25 @@
 package com.pb.dp.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Date;
 
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class HealthDoc{
     private long id;
     private String healthId;
     private long customerId;
 
     private String isActive;
-    private java.sql.Timestamp createdAt;
+    private Date createdAt;
     private long createdBy;
     private long updatedBy;
-    private java.sql.Timestamp updatedAt;
+    private Date updatedAt;
 
     private String docName;
     private String docOwner;
@@ -59,12 +61,20 @@ public class HealthDoc{
         this.isActive = isActive;
     }
 
-    public Timestamp getCreatedAt() {
+    public Date getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
+    public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public long getCreatedBy() {
@@ -83,13 +93,7 @@ public class HealthDoc{
         this.updatedBy = updatedBy;
     }
 
-    public Timestamp getUpdatedAt() {
-        return updatedAt;
-    }
 
-    public void setUpdatedAt(Timestamp updatedAt) {
-        this.updatedAt = updatedAt;
-    }
 
     public String getDocName() {
         return docName;

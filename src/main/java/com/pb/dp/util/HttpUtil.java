@@ -1,5 +1,6 @@
 package com.pb.dp.util;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -11,6 +12,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -18,8 +20,13 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.multipart.MultipartFile;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
+
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -422,5 +429,70 @@ public class HttpUtil {
 			logger.error("IOException getContentByteByURL() URI=" + targetURL + " , msg:" + e.getMessage(), e);
 		}
 		return output;
+	}
+
+	public static Map<String, String> postRequestMultiPart(String uri, File file, String payloadJson, Map<String, String> header) throws Exception {
+		HttpResponse httpResponse = null;
+		Map<String, String> responseAttributes = new HashMap<String, String>(2);
+		CloseableHttpClient httpclient = null;
+		HttpPost httpost = null;
+		try {
+
+			httpclient = HttpClients.createDefault();
+			httpost = new HttpPost(uri);
+
+			if (header != null) {
+				for (Entry<String, String> entry : header.entrySet()) {
+					httpost.setHeader(entry.getKey(), entry.getValue());
+				}
+			}
+
+			MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+			builder.addTextBody("payloadJSON",  JsonUtil.getJsonStringFromObject(payloadJson), ContentType.TEXT_PLAIN);
+			// This attaches the file to the POST:
+
+
+//			MultipartFile mf = (MultipartFile) requestMap.get("file");
+//			builder.addPart("file", mf);
+//			builder.addBinaryBody(
+//					"file",
+//					mf.getInputStream(),
+//					ContentType.parse(mf.getContentType()),
+//					mf.getOriginalFilename()
+//			);
+//			HttpEntity multipart = builder.build();
+			HttpEntity entity = builder.addPart("file", new FileBody(file)).build();
+
+			httpost.setEntity(entity);
+			httpResponse = httpclient.execute(httpost);
+			String responseAsString = "";
+			int statusCode = 0;
+			if (httpResponse != null) {
+				responseAsString = EntityUtils.toString(httpResponse.getEntity());
+				statusCode = httpResponse.getStatusLine().getStatusCode();
+				logger.debug(responseAsString);
+			} else {
+				logger.debug("No response receceived from[ " + uri + " ], for payload[ " + payloadJson + " ]");
+			}
+
+			responseAttributes.put("responseBody", responseAsString);
+			responseAttributes.put("status", String.valueOf(statusCode));
+
+		} catch (ClientProtocolException e) {
+			logger.error("ClientProtocolException caught wile posting json payload on URI=" + uri + " , msg:" + e.getMessage());
+		} catch (Exception e) {
+			logger.error("Exception caught wile posting json payload on URI=" + uri + " , msg:" + e.getMessage());
+		} finally {
+			if (httpost != null) {
+				httpost.releaseConnection();
+			}
+			if (httpclient != null) {
+				httpclient.close();
+			}
+			if (httpResponse != null) {
+				httpResponse = null;
+			}
+		}
+		return responseAttributes;
 	}
 }

@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pb.dp.model.HealthDoc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +30,7 @@ import com.pb.dp.util.AES256Cipher;
  * The Class HealthDocController.
  */
 @RestController
-@RequestMapping(value = "doc")
+@RequestMapping(value = "/doc")
 public class HealthDocController {
 
 	/** The logger. */
@@ -115,14 +113,14 @@ public class HealthDocController {
 	 * @param payloadJSON the payload JSON
 	 * @param clientKey the client key
 	 * @param authKey the auth key
-	 * @param custId the cust id
 	 * @return the response entity
 	 */
-	@RequestMapping(value = "/docUpload", method = RequestMethod.POST, produces = { MediaType.APPLICATION_JSON_VALUE })
+	@RequestMapping(value = "/uploadDocs", method = RequestMethod.POST, produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Map<String, Object>> docUpload(@RequestParam(value = "file") MultipartFile file,
 														@RequestParam(value = "payloadJSON") String payloadJSON,
 														@RequestHeader(value = "X-CLIENT-KEY") String clientKey,
-														@RequestHeader(value = "X-AUTH-KEY") String authKey, @RequestHeader(value = "X-CID") String custId)
+														@RequestHeader(value = "X-AUTH-KEY") String authKey,
+														 @RequestHeader(value = "X-CID") String custId)
 	{
 		HttpStatus status = HttpStatus.OK;
 		Map<String, Object> response = new HashMap<>();
