@@ -2,6 +2,7 @@ package com.pb.dp.model;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.springframework.data.relational.core.sql.In;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
