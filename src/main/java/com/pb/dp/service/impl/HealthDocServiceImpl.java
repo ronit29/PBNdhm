@@ -58,11 +58,9 @@ public class HealthDocServiceImpl implements HealthDocService {
 	@Override
 	public boolean docUpload(MultipartFile file, String payloadJSON, int customerId) throws Exception{
 
-		HealthDoc healthDoc = new HealthDoc();
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
-
-		healthDoc = mapper.readValue(payloadJSON, HealthDoc.class);
+		HealthDoc healthDoc = mapper.readValue(payloadJSON, HealthDoc.class);
 		healthDoc.setCustomerId(customerId);
 		/**upload to S3*/
 		String url = S3Util.localFileUpload(file);
@@ -81,19 +79,13 @@ public class HealthDocServiceImpl implements HealthDocService {
 	 */
 	@Override
 	public boolean docUpdate(MultipartFile file, String payloadJSON, int customerId) throws Exception{
-
-		HealthDoc healthDoc = new HealthDoc();
+		
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
-		healthDoc = mapper.readValue(payloadJSON, HealthDoc.class);
+		HealthDoc healthDoc = mapper.readValue(payloadJSON, HealthDoc.class);
 		healthDoc.setCustomerId(customerId);
-
-		boolean isValid = this.healthDocDao.validateDocs(healthDoc.getHealthId(), customerId);
-		if(isValid){
-			boolean updated = this.healthDocDao.updateDocs(healthDoc, customerId);
-			return updated;
-		}
-		return false;
+		boolean isValid = healthDocDao.validateDocs(healthDoc.getHealthId(), customerId);
+		return isValid ? healthDocDao.updateDocs(healthDoc, customerId):isValid;
 	}
 
 	/**

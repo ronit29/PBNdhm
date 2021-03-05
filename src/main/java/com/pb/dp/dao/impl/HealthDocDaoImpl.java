@@ -134,8 +134,8 @@ public class HealthDocDaoImpl implements HealthDocDao {
 		docParams.addValue("doctorName",healthDoc.getDoctorName());
 		docParams.addValue("customerId",customerId);
 		docParams.addValue("healthId",healthDoc.getHealthId());
-		this.namedParameterJdbcTemplate.update(HealthQuery.CREATE_DOCUMENT, docParams);
-		return true;
+		int rowCount = namedParameterJdbcTemplate.update(HealthQuery.CREATE_DOCUMENT, docParams);
+		return rowCount>0;
 	}
 
 	@Override
@@ -143,11 +143,8 @@ public class HealthDocDaoImpl implements HealthDocDao {
 		MapSqlParameterSource docParams = new MapSqlParameterSource();
 		docParams.addValue("customerId",customerId);
 		docParams.addValue("healthId",healthId);
-		int count  = this.namedParameterJdbcTemplate.queryForObject(HealthQuery.VALIDATE_DOCUMENT, docParams, Integer.class);
-		if(count>0){
-			return true;
-		}
-		return false;
+		int count  = namedParameterJdbcTemplate.queryForObject(HealthQuery.VALIDATE_DOCUMENT, docParams, Integer.class);
+		return count>0;
 	}
 
 	@Override
@@ -162,7 +159,7 @@ public class HealthDocDaoImpl implements HealthDocDao {
 		docParams.addValue("doctorName",healthDoc.getDoctorName());
 		docParams.addValue("customerId",customerId);
 		docParams.addValue("healthId",healthDoc.getHealthId());
-		this.namedParameterJdbcTemplate.update(HealthQuery.UPDATE_DOCUMENT, docParams);
-		return true;
+		int count = this.namedParameterJdbcTemplate.update(HealthQuery.UPDATE_DOCUMENT, docParams);
+		return count>0;
 	}
 }

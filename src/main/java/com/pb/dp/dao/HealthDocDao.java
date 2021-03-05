@@ -1,11 +1,10 @@
 package com.pb.dp.dao;
 
-import com.pb.dp.model.CustomerDetails;
-import com.pb.dp.model.HealthDoc;
-import com.pb.dp.model.SearchDocFilter;
-import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
+
+import com.pb.dp.model.HealthDoc;
+import com.pb.dp.model.SearchDocFilter;
 
 
 public interface HealthDocDao {
