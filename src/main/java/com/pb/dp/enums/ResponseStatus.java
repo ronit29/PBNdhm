@@ -1,7 +1,6 @@
 package com.pb.dp.enums;
 
 public enum ResponseStatus {
-
 	
 	SUCCESS(1,"SUCCESS"),
 	FAILURE(2,"FAILURE"),
@@ -29,7 +28,8 @@ public enum ResponseStatus {
 	NDHM_FAILURE(24,"NDHM API Failed"),
 	NDHM_HEALTHID_EXIST(25,"Requested Health Id not available"),
 	NDHM_USER_EXIST(26,"Health Id for user is registered on provided mobile no"),
-	PROFILE_DATA_MISSING(27,"Profile Data missing, please try again!");
+	PROFILE_DATA_MISSING(27,"Profile Data missing, please try again!"),
+	INVALID_DOCUMENT(28,"UnAuthorized or Document Doesn't Exists!");
 
 	private final int statusId;
 	

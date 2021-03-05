@@ -11,9 +11,9 @@ public interface HealthDocDao {
 
 	boolean uploadDocs(HealthDoc healthDoc, int customerId);
 
-	boolean validateDocs(String healthId, int customerId);
+	boolean validateDocs(Integer id, String healthId, long customerId);
 
-	boolean updateDocs(HealthDoc healthDoc, int customerId);
+	boolean updateDocs(HealthDoc healthDoc, int id);
 
 	List<Map<String, Object>> getDocOwners(int customerId);
 

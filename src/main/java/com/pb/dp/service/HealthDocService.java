@@ -3,6 +3,7 @@ package com.pb.dp.service;
 import java.util.List;
 import java.util.Map;
 
+import com.pb.dp.model.HealthDoc;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface HealthDocService {
@@ -11,7 +12,9 @@ public interface HealthDocService {
 
 	boolean docUpload(MultipartFile file, String payloadJSON, int customerId) throws Exception;
 
-	boolean docUpdate(MultipartFile file, String payloadJSON, int customerId) throws Exception;
+	boolean docUpdateValidate(Integer id, HealthDoc healthDoc) throws Exception;
+
+	boolean docUpdate(Integer id, HealthDoc healthDoc) throws Exception;
 
 	List<Map<String, Object>> docSearch(Map<String, Object> payloadJson, int customerId);
 

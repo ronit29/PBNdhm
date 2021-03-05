@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pb.dp.model.HealthDoc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -172,20 +174,19 @@ public class HealthDocController {
 	/**
 	 * Doc update.
 	 *
-	 * @param file the file
+	 * @param id the Database id
 	 * @param payloadJSON the payload JSON
 	 * @param clientKey the client key
 	 * @param authKey the auth key
 	 * @param custId the cust id
-	 * @param custHealthOtpRequest the cust health otp request
 	 * @return the response entity
 	 */
 	@RequestMapping(value = "/docUpdate", method = RequestMethod.POST, produces = { MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<Map<String, Object>> docUpdate(@RequestParam(value = "file") MultipartFile file,
-			@RequestParam(value = "payloadJSON") String payloadJSON,
-			@RequestHeader(value = "X-CLIENT-KEY") String clientKey,
-			@RequestHeader(value = "X-AUTH-KEY") String authKey, @RequestHeader(value = "X-CID") String custId,
-			@RequestBody CustHealthOtpRequest custHealthOtpRequest) {
+	public ResponseEntity<Map<String, Object>> docUpdate(@RequestParam(value = "id") Integer id,
+														@RequestParam(value = "payloadJSON") String payloadJSON,
+														@RequestHeader(value = "X-CLIENT-KEY") String clientKey,
+														@RequestHeader(value = "X-AUTH-KEY") String authKey,
+														 @RequestHeader(value = "X-CID") String custId) {
 		HttpStatus status = HttpStatus.OK;
 		Map<String, Object> response = new HashMap<>();
 		try {
@@ -200,16 +201,26 @@ public class HealthDocController {
 					AES256Cipher cipher = configService.getAESForClientKeyMap(clientKey);
 					try {
 						int customerId = Integer.valueOf(cipher.decrypt(custId));
-						boolean documentUpdated = healthDocService.docUpdate(file, payloadJSON, customerId);
-						response.put("isUpdate", documentUpdated);
-						if (documentUpdated) {
-							response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
-							response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
-						} else {
-							response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.FAILURE.getStatusMsg());
-							response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
+						ObjectMapper mapper = new ObjectMapper();
+						mapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+						HealthDoc healthDoc = mapper.readValue(payloadJSON, HealthDoc.class);
+						healthDoc.setCustomerId(customerId);
+						boolean isValid = healthDocService.docUpdateValidate(id, healthDoc);
+						if(!isValid){
+							response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_DOCUMENT.getStatusMsg());
+							response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.INVALID_DOCUMENT.getStatusId());
 						}
-
+						else {
+							boolean documentUpdated = healthDocService.docUpdate(id, healthDoc);
+							response.put("isUpdate", documentUpdated);
+							if (documentUpdated) {
+								response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
+								response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
+							} else {
+								response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.FAILURE.getStatusMsg());
+								response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
+							}
+						}
 					} catch (NumberFormatException exception) {
 						response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.INVALID_FORMAT_PARAM.getStatusMsg()
 								+ " Reason: customerId must be a number");

@@ -21,10 +21,10 @@ public interface HealthQuery {
 
 	String CREATE_DOCUMENT = "INSERT INTO health_doc (customerId,healthId, docName, docOwner, docTypeId, docS3Url,docTags, doctorName, medicEntityName, isActive, createdAt, createdBy) "
 			+ " VALUES (:customerId,:healthId,:docName,:docOwner,:docTypeId,:docS3Url,:docTags,:doctorName, :medicEntityName, 1, GETDATE(), :customerId)";
-	String UPDATE_DOCUMENT = "UPDATE  health_doc SET docName=:docName, docOwner=:docOwner, docTypeId=:docTypeId, docS3Url=:docS3Url,docTags=:docTags, doctorName=:doctorName, medicEntityName=:medicEntityName, updatedAt=:GETDATE(), updatedBy=:customerId) "
-			+ "WHERE customerId=:customerId AND healthId=:healthId";
+	String UPDATE_DOCUMENT = "UPDATE health_doc SET docName=:docName, docOwner=:docOwner, docTypeId=:docTypeId, docS3Url=:docS3Url,docTags=:docTags, doctorName=:doctorName, medicEntityName=:medicEntityName, updatedAt=GETDATE(), updatedBy=:customerId "
+			+ " WHERE id=:id AND customerId=:customerId AND healthId=:healthId";
 	String VALIDATE_DOCUMENT = "SELECT COUNT(id) FROM health_doc "
-			+ " WHERE customerId=:customerId AND healthId=:healthId";
+			+ " WHERE id=:id AND customerId=:customerId AND healthId=:healthId";
 
 	String GET_DOCS = "select hd.id as id,hd.customerId,hd.healthId,hd.docName,hd.docOwner,hd.docTypeId,mdt.name as docTypeName,hd.docS3Url,hd.docTags,"
 			+ "hd.medicEntityName,hd.doctorName, hd.createdAt as createdAt,hd.updatedAt as updatedAt from health_doc hd (nolock) inner join m_docType mdt on mdt.id = hd.docTypeId where hd.customerId = :customerId";

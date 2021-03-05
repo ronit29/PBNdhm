@@ -139,17 +139,19 @@ public class HealthDocDaoImpl implements HealthDocDao {
 	}
 
 	@Override
-	public boolean validateDocs(String healthId, int customerId) {
+	public boolean validateDocs(Integer id, String healthId, long customerId) {
 		MapSqlParameterSource docParams = new MapSqlParameterSource();
 		docParams.addValue("customerId",customerId);
 		docParams.addValue("healthId",healthId);
+		docParams.addValue("id",id);
 		int count  = namedParameterJdbcTemplate.queryForObject(HealthQuery.VALIDATE_DOCUMENT, docParams, Integer.class);
 		return count>0;
 	}
 
 	@Override
-	public boolean updateDocs(HealthDoc healthDoc, int customerId) {
+	public boolean updateDocs(HealthDoc healthDoc, int id) {
 		MapSqlParameterSource docParams = new MapSqlParameterSource();
+		docParams.addValue("id",id);
 		docParams.addValue("docName", healthDoc.getDocName());
 		docParams.addValue("docOwner",healthDoc.getDocOwner());
 		docParams.addValue("docTypeId",healthDoc.getDocTypeId());
@@ -157,7 +159,7 @@ public class HealthDocDaoImpl implements HealthDocDao {
 		docParams.addValue("docTags",healthDoc.getDocTags());
 		docParams.addValue("medicEntityName",healthDoc.getMedicEntityName());
 		docParams.addValue("doctorName",healthDoc.getDoctorName());
-		docParams.addValue("customerId",customerId);
+		docParams.addValue("customerId",healthDoc.getCustomerId());
 		docParams.addValue("healthId",healthDoc.getHealthId());
 		int count = this.namedParameterJdbcTemplate.update(HealthQuery.UPDATE_DOCUMENT, docParams);
 		return count>0;

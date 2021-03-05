@@ -72,20 +72,19 @@ public class HealthDocServiceImpl implements HealthDocService {
 	/**
 	 * Doc update.
 	 *
-	 * @param file the file
-	 * @param payloadJSON the payload JSON
-	 * @param customerId the customer id
+	 * @param id the Database Id
+	 * @param healthDoc the object
 	 * @return true, if successful
 	 */
 	@Override
-	public boolean docUpdate(MultipartFile file, String payloadJSON, int customerId) throws Exception{
-		
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
-		HealthDoc healthDoc = mapper.readValue(payloadJSON, HealthDoc.class);
-		healthDoc.setCustomerId(customerId);
-		boolean isValid = healthDocDao.validateDocs(healthDoc.getHealthId(), customerId);
-		return isValid ? healthDocDao.updateDocs(healthDoc, customerId):isValid;
+	public boolean docUpdate(Integer id, HealthDoc healthDoc) throws Exception{
+		return  healthDocDao.updateDocs(healthDoc, id);
+	}
+
+	@Override
+	public boolean docUpdateValidate(Integer id, HealthDoc healthDoc) throws Exception{
+		boolean isValid = healthDocDao.validateDocs(id, healthDoc.getHealthId(), healthDoc.getCustomerId());
+		return isValid ? true : false;
 	}
 
 	/**
