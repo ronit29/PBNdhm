@@ -55,15 +55,31 @@ public class HealthDocDaoImpl implements HealthDocDao {
 		StringBuilder queryBuilder = new StringBuilder(HealthQuery.GET_DOCS);
 		MapSqlParameterSource searchParams = new MapSqlParameterSource();
 		searchParams.addValue("customerId", customerId);
-		if(null != searchDocFilter.getDocOwner()) {
-			queryBuilder.append(" and docOwner = :docOwner");
-			searchParams.addValue("docOwner", searchDocFilter.getDocOwner());
+		if(null != searchDocFilter.getDocId()) {
+			queryBuilder.append(" and healthId = :docId");
+			searchParams.addValue("docId", searchDocFilter.getDocId());
 		}
-		if(null != searchDocFilter.getDocName()) {
+		if(null != searchDocFilter.getDocName() && !searchDocFilter.getDocName().isEmpty()) {
 			queryBuilder.append(" and docName = :docName");
 			searchParams.addValue("docName", searchDocFilter.getDocName());
 		}
-		if(null != searchDocFilter.getTags()) {
+		if(null != searchDocFilter.getMedicEntityName() && !searchDocFilter.getMedicEntityName().isEmpty()) {
+			queryBuilder.append(" and medicEntityName = :medicEntityName");
+			searchParams.addValue("medicEntityName", searchDocFilter.getMedicEntityName());
+		}
+		if(null != searchDocFilter.getDocType()) {
+			queryBuilder.append(" and docTypeId = :docTypeId");
+			searchParams.addValue("docTypeId", searchDocFilter.getDocType());
+		}
+		if(null != searchDocFilter.getUpdatedFrom()) {
+			queryBuilder.append(" and hd.updatedAt >= :updatedFrom");
+			searchParams.addValue("updatedFrom", searchDocFilter.getUpdatedFrom());
+		}
+		if(null != searchDocFilter.getUpdatedTo()) {
+			queryBuilder.append(" and hd.updatedAt <= :updatedTo");
+			searchParams.addValue("updatedTo", searchDocFilter.getUpdatedTo());
+		}
+		if(null != searchDocFilter.getTags() && !searchDocFilter.getTags().isEmpty()) {
 			queryBuilder.append(" and CONCAT(',',docTags,',') LIKE CONCAT('%,',:docTags,',%')");
 			searchParams.addValue("docTags", searchDocFilter.getTags());
 		}

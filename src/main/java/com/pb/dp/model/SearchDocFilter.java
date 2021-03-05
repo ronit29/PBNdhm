@@ -4,20 +4,28 @@ import java.util.Date;
 
 public class SearchDocFilter {
 	
-	private String docOwner;
+	private Integer docId;
 	private String docName;
 	private String tags;
 	private Date updatedFrom;
-	private Date updatedAt;
+	private Date updatedTo;
+	private Integer docType;
+	private String medicEntityName;
 	
 	
-	public String getDocOwner() {
-		return docOwner;
+	public Integer getDocId() {
+		return docId;
 	}
-	public void setDocOwner(String docOwner) {
-		this.docOwner = docOwner;
+	public void setDocId(Integer docId) {
+		this.docId = docId;
 	}
 	
+	public Integer getDocType() {
+		return docType;
+	}
+	public void setDocType(Integer docType) {
+		this.docType = docType;
+	}
 	public String getDocName() {
 		return docName;
 	}
@@ -37,11 +45,18 @@ public class SearchDocFilter {
 	public void setUpdatedFrom(Date updatedFrom) {
 		this.updatedFrom = updatedFrom;
 	}
-	public Date getUpdatedAt() {
-		return updatedAt;
+
+	public Date getUpdatedTo() {
+		return updatedTo;
 	}
-	public void setUpdatedAt(Date updatedAt) {
-		this.updatedAt = updatedAt;
+	public void setUpdatedTo(Date updatedTo) {
+		this.updatedTo = updatedTo;
+	}
+	public String getMedicEntityName() {
+		return medicEntityName;
+	}
+	public void setMedicEntityName(String medicEntityName) {
+		this.medicEntityName = medicEntityName;
 	}
 	
 }

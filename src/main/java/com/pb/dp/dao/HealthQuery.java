@@ -26,5 +26,6 @@ public interface HealthQuery {
 	String VALIDATE_DOCUMENT = "SELECT COUNT(id) FROM health_doc "
 			+ " WHERE customerId=:customerId AND healthId=:healthId";
 
-	String GET_DOCS = "select hd.docName,hd.docS3Url from health_doc hd (nolock) inner join m_docType mdt on mdt.id = hd.docTypeId where hd.customerId = :customerId";
+	String GET_DOCS = "select hd.id as id,hd.customerId,hd.healthId,hd.docName,hd.docOwner,hd.docTypeId,mdt.name as docTypeName,hd.docS3Url,hd.docTags,"
+			+ "hd.medicEntityName,hd.doctorName, hd.createdAt as createdAt,hd.updatedAt as updatedAt from health_doc hd (nolock) inner join m_docType mdt on mdt.id = hd.docTypeId where hd.customerId = :customerId";
 }
