@@ -372,8 +372,7 @@ public class HealthDocController {
 	@RequestMapping(value = "/getDocOwners", method = RequestMethod.POST, produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Map<String, Object>> getDocOwners(@RequestHeader(value = "X-CLIENT-KEY") String clientKey,
-			@RequestHeader(value = "X-AUTH-KEY") String authKey, @RequestHeader(value = "X-CID") String custId,
-			@RequestBody CustHealthOtpRequest custHealthOtpRequest) {
+			@RequestHeader(value = "X-AUTH-KEY") String authKey, @RequestHeader(value = "X-CID") String custId) {
 		HttpStatus status = HttpStatus.OK;
 		Map<String, Object> response = new HashMap<>();
 		try {
