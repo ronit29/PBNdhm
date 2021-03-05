@@ -1,5 +1,6 @@
 package com.pb.dp.dao.impl;
 
+import java.util.Date;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
@@ -9,13 +10,17 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
+import com.pb.dp.dao.HealthIdQuery;
 import com.pb.dp.dao.HealthDocQuery;
 import com.pb.dp.model.HealthDoc;
+import com.pb.dp.model.HealthId;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+
 import org.springframework.stereotype.Repository;
 
 import com.pb.dp.dao.HealthDocDao;
@@ -37,7 +42,7 @@ public class HealthDocDaoImpl implements HealthDocDao {
 	@PostConstruct
 	public void setJdbcTemplate() {
 		this.jdbcTemplate = new JdbcTemplate(this.dataSource);
-		this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(this.dataSource);
+		this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 	}
 
 	@Override
@@ -101,4 +106,47 @@ public class HealthDocDaoImpl implements HealthDocDao {
 		return false;
 	}
 
+	@Override
+	public boolean uploadDocs(HealthDoc healthDoc, int customerId) {
+		MapSqlParameterSource docParams = new MapSqlParameterSource();
+		docParams.addValue("docName", healthDoc.getDocName());
+		docParams.addValue("docOwner",healthDoc.getDocOwner());
+		docParams.addValue("docTypeId",healthDoc.getDocTypeId());
+		docParams.addValue("docS3Url",healthDoc.getDocS3Url());
+		docParams.addValue("docTags",healthDoc.getDocTags());
+		docParams.addValue("medicEntityName",healthDoc.getMedicEntityName());
+		docParams.addValue("doctorName",healthDoc.getDoctorName());
+		docParams.addValue("customerId",customerId);
+		docParams.addValue("healthId",healthDoc.getHealthId());
+		this.namedParameterJdbcTemplate.update(HealthQuery.CREATE_DOCUMENT, docParams);
+		return true;
+	}
+
+	@Override
+	public boolean validateDocs(String healthId, int customerId) {
+		MapSqlParameterSource docParams = new MapSqlParameterSource();
+		docParams.addValue("customerId",customerId);
+		docParams.addValue("healthId",healthId);
+		int count  = this.namedParameterJdbcTemplate.queryForObject(HealthQuery.VALIDATE_DOCUMENT, docParams, Integer.class);
+		if(count>0){
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean updateDocs(HealthDoc healthDoc, int customerId) {
+		MapSqlParameterSource docParams = new MapSqlParameterSource();
+		docParams.addValue("docName", healthDoc.getDocName());
+		docParams.addValue("docOwner",healthDoc.getDocOwner());
+		docParams.addValue("docTypeId",healthDoc.getDocTypeId());
+		docParams.addValue("docS3Url",healthDoc.getDocS3Url());
+		docParams.addValue("docTags",healthDoc.getDocTags());
+		docParams.addValue("medicEntityName",healthDoc.getMedicEntityName());
+		docParams.addValue("doctorName",healthDoc.getDoctorName());
+		docParams.addValue("customerId",customerId);
+		docParams.addValue("healthId",healthDoc.getHealthId());
+		this.namedParameterJdbcTemplate.update(HealthQuery.UPDATE_DOCUMENT, docParams);
+		return true;
+	}
 }

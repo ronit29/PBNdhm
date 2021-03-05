@@ -1,8 +1,19 @@
 package com.pb.dp.service.impl;
 
+import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pb.dp.enums.ResponseStatus;
+import com.pb.dp.model.CustomerDetails;
+import com.pb.dp.model.FieldKey;
+import com.pb.dp.model.HealthDoc;
+import com.pb.dp.model.HealthId;
+import com.pb.dp.util.S3Util;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.relational.core.sql.In;
 import org.springframework.stereotype.Service;
@@ -45,8 +56,19 @@ public class HealthDocServiceImpl implements HealthDocService {
 	 * @return true, if successful
 	 */
 	@Override
-	public boolean docUpload(MultipartFile file, String payloadJSON, int customerId) {
-		return false;
+	public boolean docUpload(MultipartFile file, String payloadJSON, int customerId) throws Exception{
+
+		HealthDoc healthDoc = new HealthDoc();
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+
+		healthDoc = mapper.readValue(payloadJSON, HealthDoc.class);
+		healthDoc.setCustomerId(customerId);
+		/**upload to S3*/
+		String url = S3Util.localFileUpload(file);
+		healthDoc.setDocS3Url(url);
+		boolean uploaded = this.healthDocDao.uploadDocs(healthDoc, customerId);
+		return uploaded;
 	}
 
 	/**
@@ -58,7 +80,19 @@ public class HealthDocServiceImpl implements HealthDocService {
 	 * @return true, if successful
 	 */
 	@Override
-	public boolean docUpdate(MultipartFile file, String payloadJSON, int customerId) {
+	public boolean docUpdate(MultipartFile file, String payloadJSON, int customerId) throws Exception{
+
+		HealthDoc healthDoc = new HealthDoc();
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+		healthDoc = mapper.readValue(payloadJSON, HealthDoc.class);
+		healthDoc.setCustomerId(customerId);
+
+		boolean isValid = this.healthDocDao.validateDocs(healthDoc.getHealthId(), customerId);
+		if(isValid){
+			boolean updated = this.healthDocDao.updateDocs(healthDoc, customerId);
+			return updated;
+		}
 		return false;
 	}
 
