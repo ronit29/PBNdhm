@@ -21,6 +21,8 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
+
+
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 
@@ -473,6 +475,69 @@ public class HttpUtil {
 				logger.debug(responseAsString);
 			} else {
 				logger.debug("No response receceived from[ " + uri + " ], for payload[ " + payloadJson + " ]");
+			}
+
+			responseAttributes.put("responseBody", responseAsString);
+			responseAttributes.put("status", String.valueOf(statusCode));
+
+		} catch (ClientProtocolException e) {
+			logger.error("ClientProtocolException caught wile posting json payload on URI=" + uri + " , msg:" + e.getMessage());
+		} catch (Exception e) {
+			logger.error("Exception caught wile posting json payload on URI=" + uri + " , msg:" + e.getMessage());
+		} finally {
+			if (httpost != null) {
+				httpost.releaseConnection();
+			}
+			if (httpclient != null) {
+				httpclient.close();
+			}
+			if (httpResponse != null) {
+				httpResponse = null;
+			}
+		}
+		return responseAttributes;
+	}
+
+	public static Map<String, String> postRequestMultiPartFile(String uri, Map<String, Object> requestMap, Map<String, String> header) throws IOException {
+		HttpResponse httpResponse = null;
+		Map<String, String> responseAttributes = new HashMap<String, String>(2);
+		// HttpClient httpclient = null;
+		CloseableHttpClient httpclient = null;
+		HttpPost httpost = null;
+		try {
+			// instantiates httpclient to make request
+			// httpclient = HttpClientBuilder.create().build();
+			httpclient = HttpClients.createDefault();
+			httpost = new HttpPost(uri);
+			
+			if (header != null) {
+				for (Entry<String, String> entry : header.entrySet()) {
+					httpost.setHeader(entry.getKey(), entry.getValue());
+				}
+			}
+			
+			MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+			builder.addTextBody("payloadJSON",  JsonUtil.getJsonStringFromObject(requestMap.get("payloadJSON")), ContentType.TEXT_PLAIN);
+			// This attaches the file to the POST:
+			MultipartFile mf = (MultipartFile) requestMap.get("file");
+			builder.addBinaryBody(
+			    "file",
+			    mf.getInputStream(),
+			    ContentType.parse(mf.getContentType()),
+			    mf.getOriginalFilename()
+			);
+
+			HttpEntity multipart = builder.build();
+			httpost.setEntity(multipart);
+			httpResponse = httpclient.execute(httpost);
+			String responseAsString = "";
+			int statusCode = 0;
+			if (httpResponse != null) {
+				responseAsString = EntityUtils.toString(httpResponse.getEntity());
+				statusCode = httpResponse.getStatusLine().getStatusCode();
+				logger.debug(responseAsString);
+			} else {
+				logger.debug("No response receceived from[ " + uri + " ], for payload[ " + requestMap.toString() + " ]");
 			}
 
 			responseAttributes.put("responseBody", responseAsString);
