@@ -83,7 +83,17 @@ public class HealthDocDaoImpl implements HealthDocDao {
 			queryBuilder.append(" and CONCAT(',',docTags,',') LIKE CONCAT('%,',:docTags,',%')");
 			searchParams.addValue("docTags", searchDocFilter.getTags());
 		}
-		return namedParameterJdbcTemplate.queryForList(queryBuilder.toString(), searchParams);
+		
+		List<Map<String, Object>> responseFromDb = namedParameterJdbcTemplate.queryForList(queryBuilder.toString(), searchParams); 
+		SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy hh:mm:ss");
+		responseFromDb.stream().forEach(e->{
+			if(ObjectUtils.isNotEmpty(e.get("createdAt")))
+				e.put("createdAtStr",sdf.format((Timestamp)e.get("createdAt")));
+			if(ObjectUtils.isNotEmpty(e.get("updatedAt")))
+				e.put("updatedAtStr",sdf.format((Timestamp)e.get("updatedAt")));
+		});
+		return responseFromDb;
+		
 	}
 
 	@Override
