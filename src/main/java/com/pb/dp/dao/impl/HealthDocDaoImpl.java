@@ -16,6 +16,7 @@ import com.pb.dp.model.HealthDoc;
 import com.pb.dp.model.HealthId;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -112,21 +113,21 @@ public class HealthDocDaoImpl implements HealthDocDao {
 	}
 
 	@Override
-	public Boolean deleteDocument(Integer id, Integer customerId) throws Exception{
+	public Boolean deleteDocument(Integer id, Integer customerId) throws Exception	{
 		Map<String,Object> params = new HashMap<>();
 		params.put("id",id);
-		Integer updateCount = jdbcTemplate.update(HealthDocQuery.DELETE_HEALTH_DOC,params);
+		Integer updateCount = namedParameterJdbcTemplate.update(HealthDocQuery.DELETE_HEALTH_DOC,params);
 		if(updateCount.equals(1))
 			return true;
 		return false;
 	}
 
 	@Override
-	public Boolean softDeleteDocument(Integer id, Integer customerId) throws Exception{
+	public Boolean softDeleteDocument(Integer id, Integer customerId) throws Exception, DataAccessException {
 		Map<String,Object> params = new HashMap<>();
 		params.put("id",id);
 		params.put("customerId",customerId);
-		Integer updateCount = jdbcTemplate.update(HealthDocQuery.SOFT_DELETE_HEALTH_DOC,params);
+		Integer updateCount = (Integer)this.namedParameterJdbcTemplate.update(HealthDocQuery.SOFT_DELETE_HEALTH_DOC,params);
 		if(updateCount.equals(1))
 			return true;
 		return false;

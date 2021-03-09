@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.pb.dp.model.HealthDoc;
 import com.pb.dp.model.SearchDocFilter;
+import org.springframework.dao.DataAccessException;
 
 
 public interface HealthDocDao {
@@ -23,6 +24,6 @@ public interface HealthDocDao {
 
 	Boolean deleteDocument(Integer id,Integer customerId) throws Exception;
 
-	Boolean softDeleteDocument(Integer id,Integer customerId) throws Exception;
+	Boolean softDeleteDocument(Integer id,Integer customerId) throws Exception, DataAccessException;
 
 }

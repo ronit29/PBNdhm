@@ -13,12 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.pb.dp.enums.ResponseStatus;
@@ -308,18 +303,15 @@ public class HealthDocController {
 	/**
 	 * Doc delete.
 	 *
-	 * @param payloadJson the payload json
 	 * @param clientKey the client key
 	 * @param authKey the auth key
 	 * @param custId the cust id
-	 * @param custHealthOtpRequest the cust health otp request
 	 * @return the response entity
 	 */
-	@RequestMapping(value = "/docDelete", method = RequestMethod.DELETE, produces = { MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<Map<String, Object>> docDelete(@RequestBody Map<String, Object> payloadJson,
+	@RequestMapping(value = "/docDelete/{id}", method = RequestMethod.DELETE, produces = { MediaType.APPLICATION_JSON_VALUE })
+	public ResponseEntity<Map<String, Object>> docDelete(@PathVariable Integer id,
 			@RequestHeader(value = "X-CLIENT-KEY") String clientKey,
-			@RequestHeader(value = "X-AUTH-KEY") String authKey, @RequestHeader(value = "X-CID") String custId,
-			@RequestBody CustHealthOtpRequest custHealthOtpRequest) {
+			@RequestHeader(value = "X-AUTH-KEY") String authKey, @RequestHeader(value = "X-CID") String custId) {
 		HttpStatus status = HttpStatus.OK;
 		Map<String, Object> response = new HashMap<>();
 		try {
@@ -334,7 +326,8 @@ public class HealthDocController {
 					AES256Cipher cipher = configService.getAESForClientKeyMap(clientKey);
 					try {
 						int customerId = Integer.valueOf(cipher.decrypt(custId));
-						boolean delete = healthDocService.docDelete(payloadJson, customerId);
+						//Integer item = Integer.valueOf(cipher.decrypt(id));
+						boolean delete = healthDocService.docDelete(id, customerId);
 						response.put("isDeleted", delete);
 						if (delete) {
 							response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());

@@ -140,17 +140,17 @@ public class HealthDocServiceImpl implements HealthDocService {
 	/**
 	 * Doc delete.
 	 *
-	 * @param payloadJson the payload json
+	 * @param id the payload json
 	 * @param customerId the customer id
 	 * @return true, if successful
 	 */
 	@Override
-	public boolean docDelete(Map<String, Object> payloadJson, int customerId) throws Exception{
+	public boolean docDelete(Integer id, int customerId) throws Exception{
 		Boolean result = false;
 		// hard delete document in db
-		result = this.healthDocDao.deleteDocument((Integer) payloadJson.get("id"),customerId);
+//		result = this.healthDocDao.deleteDocument(id,customerId);
 		// soft delete document in db
-		result = this.healthDocDao.softDeleteDocument((Integer) payloadJson.get("id"),customerId);
+		result = this.healthDocDao.softDeleteDocument(id,customerId);
 		return result;
 	}
 
