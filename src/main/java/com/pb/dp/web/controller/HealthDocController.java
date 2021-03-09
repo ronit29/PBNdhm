@@ -271,6 +271,7 @@ public class HealthDocController {
 						int customerId = Integer.valueOf(cipher.decrypt(custId));
 						List<Map<String, Object>> documents = healthDocService.docSearch(payloadJson, customerId);
 						response.put("data", documents);
+						response.put("size", (null!=documents)?documents.size():0);
 						response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
 						response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
 

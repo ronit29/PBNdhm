@@ -27,5 +27,5 @@ public interface HealthQuery {
 			+ " WHERE id=:id AND customerId=:customerId AND healthId=:healthId";
 
 	String GET_DOCS = "select hd.id as id,hd.customerId,hd.healthId,hd.docName,hd.docOwner,hd.docTypeId,mdt.name as docTypeName,hd.docS3Url,hd.docTags,"
-			+ "hd.medicEntityName,hd.doctorName, hd.createdAt as createdAt,hd.updatedAt as updatedAt from health_doc hd (nolock) inner join m_docType mdt on mdt.id = hd.docTypeId where hd.customerId = :customerId";
+			+ "hd.medicEntityName,hd.doctorName, hd.createdAt as createdAt,hd.updatedAt as updatedAt from health_doc hd (nolock) inner join m_docType mdt on mdt.id = hd.docTypeId where hd.customerId = :customerId and and hd.isActive = 1";
 }
