@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +26,7 @@ import com.pb.dp.service.ConfigService;
 import com.pb.dp.service.HealthLockerService;
 import com.pb.dp.util.AuthTokenUtil;
 import com.pb.dp.util.HttpUtil;
+import com.pb.dp.web.controller.HealthLockerController;
 
 
 /**
@@ -32,6 +35,9 @@ import com.pb.dp.util.HttpUtil;
 @Service
 public class HealthLockerServiceImpl implements HealthLockerService{
 
+	
+	/** The logger. */
+	private final Logger logger = LoggerFactory.getLogger(HealthLockerServiceImpl.class);
 	/** The auth token util. */
 	@Autowired
 	private AuthTokenUtil authTokenUtil;
@@ -130,7 +136,9 @@ public class HealthLockerServiceImpl implements HealthLockerService{
 	 */
 	private Subscribe setSubscribe(LockerModel lockerModel) {
 		Subscribe subscribe = new Subscribe();
-		subscribe.setRequestId(UUID.randomUUID().toString());
+		String requestId = UUID.randomUUID().toString();
+		logger.debug("Request ID : {} for health ID : {}",requestId,lockerModel.getHealthId());
+		subscribe.setRequestId(requestId);
 		subscribe.setTimestamp(Instant.now().toString());
 		Subscription subscription = new Subscription();
 		subscription.setCategories(Arrays.asList("LINK","DATA"));
