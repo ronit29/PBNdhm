@@ -31,5 +31,6 @@ public interface HealthQuery {
 
 	//HL related queries #############################################
 	String UPDATE_HL_SUBS = "UPDATE hl_subscription SET callbackReqId=?, subscriptionId=?, updatedBy=1, updatedAt=GETDATE() WHERE reqIdSent=?";
+	String UPDATE_HL_AUTH = "UPDATE hl_auth SET callbackReqId=?, transactionId=?, updatedBy=1, updatedAt=GETDATE() WHERE reqIdSent=?";
 
 }

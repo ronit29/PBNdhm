@@ -27,7 +27,6 @@ import com.pb.dp.service.ConfigService;
 import com.pb.dp.service.HealthLockerService;
 import com.pb.dp.util.AuthTokenUtil;
 import com.pb.dp.util.HttpUtil;
-import com.pb.dp.web.controller.HealthLockerController;
 
 
 /**
@@ -68,6 +67,7 @@ public class HealthLockerServiceImpl implements HealthLockerService{
 		if (statusCode == 202) {
 			isAuthorized  = true;
 		}
+		healthLockerDao.insertIntoAuth(authorise);
 		return isAuthorized;
 	}
 
