@@ -5,10 +5,24 @@ import java.util.*;
 
 import com.pb.dp.dao.HealthDocDao;
 import com.pb.dp.model.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
+import com.pb.dp.dao.HealthLockerDao;
+import com.pb.dp.model.Authorise;
+import com.pb.dp.model.Hiu;
+import com.pb.dp.model.LockerModel;
+import com.pb.dp.model.Patient;
+import com.pb.dp.model.Period;
+import com.pb.dp.model.Purpose;
+import com.pb.dp.model.Query;
+import com.pb.dp.model.Requester;
+import com.pb.dp.model.Subscribe;
+import com.pb.dp.model.Subscription;
 import com.pb.dp.service.ConfigService;
 import com.pb.dp.service.HealthLockerService;
 import com.pb.dp.util.AuthTokenUtil;
@@ -20,6 +34,9 @@ import com.pb.dp.util.HttpUtil;
 @Service
 public class HealthLockerServiceImpl implements HealthLockerService{
 
+	
+	/** The logger. */
+	private final Logger logger = LoggerFactory.getLogger(HealthLockerServiceImpl.class);
 	/** The auth token util. */
 	@Autowired
 	private AuthTokenUtil authTokenUtil;
@@ -31,7 +48,9 @@ public class HealthLockerServiceImpl implements HealthLockerService{
 	@Autowired
 	private HealthDocDao healthDocDao;
 
-
+	@Autowired
+	private HealthLockerDao healthLockerDao;
+	
 	/**
 	 * Authorize.
 	 *
@@ -50,6 +69,7 @@ public class HealthLockerServiceImpl implements HealthLockerService{
 		if (statusCode == 202) {
 			isAuthorized  = true;
 		}
+		healthLockerDao.insertIntoAuth(authorise);
 		return isAuthorized;
 	}
 
@@ -120,6 +140,7 @@ public class HealthLockerServiceImpl implements HealthLockerService{
 		if (statusCode == 202) {
 			isSubscribed  = true;
 		}
+		healthLockerDao.insertIntoSubscribe(subscribe);
 		return isSubscribed;
 	}
 
@@ -131,7 +152,9 @@ public class HealthLockerServiceImpl implements HealthLockerService{
 	 */
 	private Subscribe setSubscribe(LockerModel lockerModel) {
 		Subscribe subscribe = new Subscribe();
-		subscribe.setRequestId(UUID.randomUUID().toString());
+		String requestId = UUID.randomUUID().toString();
+		logger.debug("Request ID : {} for health ID : {}",requestId,lockerModel.getHealthId());
+		subscribe.setRequestId(requestId);
 		subscribe.setTimestamp(Instant.now().toString());
 		Subscription subscription = new Subscription();
 		subscription.setCategories(Arrays.asList("LINK","DATA"));

@@ -28,4 +28,9 @@ public interface HealthQuery {
 
 	String GET_DOCS = "select hd.id as id,hd.customerId,hd.healthId,hd.docName,hd.docOwner,hd.docTypeId,mdt.name as docTypeName,hd.docS3Url,hd.docTags,"
 			+ "hd.medicEntityName,hd.doctorName, hd.createdAt as createdAt,hd.updatedAt as updatedAt from health_doc hd (nolock) inner join m_docType mdt on mdt.id = hd.docTypeId where hd.customerId = :customerId and hd.isActive = 1";
+
+	//HL related queries #############################################
+	String UPDATE_HL_SUBS = "UPDATE hl_subscription SET callbackReqId=?, subscriptionId=?, updatedBy=1, updatedAt=GETDATE() WHERE reqIdSent=?";
+	String UPDATE_HL_AUTH = "UPDATE hl_auth SET callbackReqId=?, transactionId=?, updatedBy=1, updatedAt=GETDATE() WHERE reqIdSent=?";
+
 }
