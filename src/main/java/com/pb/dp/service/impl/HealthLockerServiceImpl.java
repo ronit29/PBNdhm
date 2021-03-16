@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
+import com.pb.dp.dao.HealthLockerDao;
 import com.pb.dp.model.Authorise;
 import com.pb.dp.model.Hiu;
 import com.pb.dp.model.LockerModel;
@@ -45,6 +46,9 @@ public class HealthLockerServiceImpl implements HealthLockerService{
 	/** The config service. */
 	@Autowired
 	private ConfigService configService;
+	
+	@Autowired
+	private HealthLockerDao healthLockerDao;
 	
 	/**
 	 * Authorize.
@@ -125,6 +129,7 @@ public class HealthLockerServiceImpl implements HealthLockerService{
 		if (statusCode == 202) {
 			isSubscribed  = true;
 		}
+		healthLockerDao.insertIntoSubscribe(subscribe);
 		return isSubscribed;
 	}
 

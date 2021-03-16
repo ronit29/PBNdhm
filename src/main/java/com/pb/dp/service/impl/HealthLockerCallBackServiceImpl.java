@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pb.dp.dao.HealthLockerCallBackDao;
 import com.pb.dp.service.HealthLockerCallBackService;
 
@@ -35,7 +36,7 @@ public class HealthLockerCallBackServiceImpl implements HealthLockerCallBackServ
 		logger.info("Updating the callback for subscription for payload {} :",payload);
 		if(null == payload.get("error")) {
 			String requestId = (String)payload.get("requestId");
-			Map<String,Object> subMap = (Map<String, Object>) payload.get("requestId");
+			Map<String,Object> subMap = (Map<String, Object>) payload.get("subscriptionRequest");
 			Map<String,Object> respMap = (Map<String, Object>) payload.get("resp");
 			String subscriptionId = (null!=subMap && null!=subMap.get("id"))?(String)subMap.get("id"):null;
 			String reqIdSent = (null!=respMap && null!=respMap.get("requestId"))?(String)respMap.get("requestId"):null;
