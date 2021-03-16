@@ -8,4 +8,6 @@ public interface HealthLockerService {
 
 	boolean subscribe(LockerModel lockerModel) throws Exception;
 
+	boolean subscribeNotify(LockerModel lockerModel, String healthId) throws Exception;
+
 }

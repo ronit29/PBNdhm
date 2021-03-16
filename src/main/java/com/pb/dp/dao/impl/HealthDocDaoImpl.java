@@ -175,4 +175,13 @@ public class HealthDocDaoImpl implements HealthDocDao {
 		int count = this.namedParameterJdbcTemplate.update(HealthQuery.UPDATE_DOCUMENT, docParams);
 		return count>0;
 	}
+
+	@Override
+	public Map<String,Object> getSubscriptionData(String healthId) {
+		MapSqlParameterSource subParams = new MapSqlParameterSource();
+		subParams.addValue("healthId",healthId);
+
+		Map<String,Object> resp = this.namedParameterJdbcTemplate.queryForObject(HealthDocQuery.GET_SUBSCRIPTION, subParams, Map.class);
+		return resp;
+	}
 }

@@ -16,6 +16,8 @@ public interface HealthDocDao {
 
 	boolean updateDocs(HealthDoc healthDoc, int id);
 
+	Map<String, Object> getSubscriptionData(String healthId);
+
 	List<Map<String, Object>> getDocOwners(int customerId);
 
 	List<Map<String, Object>> getDocs(SearchDocFilter searchDocFilter, int customerId);

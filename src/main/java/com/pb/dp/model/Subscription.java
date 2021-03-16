@@ -14,6 +14,16 @@ public class Subscription
 
     private Period period;
 
+    private Sources sources;
+
+    public Sources getSources() {
+        return sources;
+    }
+
+    public void setSources(Sources sources) {
+        this.sources = sources;
+    }
+
     public void setPurpose(Purpose purpose){
         this.purpose = purpose;
     }

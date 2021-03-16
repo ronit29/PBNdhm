@@ -9,4 +9,8 @@ public interface HealthDocQuery {
    String DELETE_HEALTH_DOC = "DELETE FROM health_doc WHERE id = :id";
 
    String SOFT_DELETE_HEALTH_DOC = "UPDATE health_doc SET isActive = 0, updatedAt = GETDATE(), updatedBy = :customerId WHERE id = :id";
+
+   String GET_SUBSCRIPTION  = "SELECT * FROM hl_subscription " +
+           "where healthId = :healthId AND isActive = 1 order by createdAt desc";
+
 }
