@@ -8,4 +8,7 @@ public interface HealthLockerCallBackService {
 
 	boolean updateCallBackAuth(Map<String, Object> payload) throws Exception;
 
+	boolean updateCallBackAuthNotify(Map<String, Object> payload, String hiuId) throws Exception;
+
+
 }
