@@ -40,5 +40,14 @@ public class HealthLockerCallBackDaoImpl implements HealthLockerCallBackDao {
 		}
 		return isUpdated;
 	}
+	@Override
+	public boolean updateCallBackAuthNotify(String transactionId, String accessToken,String hiuId) throws Exception {
+		boolean isUpdated = false;
+		if(null!=transactionId) {
+			int updatedRows = jdbcTemplate.update(HealthQuery.UPDATE_HL_AUTH_NOTIFY,accessToken,transactionId,hiuId);
+			isUpdated = updatedRows>0;
+		}
+		return isUpdated;
+	}
 
 }

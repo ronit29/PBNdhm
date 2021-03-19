@@ -6,4 +6,6 @@ public interface HealthLockerCallBackDao {
 
 	boolean updateCallBackAuth(String requestId, String transactionId, String reqIdSent) throws Exception;
 
+	boolean updateCallBackAuthNotify(String transactionId, String accessToken, String hiuId) throws Exception;
+
 }
