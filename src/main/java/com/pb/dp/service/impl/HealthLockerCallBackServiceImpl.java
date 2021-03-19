@@ -69,4 +69,27 @@ public class HealthLockerCallBackServiceImpl implements HealthLockerCallBackServ
 		return isUpdated;
 	}
 
+	/**
+	 * Update call back on Notify.
+	 *
+	 * @param payload the payload
+	 * @return true, if successful
+	 * @throws Exception the exception
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public boolean updateCallBackSubscribeOnNotify(Map<String, Object> payload) throws
+			{
+		boolean isUpdated = false;
+		logger.info("Updating the callback for subscription for payload {} :",payload);
+		if(null == payload.get("error")) {
+			String requestId = (String)payload.get("requestId");
+			Map<String,Object> acknowledgement = (Map<String, Object>) payload.get("acknowledgement");
+			Map<String,Object> respMap = (Map<String, Object>) payload.get("resp");
+			String subscriptionId = (null!=acknowledgement && "OK"==acknowledgement.get("status"))?(String)acknowledgement.get("subscriptionRequestId"):null;
+			String reqIdSent = (null!=respMap && null!=respMap.get("requestId"))?(String)respMap.get("requestId"):null;
+			isUpdated =  healthLockerCallBackDao.updateCallBackSubscribe(requestId,subscriptionId,reqIdSent);
+		}
+		return isUpdated;
+	}
 }

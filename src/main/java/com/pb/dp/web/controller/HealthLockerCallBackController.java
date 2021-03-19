@@ -94,4 +94,31 @@ public class HealthLockerCallBackController {
 
 		return new ResponseEntity<>(response, status);
 	}
+
+	@RequestMapping(value = "/subscription-requests/hiu/on-notify", method = RequestMethod.POST, produces = {
+			MediaType.APPLICATION_JSON_VALUE })
+	public ResponseEntity<Map<String, Object>> subscribeOnNotify(@RequestHeader(value = "X-HIU-ID") String hiuId,
+														 @RequestHeader(value = "Authorization") String authorization, @RequestBody Map<String, Object> payload) {
+
+		HttpStatus status = HttpStatus.OK;
+		Map<String, Object> response = new HashMap<>();
+		try {
+			logger.debug("Callback for subscribe with payload :{} and X-HIU-ID : {}",payload,hiuId);
+			boolean isupdated = healthLockerCallBackService.updateCallBackSubscribeOnNotify(payload);
+			if (isupdated) {
+				response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.SUCCESS.getStatusMsg());
+				response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.SUCCESS.getStatusId());
+			} else {
+				response.put(FieldKey.SK_STATUS_MESSAGE, ResponseStatus.FAILURE.getStatusMsg());
+				response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
+			}
+		} catch (Exception e) {
+			logger.debug(e.getMessage());
+			status = HttpStatus.INTERNAL_SERVER_ERROR;
+			response.put(FieldKey.SK_STATUS_CODE, ResponseStatus.FAILURE.getStatusId());
+			response.put(FieldKey.SK_STATUS_MESSAGE, e.getMessage());
+		}
+
+		return new ResponseEntity<>(response, status);
+	}
 }
